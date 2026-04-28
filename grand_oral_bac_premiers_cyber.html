@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Grand Oral Bac – Nombres premiers & Cybersécurité</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0F0F11;
+      --surface: #18181B;
+      --surface-raised: #232326;
+      --primary: #22C55E;
+      --primary-dim: #16A34A;
+      --primary-glow: rgba(34,197,94,0.15);
+      --accent: #3B82F6;
+      --accent-glow: rgba(59,130,246,0.15);
+      --amber: #F59E0B;
+      --amber-glow: rgba(245,158,11,0.15);
+      --rose: #EF4444;
+      --rose-glow: rgba(239,68,68,0.15);
+      --text: #FAFAFA;
+      --text-secondary: #A1A1AA;
+      --text-muted: #71717A;
+      --border: #27272A;
+      --border-light: #3F3F46;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      background: linear-gradient(180deg, var(--surface) 0%, var(--bg) 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 2rem 1.25rem 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--primary-glow);
+      color: var(--primary);
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.35rem 0.9rem;
+      border-radius: 100px;
+      margin-bottom: 1rem;
+      border: 1px solid rgba(34,197,94,0.2);
+    }
+
+    .hero h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.6rem, 5vw, 2.4rem);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+    }
+
+    .hero h1 span { color: var(--primary); }
+
+    .hero-quote {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      font-style: italic;
+      border-left: 3px solid var(--primary);
+      padding-left: 1rem;
+      margin: 1rem 0;
+      line-height: 1.5;
+    }
+
+    .meta-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .pill {
+      background: var(--surface-raised);
+      border: 1px solid var(--border);
+      padding: 0.3rem 0.8rem;
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    /* ===== TABS NAV ===== */
+    .tabs-wrapper {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(15,15,17,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0.5rem 1rem;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .tabs-wrapper::-webkit-scrollbar { display: none; }
+
+    .tabs {
+      display: flex;
+      gap: 0.4rem;
+      min-width: max-content;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 0.8rem;
+      padding: 0.55rem 1rem;
+      border-radius: 100px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: var(--text-muted);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: #000;
+      border-color: var(--primary);
+      box-shadow: 0 0 20px var(--primary-glow);
+    }
+
+    .tab-btn:not(.active):hover {
+      border-color: var(--border-light);
+      color: var(--text-secondary);
+    }
+
+    /* ===== PANELS ===== */
+    .panels-container { padding: 1.25rem; max-width: 800px; margin: 0 auto; }
+
+    .panel { display: none; animation: slideUp 0.3s ease; }
+    .panel.active-panel { display: block; }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== CARDS ===== */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary), transparent);
+      opacity: 0.6;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .card-icon.green { background: var(--primary-glow); }
+    .card-icon.blue { background: var(--accent-glow); }
+    .card-icon.amber { background: var(--amber-glow); }
+    .card-icon.rose { background: var(--rose-glow); }
+
+    .card-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: -0.01em;
+    }
+
+    .card-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+
+    /* ===== TIMELINE ===== */
+    .timeline { list-style: none; }
+
+    .timeline-item {
+      position: relative;
+      padding-left: 1.5rem;
+      padding-bottom: 1.25rem;
+      border-left: 2px solid var(--border);
+    }
+
+    .timeline-item:last-child { border-left: 2px solid transparent; padding-bottom: 0; }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -6px;
+      top: 0.3rem;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 2px solid var(--primary);
+    }
+
+    .timeline-time {
+      display: inline-block;
+      background: var(--primary-glow);
+      color: var(--primary);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.15rem 0.6rem;
+      border-radius: 100px;
+      margin-bottom: 0.4rem;
+    }
+
+    .timeline-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .timeline-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    /* ===== SCRIPT SECTIONS ===== */
+    .script-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .script-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .script-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--primary);
+      box-shadow: 0 0 8px var(--primary-glow);
+    }
+
+    .script-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .script-time {
+      margin-left: auto;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      background: var(--surface-raised);
+      padding: 0.2rem 0.6rem;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+    }
+
+    .script-body {
+      background: var(--surface-raised);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.1rem;
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: var(--text-secondary);
+    }
+
+    .script-body strong { color: var(--text); }
+    .script-body em { color: var(--primary); font-style: normal; font-weight: 500; }
+
+    .math-box {
+      background: rgba(34,197,94,0.06);
+      border: 1px solid rgba(34,197,94,0.15);
+      border-radius: 12px;
+      padding: 1rem;
+      margin: 0.75rem 0;
+      font-family: 'Space Grotesk', monospace;
+      font-size: 0.85rem;
+      color: var(--text);
+    }
+
+    .math-box .label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--primary);
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+
+    .math-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.3rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .math-line:last-child { border-bottom: none; }
+
+    .arrow { color: var(--primary); font-weight: 700; }
+
+    /* ===== Q&A ===== */
+    .qa-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      margin-bottom: 0.75rem;
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+
+    .qa-card.open { border-color: var(--border-light); }
+
+    .qa-question-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.1rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .qa-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--accent-glow);
+      color: var(--accent);
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .qa-question-text {
+      font-weight: 600;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      flex: 1;
+    }
+
+    .qa-chevron {
+      color: var(--text-muted);
+      transition: transform 0.2s ease;
+      font-size: 1.1rem;
+    }
+
+    .qa-card.open .qa-chevron { transform: rotate(180deg); color: var(--primary); }
+
+    .qa-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+      padding: 0 1.1rem;
+    }
+
+    .qa-card.open .qa-answer {
+      max-height: 500px;
+      padding: 0 1.1rem 1.1rem;
+    }
+
+    .qa-answer-inner {
+      background: var(--surface-raised);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    .qa-answer-inner strong { color: var(--text); }
+
+    /* ===== TIPS ===== */
+    .tip-box {
+      background: linear-gradient(135deg, var(--amber-glow), transparent);
+      border: 1px solid rgba(245,158,11,0.2);
+      border-radius: 16px;
+      padding: 1rem 1.1rem;
+      margin: 1rem 0;
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+    }
+
+    .tip-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: -0.1rem; }
+
+    .tip-content { font-size: 0.85rem; color: var(--text-secondary); }
+    .tip-content strong { color: var(--amber); display: block; margin-bottom: 0.2rem; }
+
+    /* ===== PROGRESS BAR ===== */
+    .progress-track {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: var(--primary);
+      z-index: 200;
+      transition: width 0.1s linear;
+      box-shadow: 0 0 10px var(--primary-glow);
+    }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      border-top: 1px solid var(--border);
+      margin-top: 1rem;
+    }
+
+    .footer-text {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 0.7rem 1.4rem;
+      border-radius: 100px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      border-color: var(--primary);
+      background: var(--primary-glow);
+      color: var(--primary);
+    }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 4px; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (min-width: 640px) {
+      .hero { padding: 3rem 2rem 2rem; }
+      .panels-container { padding: 1.5rem; }
+      .card { padding: 1.75rem; }
+      .script-body { padding: 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="progress-track" id="progressBar"></div>
+
+<!-- ===== HERO ===== -->
+<header class="hero">
+  <div class="hero-badge">🎓 Grand Oral · Terminale · Mathématiques</div>
+  <h1>Nombres premiers <span>& cybersécurité</span></h1>
+  <p class="hero-quote">« Multiplier deux nombres premiers est facile, mais retrouver ces facteurs est un défi presque impossible. »</p>
+  <div class="meta-pills">
+    <span class="pill">⏱️ 10 min exposé + 10 min questions</span>
+    <span class="pill">🔐 RSA, factorisation, quantique</span>
+    <span class="pill">📚 Arithmétique · Euclide · restes</span>
+  </div>
+</header>
+
+<!-- ===== TABS ===== -->
+<nav class="tabs-wrapper">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="plan">📋 Plan</button>
+    <button class="tab-btn" data-tab="script">🎤 Script oral</button>
+    <button class="tab-btn" data-tab="questions">❓ Questions jury</button>
+    <button class="tab-btn" data-tab="memo">🧠 Fiches mémo</button>
+  </div>
+</nav>
+
+<!-- ===== PANELS ===== -->
+<main class="panels-container">
+
+  <!-- PANEL 1: PLAN -->
+  <div id="plan" class="panel active-panel">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon green">🗺️</div>
+        <div>
+          <div class="card-title">Déroulé de l'exposé</div>
+          <div class="card-subtitle">10 minutes chronométrées</div>
+        </div>
+      </div>
+      <ul class="timeline">
+        <li class="timeline-item">
+          <span class="timeline-time">0'00 – 1'00</span>
+          <div class="timeline-title">Introduction</div>
+          <div class="timeline-desc">Le cadenas HTTPS, les données bancaires. Problématique : comment les nombres premiers protègent-ils nos échanges ?</div>
+        </li>
+        <li class="timeline-item">
+          <span class="timeline-time">1'00 – 3'30</span>
+          <div class="timeline-title">I – Que sont les nombres premiers ?</div>
+          <div class="timeline-desc">Définition, exemples, infinité (preuve d'Euclide), décomposition unique. Asymétrie : multiplier facile / factoriser difficile.</div>
+        </li>
+        <li class="timeline-item">
+          <span class="timeline-time">3'30 – 6'30</span>
+          <div class="timeline-title">II – Le chiffrement RSA expliqué simplement</div>
+          <div class="timeline-desc">Exemple pédagogique : p=61, q=53, n=3233. Chiffrement avec e=17, déchiffrement avec d=2753. Explications par restes de division.</div>
+        </li>
+        <li class="timeline-item">
+          <span class="timeline-time">6'30 – 9'00</span>
+          <div class="timeline-title">III – Applications et limites</div>
+          <div class="timeline-desc">HTTPS, signatures numériques. Taille des clés (2048 bits). Menace quantique (Shor) et cryptographie post-quantique.</div>
+        </li>
+        <li class="timeline-item">
+          <span class="timeline-time">9'00 – 10'00</span>
+          <div class="timeline-title">Conclusion</div>
+          <div class="timeline-desc">Récapitulatif : l'asymétrie des nombres premiers au cœur de la confiance numérique. Ouverture sur les défis futurs.</div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="tip-box">
+      <span class="tip-icon">💡</span>
+      <div class="tip-content">
+        <strong>Conseil pour le jury</strong>
+        Maîtrisez la preuve d'Euclide, l'exemple simple p=61, q=53 (en expliquant bien les restes), et la menace quantique.
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 2: SCRIPT -->
+  <div id="script" class="panel">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon blue">🎙️</div>
+        <div>
+          <div class="card-title">Script oral détaillé</div>
+          <div class="card-subtitle">À lire à voix posée – calculs par restes de division</div>
+        </div>
+      </div>
+
+      <div class="script-section">
+        <div class="script-header">
+          <div class="script-dot"></div>
+          <div class="script-title">Introduction</div>
+          <div class="script-time">1 min</div>
+        </div>
+        <div class="script-body">
+          « Bonjour. Aujourd'hui, je vais répondre à une question très concrète : <em>Comment les nombres premiers protègent-ils nos données numériques ?</em><br><br>
+          Quand vous achetez en ligne ou que vous consultez vos mails, un petit cadenas vert s'affiche. Derrière ce cadenas se cache une prouesse mathématique vieille de plus de 2000 ans : les nombres premiers. Je vais vous montrer en quoi ils sont devenus les gardiens de l'internet. D'abord, je rappellerai leurs propriétés essentielles. Ensuite, je décrirai le principe du chiffrement RSA avec un exemple très simple. Enfin, je parlerai des applications quotidiennes et de la menace de l'ordinateur quantique. »
+        </div>
+      </div>
+
+      <div class="script-section">
+        <div class="script-header">
+          <div class="script-dot"></div>
+          <div class="script-title">I – Nombres premiers : l'outil parfait</div>
+          <div class="script-time">2'30</div>
+        </div>
+        <div class="script-body">
+          « Un nombre premier est un entier supérieur ou égal à 2 qui n'est divisible que par 1 et par lui-même. Exemples : 2, 3, 5, 7, 11, 13…<br><br>
+          <strong>Première propriété remarquable :</strong> ils sont <em>en quantité infinie</em>. Euclide l'a démontré il y a plus de 2000 ans. Supposons que nous ayons une liste finie de tous les nombres premiers : p₁, p₂, …, pₖ. Si nous fabriquons le nombre N = (p₁×p₂×…×pₖ) + 1, alors N ne peut être divisible par aucun des pᵢ, car le reste de la division serait 1. Donc N est soit un nouveau nombre premier, soit divisible par un nouveau nombre premier. C'est une contradiction : il y a donc une infinité de nombres premiers.<br><br>
+          <strong>Deuxième propriété fondamentale :</strong> tout nombre entier se décompose de façon unique comme produit de nombres premiers. Par exemple 360 = 2³ × 3² × 5. C'est le théorème fondamental de l'arithmétique.<br><br>
+          Ce qui intéresse les cryptographes, c'est une <em>asymétrie</em> : multiplier deux nombres premiers (même très grands) est extrêmement rapide. Mais à partir du seul résultat de la multiplication, retrouver les deux facteurs premiers — c'est ce qu'on appelle la factorisation — est un problème très difficile pour les ordinateurs classiques. »
+        </div>
+      </div>
+
+      <div class="script-section">
+        <div class="script-header">
+          <div class="script-dot"></div>
+          <div class="script-title">II – Le principe du RSA</div>
+          <div class="script-time">3 min</div>
+        </div>
+        <div class="script-body">
+          « En 1977, trois chercheurs Rivest, Shamir et Adleman ont eu l'idée d'utiliser cette asymétrie pour créer un système de chiffrement que l'on appelle RSA.<br><br>
+          <strong>Voici comment cela fonctionne sur un petit exemple pédagogique :</strong> »
+
+          <div class="math-box">
+            <div class="label">🔑 Génération des clés</div>
+            <div class="math-line"><span>p = 61</span> <span class="arrow">→</span> <span style="color:var(--text-muted)">secret</span></div>
+            <div class="math-line"><span>q = 53</span> <span class="arrow">→</span> <span style="color:var(--text-muted)">secret</span></div>
+            <div class="math-line"><span>n = 61 × 53 = <strong>3233</strong></span> <span class="arrow">→</span> <span style="color:var(--primary)">public</span></div>
+            <div class="math-line"><span>e = 17</span> <span class="arrow">→</span> <span style="color:var(--primary)">clé publique</span></div>
+            <div class="math-line"><span>d = 2753</span> <span class="arrow">→</span> <span style="color:var(--rose)">clé privée</span></div>
+          </div>
+
+          « <strong>Chiffrement du message 12 :</strong><br>
+          On élève le message 12 à la puissance e=17 : cela donne 12¹⁷, un nombre énorme (environ 2,22×10¹⁸). Ensuite, on divise ce nombre par n=3233 et on ne garde que le <em>reste</em> de la division. Ce reste vaut <strong>2542</strong>. Le message chiffré est donc 2542.<br><br>
+          <strong>Déchiffrement :</strong><br>
+          Pour déchiffrer 2542, on l'élève à la puissance d=2753 (c'est un nombre gigantesque), puis on divise par 3233 et on prend le reste. Incroyablement, ce reste est <strong>12</strong> — le message original. Ceci fonctionne grâce aux propriétés mathématiques des nombres premiers p et q.<br><br>
+          <strong>Pourquoi est-ce sûr ?</strong> Sans connaître p=61 et q=53, on ne peut pas trouver d=2753. Même en connaissant n=3233, la factorisation pour retrouver 61 et 53 est triviale ici car les nombres sont petits, mais dans la réalité p et q ont plus de 150 chiffres chacun, ce qui rend la factorisation impossible. »
+        </div>
+      </div>
+
+      <div class="script-section">
+        <div class="script-header">
+          <div class="script-dot"></div>
+          <div class="script-title">III – Applications et limites</div>
+          <div class="script-time">2'30</div>
+        </div>
+        <div class="script-body">
+          « Où utilise-t-on RSA tous les jours ? Dans le protocole HTTPS : lorsque le cadenas vert s'affiche dans votre navigateur, votre ordinateur et le site web utilisent RSA (ou d'autres algorithmes similaires) pour échanger une clé secrète. Les signatures numériques, les certificats électroniques, les cartes bancaires reposent aussi sur cette difficulté de factorisation.<br><br>
+          Cependant, il y a des limites. Si la clé est trop petite (par exemple 512 bits), des algorithmes perfectionnés peuvent la casser. Aujourd'hui on utilise des clés de <strong>2048 bits</strong>, considérées comme sûres jusqu'en 2030 environ.<br><br>
+          La menace la plus sérieuse vient de l'<em>ordinateur quantique</em>. En 1994, le mathématicien Peter Shor a montré qu'un ordinateur quantique suffisamment puissant pourrait factoriser n très rapidement. Si un tel ordinateur voit le jour, RSA deviendra caduc. C'est pourquoi les chercheurs travaillent d'urgence sur la <em>cryptographie post-quantique</em>, basée sur d'autres problèmes mathématiques (réseaux euclidiens, codes correcteurs…). »
+        </div>
+      </div>
+
+      <div class="script-section">
+        <div class="script-header">
+          <div class="script-dot"></div>
+          <div class="script-title">Conclusion</div>
+          <div class="script-time">1 min</div>
+        </div>
+        <div class="script-body">
+          « Pour conclure, les nombres premiers, étudiés pour le plaisir des mathématiciens grecs, sont devenus les piliers de la sécurité numérique. L'asymétrie entre multiplication et factorisation permet à RSA de protéger nos données. Malgré la menace quantique, cette histoire illustre magnifiquement comment les mathématiques abstraites finissent par transformer notre quotidien.<br><br>
+          Merci de votre attention. Je suis prêt à répondre à vos questions. »
+        </div>
+      </div>
+    </div>
+
+    <div class="tip-box">
+      <span class="tip-icon">🎯</span>
+      <div class="tip-content">
+        <strong>Si le jury demande « pourquoi e = 17 ? »</strong>
+        C'est un petit nombre qui n'a aucun diviseur commun avec (p−1)×(q−1) = 3120, ce qui est la condition pour que le système marche. Dans la pratique, on prend souvent e = 65537 pour des raisons d'efficacité.
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 3: QUESTIONS -->
+  <div id="questions" class="panel">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon amber">❓</div>
+        <div>
+          <div class="card-title">12 questions du jury</div>
+          <div class="card-subtitle">Cliquez pour révéler la réponse</div>
+        </div>
+      </div>
+
+      <div class="qa-card" onclick="this.classList.toggle('open')">
+        <div class="qa-question-bar">
+          <div class="qa-num">1</div>
+          <div class="qa-question-text">Pouvez-vous redémontrer l'infinité des nombres premiers ?</div>
+          <div class="qa-chevron">▼</div>
+        </div>
+        <div class="qa-answer">
+          <div class="qa-answer-inner">
+            <strong>Preuve d'Euclide :</strong> supposons une liste finie p₁, p₂, …, pₖ. Considérons N = (p₁×p₂×…×pₖ) + 1. Si on divise N par l'un des pᵢ, le reste est 1, donc aucun pᵢ ne divise N. Par conséquent, N est soit un nombre premier (plus grand que tous les pᵢ), soit divisible par un nombre premier qui n'est pas dans la liste. Dans les deux cas, on trouve un nouveau nombre premier, ce qui contredit l'hypothèse de finitude. Il y a donc une infinité de nombres premiers.
+          </div>
+        </div>
+      </div>
+
+      <div class="qa-card" onclick="this.classList.toggle('open')">
+        <div class="qa-question-bar">
+          <div class="qa-num">2</div>
+          <div class="qa-question-text">Pourquoi est-il difficile de factoriser un grand nombre alors que la multiplication est facile ?</div>
+          <div class="qa-chevron">▼</div>
+        </div>
+        <div class="qa-answer">
+          <div class="qa-answer-inner">
+            La multiplication est une opération directe. Pour deux nombres de 200 chiffres, un ordinateur les multiplie en une fraction de seconde. En revanche, factoriser signifie retrouver les deux facteurs à partir du seul produit. Les meilleurs algorithmes connus (crible général des corps de nombres) ont une complexité bien plus élevée. Pour un nombre de 600 chiffres, même avec des supercalculateurs, il faudrait des milliards d'années. C'est cette difficulté qui assure la sécurité de RSA.
+          </div>
+        </div>
+      </div>
+
+      <div class="qa-card" onclick="this.classList.toggle('open')">
+        <div class="qa-question-bar">
+          <div class="qa-num">3</div>
+          <div class="qa-question-text">Expliquez l'exemple RSA avec p=61, q=53, sans utiliser le mot modulo.</div>
+          <div class="qa-chevron">▼</div>
+        </div>
+        <div class="qa-answer">
+          <div class="qa-answer-inner">
+            On choisit p=61, q=53 secrets, n=3233 public. <strong>Chiffrement :</strong> pour envoyer le message 12, on calcule 12¹⁷, on divise par 3233, le reste est 2542. Le message chiffré est 2542. <strong>Déchiffrement :</strong> on prend 2542, on calcule 2542²⁷⁵³, on divise par 3233, le reste est 12. La clé privée 2753 est construite à partir de p et q. Sans p et q, on ne peut pas trouver 2753, donc on ne peut pas déchiffrer.
+          </div>
+        </div>
+      </div>
+
+      <div class="qa-card" onclick="this.classList.toggle('open')">
+        <div class="qa-question-bar">
+          <div class="qa-num">4</div>
+          <div class="qa-question-text">Un ordinateur quantique menace-t-il vraiment RSA ?</div>
+          <div class="qa-chevron">▼</div>
+        </div>
+        <div class="qa-answer">
+          <div class="qa-answer-inner">
+            Oui. L'algorithme de Shor permet à un ordinateur quantique de factoriser n très rapidement, en un temps polynomial. Un tel ordinateur n'existe pas encore à l'échelle industrielle, mais il est en développement. S'il voit le jour, RSA deviendra vulnérable. C'est pourquoi on prépare dès maintenant la cryptographie post-quantique.
+          </div>
+        </div>
+      </div>
+
+      <div class="qa-card" onclick="this.classList.toggle('open')">
+        <div class="qa-question-bar">
+          <div class="qa-num">5</div>
+          <div class="qa-question-text">Quelle différence entre chiffrement symétrique et asymétrique ?</div>
+          <div class="qa-chevron">▼</div>
+        </div>
+        <div class="qa-answer">
+          <div class="qa-answer-inner">
+            <strong>Symétrique :</strong> une seule clé secrète pour chiffrer et déchiffrer. C'est rapide, mais problème : comment partager cette clé discrètement ? <strong>Asymétrique (RSA) :</strong> deux clés différentes. La clé publique sert à chiffrer, n'importe qui peut l'avoir. La clé privée sert à déchiffrer, elle reste secrète. Cela résout le problème de la distribution, mais c'est plus lent. En pratique on combine les deux : RSA pour échanger une clé symétrique, puis chiffrement symétrique pour les données.
+          </div>
+        </div>
+      </div>
+
+      <div class="qa-card" onclick="this.classList.toggle('open')">
+        <div class="qa-question-bar">
+          <div class="qa-num">6</div>
+          <div class="qa-question-text">Comment choisit-on p et q dans la vraie vie ?</div>
+          <div class="qa-chevron">▼</div>
+        </div>
+        <div class="qa-answer">
+          <div class="qa-answer-inner">
+            On utilise des générateurs de nombres aléatoires, puis on teste la primalité avec des tests probabilistes (Miller-Rabin). Ces tests sont très rapides et les erreurs sont extrêmement rares. On exige aussi que p et q ne soient pas trop proches l'un de l'autre, sinon une attaque simple (Fermat) pourrait les retrouver.
+          </div>
+        </div>
+      </div>
+
+      <div class="qa-card" onclick="this.classList.toggle('open')">
+        <div class="qa-question-bar">
+          <div class="qa-num">7</div>
+          <div class="qa-question-text">Peut-on casser RSA 2048 bits avec un supercalculateur classique ?</div>
+          <div class="qa-chevron">▼</div>
+        </div>
+        <div class="qa-answer">
+          <div class="qa-answer-inner">
+            Non, pas dans un temps raisonnable. Les estimations donnent plusieurs milliards d'années avec les meilleurs algorithmes. Le record de factorisation est d'environ 250 chiffres décimaux (829 bits) ; RSA 2048 correspond à 617 chiffres décimaux, c'est hors de portée.
+          </div>
+        </div>
+      </div>
+
+      <div class="qa-card" onclick="this.classList.toggle('open')">
+        <div class="qa-question-bar">
+          <div class="qa-num">8</div>
+          <div class="qa-question-text">Citez une autre application des nombres premiers hors RSA.</div>
+          <div class="qa-chevron">▼</div>
+        </div>
+        <div class="qa-answer">
+          <div class="qa-answer-inner">
+            Les générateurs de nombres aléatoires (Blum Blum Shub), les codes correcteurs d'erreurs (codes BCH), et même en biologie : certaines cigales ont un cycle de vie de 13 ou 17 ans — des nombres premiers — pour éviter de coïncider avec les cycles de leurs prédateurs.
+          </div>
+        </div>
+      </div>
+
+      <div class="qa-card" onclick="this.classList.toggle('open')">
+        <div class="qa-question-bar">
+          <div class="qa-num">9</div>
+          <div class="qa-question-text">Pourquoi 1 n'est-il pas considéré comme premier ?</div>
+          <div class="qa-chevron">▼</div>
+        </div>
+        <div class="qa-answer">
+          <div class="qa-answer-inner">
+            Pour garantir l'unicité de la décomposition en facteurs premiers. Si 1 était premier, on pourrait écrire 6 = 2×3 = 1×2×3 = 1²×2×3..., ce qui briserait l'unicité. Cette unicité est importante en cryptographie car elle assure que le produit n = p×q ne peut être représenté que par ces deux facteurs.
+          </div>
+        </div>
+      </div>
+
+      <div class="qa-card" onclick="this.classList.toggle('open')">
+        <div class="qa-question-bar">
+          <div class="qa-num">10</div>
+          <div class="qa-question-text">Que se passe-t-il si p et q sont trop proches ?</div>
+          <div class="qa-chevron">▼</div>
+        </div>
+        <div class="qa-answer">
+          <div class="qa-answer-inner">
+            Si p et q sont très proches, alors n = p×q est voisin de p². On peut alors calculer la racine carrée de n, puis tâtonner autour pour trouver p et q (attaque de Fermat). C'est pourquoi la génération de clés impose une différence d'au moins quelques centaines de bits entre p et q.
+          </div>
+        </div>
+      </div>
+
+      <div class="qa-card" onclick="this.classList.toggle('open')">
+        <div class="qa-question-bar">
+          <div class="qa-num">11</div>
+          <div class="qa-question-text">A-t-on déjà factorisé un très grand nombre RSA ?</div>
+          <div class="qa-chevron">▼</div>
+        </div>
+        <div class="qa-answer">
+          <div class="qa-answer-inner">
+            Oui, dans le cadre du « RSA Factoring Challenge ». RSA-250 (250 chiffres décimaux, 829 bits) a été factorisé en 2020 après plusieurs mois de calculs sur de nombreux ordinateurs. Mais RSA-2048 (617 chiffres) reste impossible aujourd'hui.
+          </div>
+        </div>
+      </div>
+
+      <div class="qa-card" onclick="this.classList.toggle('open')">
+        <div class="qa-question-bar">
+          <div class="qa-num">12</div>
+          <div class="qa-question-text">Quel est l'avenir de la cryptographie si RSA est cassé ?</div>
+          <div class="qa-chevron">▼</div>
+        </div>
+        <div class="qa-answer">
+          <div class="qa-answer-inner">
+            On migrera vers la cryptographie post-quantique. Le NIST a déjà sélectionné plusieurs algorithmes basés sur des problèmes mathématiques résistants aux ordinateurs quantiques : réseaux euclidiens (Kyber, Dilithium), codes correcteurs (McEliece). Ces nouvelles méthodes sont progressivement intégrées dans les protocoles comme TLS 1.3. D'ici 2030-2035, RSA sera progressivement remplacé.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 4: MEMO -->
+  <div id="memo" class="panel">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon rose">🧠</div>
+        <div>
+          <div class="card-title">Fiches mémo rapides</div>
+          <div class="card-subtitle">À réviser avant l'oral</div>
+        </div>
+      </div>
+
+      <div class="math-box">
+        <div class="label">📐 Preuve d'Euclide (à savoir par cœur)</div>
+        <div style="margin-top:0.5rem; line-height:1.8;">
+          1. Supposons une liste finie de premiers : p₁, p₂, …, pₖ<br>
+          2. Posons N = p₁×p₂×…×pₖ + 1<br>
+          3. N divisé par pᵢ donne reste 1 → aucun pᵢ ne divise N<br>
+          4. N est premier OU divisible par un nouveau premier<br>
+          5. Contradiction → infinité des nombres premiers ✓
+        </div>
+      </div>
+
+      <div class="math-box">
+        <div class="label">🔐 Exemple RSA (à maîtriser)</div>
+        <div style="margin-top:0.5rem; line-height:1.8;">
+          p = 61 (secret) &nbsp;&nbsp; q = 53 (secret)<br>
+          n = 3233 (public) &nbsp;&nbsp; e = 17 (publique)<br>
+          d = 2753 (privée)<br><br>
+          <strong>Chiffrer 12 :</strong> 12¹⁷ ÷ 3233 → reste = <span style="color:var(--primary)">2542</span><br>
+          <strong>Déchiffrer 2542 :</strong> 2542²⁷⁵³ ÷ 3233 → reste = <span style="color:var(--primary)">12</span>
+        </div>
+      </div>
+
+      <div class="math-box">
+        <div class="label">⚡ Points clés à retenir</div>
+        <div style="margin-top:0.5rem; line-height:1.8;">
+          • Multiplication facile → factorisation difficile = sécurité RSA<br>
+          • Clés actuelles : 2048 bits (sûr jusqu'en ~2030)<br>
+          • Menace : ordinateur quantique + algorithme de Shor<br>
+          • Solution : cryptographie post-quantique (Kyber, Dilithium)<br>
+          • 1 n'est pas premier → unicité de la décomposition
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <p class="footer-text">Version optimisée mobile-first · Sans modulo · Explications par restes de division</p>
+  <button class="btn" onclick="window.print()">🖨️ Imprimer / PDF</button>
+</footer>
+
+<script>
+  // ===== TABS =====
+  const tabs = document.querySelectorAll('.tab-btn');
+  const panels = document.querySelectorAll('.panel');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+      tabs.forEach(t => t.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active-panel'));
+      tab.classList.add('active');
+      document.getElementById(target).classList.add('active-panel');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  // ===== PROGRESS BAR =====
+  window.addEventListener('scroll', () => {
+    const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+    const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const progress = (scrollTop / scrollHeight) * 100;
+    document.getElementById('progressBar').style.width = progress + '%';
+  });
+
+  // ===== HASH ROUTING =====
+  const hashMap = { '#plan': 'plan', '#script': 'script', '#questions': 'questions', '#memo': 'memo' };
+  if (window.location.hash && hashMap[window.location.hash]) {
+    const target = hashMap[window.location.hash];
+    tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === target));
+    panels.forEach(p => p.classList.toggle('active-panel', p.id === target));
+  }
+</script>
+
+</body>
+</html>
