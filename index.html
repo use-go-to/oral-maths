@@ -231,36 +231,45 @@
 
         /* ===== SIMULATOR SECTION ===== */
         #simulateur { padding: 0; }
-        #simulateur .sim-inner { padding: 0; }
+        #simulateur .sim-inner { padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
 
-        .sim-info { background: linear-gradient(90deg, rgba(245,158,11,0.08), rgba(59,130,246,0.08)); border: 1px solid var(--border); border-radius: 12px; padding: 0.7rem 1rem; margin-bottom: 0.6rem; font-size: 0.82rem; color: var(--text-2); text-align: center; line-height: 1.6; }
-        .sim-info strong { color: var(--acc-l); }
+        /* ── Panneau central résultat + conseil ── */
+        .main-panel { background: var(--bg-card); border: 2px solid var(--border); border-radius: 14px; padding: 0.75rem 1rem; display: flex; flex-direction: column; gap: 0.4rem; }
+        .mp-msg { font-size: 0.95rem; font-weight: 700; text-align: center; color: var(--text-2); line-height: 1.4; }
+        .mp-msg.win  { color: var(--success); font-size: 1.05rem; }
+        .mp-msg.lose { color: var(--danger);  font-size: 1.05rem; }
+        .mp-msg.push { color: var(--accent);  }
+        .mp-advice { display: flex; align-items: flex-start; gap: 0.5rem; background: var(--bg-acc); border-radius: 10px; padding: 0.55rem 0.8rem; font-size: 0.82rem; font-weight: 600; line-height: 1.5; border-left: 3px solid var(--border); }
+        .mp-advice.favor { border-left-color: var(--success); color: var(--success); background: rgba(16,185,129,0.08); }
+        .mp-advice.unfav { border-left-color: var(--danger);  color: var(--danger);  background: rgba(239,68,68,0.08); }
+        .mp-advice.neutr { border-left-color: var(--border);  color: var(--text-2); }
 
-        .hl-bar { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; margin-bottom: 0.5rem; }
-        .hl-box { background: var(--bg-card); border: 2px solid var(--border); border-radius: 14px; padding: 0.55rem 0.4rem; text-align: center; transition: all 0.3s ease; }
-        .hl-box.hot { border-color: var(--success); box-shadow: 0 0 15px rgba(16,185,129,0.2); background: rgba(16,185,129,0.08); }
-        .hl-box.cold { border-color: var(--danger); box-shadow: 0 0 15px rgba(239,68,68,0.2); background: rgba(239,68,68,0.08); }
-        .hl-box .hl-lbl { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-2); font-weight: 700; margin-bottom: 0.15rem; }
-        .hl-box .hl-val { font-size: 1.7rem; font-weight: 900; transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); }
-        .hl-box .hl-val.pop { transform: scale(1.3); }
-        .hl-box .hl-val.pos { color: var(--success); }
-        .hl-box .hl-val.neg { color: var(--danger); }
-        .hl-box .hl-val.neu { color: var(--text-2); }
+        /* ── Bande HL + Stats (ligne unique) ── */
+        .bottom-strip { display: flex; align-items: center; gap: 0; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+        .bs-cell { flex: 1; text-align: center; padding: 0.5rem 0.2rem; border-right: 1px solid var(--border); }
+        .bs-cell:last-of-type { border-right: none; }
+        .bs-lbl { font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); font-weight: 700; margin-bottom: 0.1rem; }
+        .bs-val { font-size: 1.2rem; font-weight: 900; transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+        .bs-val.pop { transform: scale(1.4); }
+        .bs-val.pos { color: var(--success); }
+        .bs-val.neg { color: var(--danger); }
+        .bs-val.neu { color: var(--text-2); }
+        .bs-sep { width: 1px; background: var(--accent); opacity: 0.4; align-self: stretch; }
+        .hl-cell { transition: background 0.3s; }
+        .hl-cell.hot  { background: rgba(16,185,129,0.12); }
+        .hl-cell.cold { background: rgba(239,68,68,0.12); }
+        .bs-reset-btn { flex-shrink: 0; background: none; border: none; border-left: 1px solid var(--border); color: var(--danger); font-size: 1.1rem; cursor: pointer; padding: 0 0.7rem; align-self: stretch; opacity: 0.6; transition: opacity 0.2s; }
+        .bs-reset-btn:hover { opacity: 1; }
 
-        .hl-advice { display: flex; align-items: flex-start; gap: 0.6rem; background: var(--bg-card); border: 2px solid var(--border); border-radius: 12px; padding: 0.65rem 0.9rem; margin-bottom: 0.5rem; font-size: 0.85rem; font-weight: 700; transition: all 0.4s ease; line-height: 1.5; }
-        .hl-advice.favor { border-color: var(--success); background: rgba(16,185,129,0.08); color: var(--success); }
-        .hl-advice.unfav { border-color: var(--danger);  background: rgba(239,68,68,0.08);  color: var(--danger);  }
-        .hl-advice.neutr { border-color: var(--border);  background: var(--bg-card);         color: var(--text-2); }
-        .hl-adv-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 0.05rem; }
+        /* ── Barre win rate ── */
+        .stats-winbar-wrap { height: 4px; background: var(--bg-acc); border-radius: 2px; overflow: hidden; }
+        .stats-winbar { height: 100%; background: linear-gradient(90deg, var(--success), var(--accent)); border-radius: 2px; transition: width 0.5s ease; }
 
-        .phase-bar { background: var(--bg-card); border: 2px solid var(--border); border-radius: 10px; padding: 0.45rem 0.9rem; text-align: center; margin-bottom: 0.5rem; font-size: 0.82rem; font-weight: 800; color: var(--accent); letter-spacing: 0.02em; }
-
-        .msg-area { background: var(--bg-card); border: 2px solid var(--border); border-radius: 12px; padding: 0.65rem 1rem; text-align: center; margin-bottom: 0.5rem; min-height: 46px; display: flex; align-items: center; justify-content: center; }
-        .msg-text { font-size: 0.9rem; font-weight: 600; line-height: 1.5; }
-        .msg-text.win  { color: var(--success); }
-        .msg-text.lose { color: var(--danger); }
-        .msg-text.push { color: var(--accent); }
-        .msg-text.info { color: var(--text-2); }
+        /* ── Historique collapsible ── */
+        .sim-history { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+        .sim-hist-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); font-weight: 700; padding: 0.5rem 0.75rem; cursor: pointer; list-style: none; }
+        .sim-hist-title::-webkit-details-marker { display: none; }
+        #historyList { padding: 0 0.65rem 0.5rem; max-height: 130px; overflow-y: auto; }
 
         .table-area {
             background: radial-gradient(ellipse at center, var(--tbl-light) 0%, var(--tbl-mid) 40%, var(--tbl-dark) 100%);
@@ -309,6 +318,8 @@
 
         .explain-box { background: var(--bg-card); border-left: 4px solid var(--accent); border-radius: 0 12px 12px 0; padding: 0.9rem; margin-bottom: 0.5rem; font-size: 0.85rem; line-height: 1.7; color: var(--text-2); }
         .explain-box strong { color: var(--acc-l); }
+
+        .explain-box { display: none; } /* kept for JS compat, hidden */
 
         .sim-history { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 0.65rem; max-height: 150px; overflow-y: auto; }
         .sim-hist-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); font-weight: 800; margin-bottom: 0.35rem; }
@@ -586,6 +597,22 @@
             <div class="math-consequence"><p>🎯 <strong>Un compte élevé signifie que beaucoup de petites cartes sont sorties → il reste beaucoup de bûches → favorable au joueur.</strong></p></div>
         </div>
         <div class="math-card">
+            <div class="math-label">⚠️ Limite du compte brut — le True Count</div>
+            <div class="math-formula">TC = Cₙ / (cartes restantes ÷ 52)</div>
+            <div class="math-explain">On divise le compte brut par le nombre de demi-sabots restants, pour normaliser l'information</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.7rem;margin-top:0.8rem;">
+                <div style="padding:0.8rem;background:rgba(245,158,11,0.08);border-radius:10px;border:2px solid var(--accent);text-align:center;">
+                    <div style="font-size:0.78rem;color:var(--text-3);font-weight:700;text-transform:uppercase;margin-bottom:0.4rem;">Exemple A</div>
+                    <div style="font-size:0.9rem;line-height:1.7;color:var(--text);">Cₙ = +4<br>48 cartes restantes<br>TC = +4 / 0,92 ≈ <strong style="color:var(--accent);">+4,3</strong></div>
+                </div>
+                <div style="padding:0.8rem;background:rgba(245,158,11,0.08);border-radius:10px;border:2px solid var(--accent);text-align:center;">
+                    <div style="font-size:0.78rem;color:var(--text-3);font-weight:700;text-transform:uppercase;margin-bottom:0.4rem;">Exemple B</div>
+                    <div style="font-size:0.9rem;line-height:1.7;color:var(--text);">Cₙ = +4<br>10 cartes restantes<br>TC = +4 / 0,19 ≈ <strong style="color:var(--success);">+21</strong></div>
+                </div>
+            </div>
+            <div class="math-consequence"><p>🎯 <strong>Un même compte brut +4 est anodin en début de sabot, mais représente un avantage massif quand il ne reste que 10 cartes. Le TC mesure l'intensité réelle de l'avantage.</strong></p></div>
+        </div>
+        <div class="math-card">
             <div class="math-label">Exemple concret — 5 cartes tirées</div>
             <div class="math-formula">3♥ (+1) + A♠ (−1) + 5♦ (+1) + 8♣ (0) + 2♥ (+1) = +2</div>
             <div class="math-consequence"><p>🎯 <strong>Compte = +2 : plus de petites cartes que de grosses ont été tirées. Il reste donc proportionnellement plus de bûches dans le sabot. La situation est favorable.</strong></p></div>
@@ -595,7 +622,7 @@
         </div>
         <div class="jury-tip">
             <div class="jury-tip-title">💡 Phrase clé pour le jury</div>
-            <p>"Ce qui est élégant dans le High-Low, c'est qu'on remplace un problème complexe — suivre 52 cartes individuellement — par une simple somme de nombres. C'est exactement l'esprit de la modélisation mathématique."</p>
+            <p>"Ce qui est élégant dans le High-Low, c'est qu'on remplace un problème complexe — suivre 52 cartes individuellement — par une simple somme de nombres. Et le True Count va plus loin : il normalise cette somme selon ce qui reste dans le sabot, pour obtenir une mesure comparable quelle que soit l'avancée dans la partie. C'est exactement l'esprit de la modélisation mathématique."</p>
         </div>
     </div>
 </section>
@@ -626,15 +653,19 @@
             </div>
         </div>
         <div class="math-card">
-            <div class="math-label">Lien entre espérance et décision de mise</div>
+            <div class="math-label">Lien entre True Count et décision de mise</div>
             <div style="display:grid;gap:0.75rem;">
                 <div style="padding:1rem;background:rgba(16,185,129,0.1);border-radius:10px;border:2px solid var(--success);">
-                    <div style="font-weight:800;color:var(--success);margin-bottom:0.4rem;">✅ E(X) élevée → Miser plus</div>
-                    <div style="color:var(--text-2);font-size:0.95rem;">Quand le compte est positif, l'espérance de tirer une bûche est supérieure à la normale. Le jeu devient mathématiquement favorable.</div>
+                    <div style="font-weight:800;color:var(--success);margin-bottom:0.4rem;">✅ TC ≥ +2 → Miser davantage</div>
+                    <div style="color:var(--text-2);font-size:0.95rem;">Le sabot est riche en bûches <em>relativement</em> aux cartes restantes. E(X) est supérieure à la normale. Le jeu est mathématiquement favorable.</div>
+                </div>
+                <div style="padding:1rem;background:rgba(100,116,139,0.1);border-radius:10px;border:2px solid var(--text-3);">
+                    <div style="font-weight:800;color:var(--text-2);margin-bottom:0.4rem;">⚖️ −1 &lt; TC &lt; +2 → Mise normale</div>
+                    <div style="color:var(--text-2);font-size:0.95rem;">La composition du sabot est proche de la normale. Pas d'avantage ni de désavantage marqué.</div>
                 </div>
                 <div style="padding:1rem;background:rgba(239,68,68,0.1);border-radius:10px;border:2px solid var(--danger);">
-                    <div style="font-weight:800;color:var(--danger);margin-bottom:0.4rem;">❌ E(X) faible → Miser moins</div>
-                    <div style="color:var(--text-2);font-size:0.95rem;">Quand le compte est négatif, l'espérance de tirer une bûche est inférieure à la normale. Le jeu devient défavorable.</div>
+                    <div style="font-weight:800;color:var(--danger);margin-bottom:0.4rem;">❌ TC ≤ −1 → Miser le minimum</div>
+                    <div style="color:var(--text-2);font-size:0.95rem;">Le sabot est pauvre en bûches. E(X) est inférieure à la normale. Le jeu devient défavorable au joueur.</div>
                 </div>
             </div>
         </div>
@@ -661,7 +692,7 @@
         <ul class="checklist">
             <li><strong>Probabilités conditionnelles</strong> : la probabilité d'une bûche change selon les cartes déjà vues. On a vu passer P(bûche) de 30,77% à 18,18% après 8 bûches sorties.</li>
             <li><strong>Variables aléatoires et espérance</strong> : la variable X = 1 si bûche permet de modéliser le tirage, et son espérance E(X) évolue au fil de la partie, passant de 0,308 à 0,182.</li>
-            <li><strong>Statistiques</strong> : le compte High-Low Cₙ = ΣXᵢ est une statistique qui résume la composition du sabot.</li>
+            <li><strong>Statistiques</strong> : le compte High-Low Cₙ = ΣXᵢ est une statistique qui résume la composition du sabot. Le True Count TC = Cₙ ÷ (cartes restantes / 52) normalise ce compte pour le rendre comparable quelle que soit l'avancée dans la partie.</li>
         </ul>
         <div class="speech-bubble">
             <p>Le blackjack devient alors un exemple concret pour montrer que les probabilités ne sont pas seulement des exercices de manuel, mais des outils qui aident à comprendre des situations réelles, même dans un casino.</p>
@@ -693,8 +724,8 @@
                 <li><strong>Programme</strong> (30-45s) — 4 notions de Terminale explicitées</li>
                 <li><strong>Proba. conditionnelle</strong> (1min) — Exemple 3 cartes + calculs 52 cartes</li>
                 <li><strong>VA & Espérance</strong> (1min) — X = 1 si bûche, E(X) = 16/52, évolution</li>
-                <li><strong>High-Low</strong> (1min) — Cₙ = ΣXᵢ, +1/0/−1, interprétation du compte</li>
-                <li><strong>Stratégie</strong> (1min) — E(X) élevée → miser plus, limite du shuffle</li>
+                <li><strong>High-Low & True Count</strong> (1min) — Cₙ = ΣXᵢ, +1/0/−1, True Count = Cₙ ÷ demi-sabots restants, interprétation et décision</li>
+                <li><strong>Stratégie</strong> (1min) — TC → décision de mise (TC ≥ +2 : miser plus, TC ≤ −1 : miser moins), limite du shuffle</li>
                 <li><strong>Conclusion</strong> (30-45s) — Synthèse + ouverture</li>
             </ol>
         </div>
@@ -715,8 +746,8 @@
                     X = 1 si bûche, 0 sinon<br>E(X) = 16/52 ≈ 0,308<br>E(X | 8 sorties) = 8/44 ≈ 0,182
                 </div>
                 <div style="padding:0.9rem;background:var(--bg-card);border-radius:8px;font-family:serif;font-size:1.05rem;line-height:1.9;">
-                    <div style="font-weight:700;color:var(--acc-l);font-family:'Inter',sans-serif;font-size:0.9rem;margin-bottom:0.4rem;">High-Low</div>
-                    Cₙ = X₁ + X₂ + ... + Xₙ<br>+1 : 2-6 (20 cartes) | 0 : 7-9 (12) | −1 : 10-A (20)<br>Compte total jeu neuf = 0
+                    <div style="font-weight:700;color:var(--acc-l);font-family:'Inter',sans-serif;font-size:0.9rem;margin-bottom:0.4rem;">High-Low & True Count</div>
+                    Cₙ = X₁ + X₂ + ... + Xₙ<br>+1 : 2-6 (20 cartes) | 0 : 7-9 (12) | −1 : 10-A (20)<br>Compte total jeu neuf = 0<br>TC = Cₙ ÷ (cartes restantes / 52)<br>TC ≥ +2 → favorable | TC ≤ −1 → défavorable
                 </div>
             </div>
         </div>
@@ -727,6 +758,7 @@
                 <li>"Tout ce que je présente est strictement au programme de Terminale"</li>
                 <li>"Je ne calcule pas la loi exacte de Cₙ, je montre que c'est une statistique"</li>
                 <li>"L'espérance E(X) devient un indicateur de la qualité du sabot"</li>
+                <li>"Le True Count normalise le compte brut : un +4 sur 10 cartes restantes vaut bien plus qu'un +4 sur 50 cartes"</li>
                 <li>"Le blackjack est un jeu d'information partielle, pas de hasard pur"</li>
                 <li>"C'est la puissance de la modélisation : simplifier sans trahir"</li>
             </ul>
@@ -750,38 +782,7 @@
 <section id="simulateur" class="section">
 <div class="sim-inner">
 
-    <div class="sim-info">
-        <strong>Objectif :</strong> Approcher 21 sans dépasser.
-        <strong>Règle :</strong> Le croupier cache sa 2ème carte.
-        <strong>High-Low :</strong> On compte TOUTES les cartes (même cachées) — même sabot !
-    </div>
-
-    <div class="hl-bar">
-        <div class="hl-box" id="hlBox">
-            <div class="hl-lbl">Compte HL</div>
-            <div class="hl-val neu" id="hlCount">0</div>
-        </div>
-        <div class="hl-box">
-            <div class="hl-lbl">True Count</div>
-            <div class="hl-val neu" id="trueCount">0</div>
-        </div>
-        <div class="hl-box">
-            <div class="hl-lbl">Restantes</div>
-            <div class="hl-val" id="remaining" style="color:var(--info);">52</div>
-        </div>
-    </div>
-
-    <div class="hl-advice neutr" id="hlAdvice">
-        <span class="hl-adv-icon" id="hlAdvIcon">⚪</span>
-        <span id="hlAdvText">En attente de la première carte…</span>
-    </div>
-
-    <div class="phase-bar" id="phaseBar">Prêt à jouer — Cliquez sur Distribuer</div>
-
-    <div class="msg-area">
-        <div class="msg-text info" id="msgText">Distribution : 2 cartes au joueur, 2 au croupier (1 cachée)</div>
-    </div>
-
+    <!-- ① TABLE DE JEU -->
     <div class="table-area">
         <div class="hand-section">
             <div class="hand-header">
@@ -792,24 +793,69 @@
         </div>
         <div class="hand-section" style="margin-bottom:0;">
             <div class="hand-header">
-                <span class="hand-title">VOTRE MAIN</span>
+                <span class="hand-title">VOUS</span>
                 <span class="hand-score" id="playerScore">—</span>
             </div>
             <div class="cards-row" id="playerCards"></div>
         </div>
     </div>
 
-    <div class="explain-box" id="explainBox" style="display:none;"></div>
+    <!-- ② PANNEAU CENTRAL : résultat + conseil unifié -->
+    <div class="main-panel" id="mainPanel">
+        <div class="mp-msg" id="msgText">Cliquez sur Distribuer pour commencer</div>
+        <div class="mp-advice neutr" id="hlAdvice">
+            <span id="hlAdvIcon">⚪</span>
+            <span id="hlAdvText">En attente…</span>
+        </div>
+    </div>
 
+    <!-- ③ BOUTONS -->
     <div class="sim-controls" id="simControls">
         <button class="btn btn-deal" id="btnDeal">Distribuer</button>
-        <button class="btn btn-reset" id="btnReset">Reset</button>
+        <button class="btn btn-reset" id="btnReset">Nouveau sabot</button>
     </div>
 
-    <div class="sim-history">
-        <div class="sim-hist-title">Historique (même sabot, pas de mélange !)</div>
-        <div id="historyList"></div>
+    <!-- ④ BANDE HL + STATS sur une ligne -->
+    <div class="bottom-strip">
+        <div class="bs-cell hl-cell" id="hlBox">
+            <div class="bs-lbl">HL</div>
+            <div class="bs-val neu" id="hlCount">0</div>
+        </div>
+        <div class="bs-cell">
+            <div class="bs-lbl">True&nbsp;Count</div>
+            <div class="bs-val neu" id="trueCount">0</div>
+        </div>
+        <div class="bs-cell">
+            <div class="bs-lbl">Cartes</div>
+            <div class="bs-val" id="remaining" style="color:var(--info)">52</div>
+        </div>
+        <div class="bs-sep"></div>
+        <div class="bs-cell win-box">
+            <div class="bs-lbl">Victoires</div>
+            <div class="bs-val" id="statWin" style="color:var(--success)">0</div>
+        </div>
+        <div class="bs-cell lose-box">
+            <div class="bs-lbl">Défaites</div>
+            <div class="bs-val" id="statLose" style="color:var(--danger)">0</div>
+        </div>
+        <div class="bs-cell">
+            <div class="bs-lbl">Win&nbsp;%</div>
+            <div class="bs-val" id="statPct" style="color:var(--purple)">—</div>
+        </div>
+        <button class="bs-reset-btn" id="btnResetStats" title="Remettre les stats à zéro">↺</button>
     </div>
+    <!-- barre de progression win rate -->
+    <div class="stats-winbar-wrap"><div class="stats-winbar" id="statsWinBar" style="width:0%"></div></div>
+
+    <!-- ⑤ HISTORIQUE (discret, collapsible) -->
+    <details class="sim-history">
+        <summary class="sim-hist-title">📋 Historique du sabot</summary>
+        <div id="historyList"></div>
+    </details>
+
+    <!-- variables cachées pour compatibilité -->
+    <span id="statPush" style="display:none">0</span>
+    <span id="phaseBar" style="display:none"></span>
 
 </div>
 </section>
@@ -832,6 +878,27 @@ const VALUES = ['2','3','4','5','6','7','8','9','10','V','D','R','A'];
 const HL_MAP = { '2':1,'3':1,'4':1,'5':1,'6':1,'7':0,'8':0,'9':0,'10':-1,'V':-1,'D':-1,'R':-1,'A':-1 };
 
 let deck = [], hlCount = 0, playerHand = [], dealerHand = [], hiddenCard = null, gamePhase = 'idle';
+
+// ===== STATS (persistées via localStorage) =====
+let stats = { win: 0, lose: 0, push: 0 };
+function loadStats() {
+    try { const s = JSON.parse(localStorage.getItem('bj_stats')); if (s) stats = s; } catch(e) {}
+    renderStats();
+}
+function saveStats() { try { localStorage.setItem('bj_stats', JSON.stringify(stats)); } catch(e) {} }
+function renderStats() {
+    document.getElementById('statWin').textContent  = stats.win;
+    document.getElementById('statLose').textContent = stats.lose;
+    document.getElementById('statPush').textContent = stats.push;
+    const total = stats.win + stats.lose + stats.push;
+    const pct = total > 0 ? Math.round((stats.win / total) * 100) : null;
+    document.getElementById('statPct').textContent = pct !== null ? pct + '%' : '—';
+    const barPct = total > 0 ? (stats.win / total) * 100 : 0;
+    document.getElementById('statsWinBar').style.width = barPct + '%';
+}
+function resetStats() {
+    stats = { win: 0, lose: 0, push: 0 }; saveStats(); renderStats();
+}
 
 function isRed(s)    { return s === '♥' || s === '♦'; }
 function hlCls(hl)   { return hl > 0 ? 'plus' : hl < 0 ? 'minus' : 'zero'; }
@@ -871,12 +938,12 @@ function updateHL() {
     el.classList.add('pop');
     setTimeout(() => el.classList.remove('pop'), 300);
     el.textContent = (hlCount > 0 ? '+' : '') + hlCount;
-    el.className = 'hl-val ' + (hlCount > 0 ? 'pos' : hlCount < 0 ? 'neg' : 'neu');
+    el.className = 'bs-val ' + (hlCount > 0 ? 'pos' : hlCount < 0 ? 'neg' : 'neu');
 
     const decksRem = Math.max(0.5, deck.length / 52);
     const tc = (hlCount / decksRem).toFixed(1);
     tcEl.textContent = (parseFloat(tc) > 0 ? '+' : '') + tc;
-    tcEl.className = 'hl-val ' + (parseFloat(tc) > 0 ? 'pos' : parseFloat(tc) < 0 ? 'neg' : 'neu');
+    tcEl.className = 'bs-val ' + (parseFloat(tc) > 0 ? 'pos' : parseFloat(tc) < 0 ? 'neg' : 'neu');
     remEl.textContent = deck.length;
     box.classList.remove('hot','cold');
     if (hlCount >= 2) box.classList.add('hot');
@@ -890,26 +957,40 @@ function updateHLAdvice() {
     const txt = document.getElementById('hlAdvText');
     const tc = hlCount / Math.max(0.5, deck.length / 52);
 
-    if (hlCount === 0 && deck.length >= 50) {
-        el.className = 'hl-advice neutr'; icon.textContent = '⚪';
-        txt.textContent = 'En attente de la première carte…'; return;
+    const pScore = playerHand.length > 0 ? calcScore(playerHand) : null;
+    const hasSoftHand = playerHand.length > 0 && scoreDisplay(playerHand).display.includes('/');
+
+    const set = (cls, ic, html) => {
+        el.className = 'mp-advice ' + cls;
+        icon.textContent = ic;
+        txt.innerHTML = html;
+    };
+
+    if (hlCount === 0 && deck.length >= 50) { set('neutr','⚪','En attente de la première carte…'); return; }
+
+    if (gamePhase === 'playerTurn' && pScore !== null) {
+        if (pScore >= 18) { set('neutr','🛑','Vous avez <strong>' + scoreDisplay(playerHand).display + '</strong> — restez, le HL ne change rien à ce score.'); return; }
+        if (pScore === 17) { set('neutr','⚠️','<strong>17</strong> — tirer est statistiquement mauvais quel que soit le HL.'); return; }
+        if (pScore <= 11 || hasSoftHand) {
+            const extra = tc >= 2 ? ' Compte élevé : bonnes chances de tomber sur un 10.' : '';
+            set('favor','✅', hasSoftHand
+                ? 'Main <strong>soft</strong> (' + scoreDisplay(playerHand).display + ') — tirer sans risque de brûler.'
+                : '<strong>' + pScore + '</strong> — impossible de brûler en tirant.' + extra);
+            return;
+        }
+        // 12-16 : zone de décision, le HL compte vraiment
+        if (tc >= 2)       { set('unfav','⚠️','Vous avez <strong>' + pScore + '</strong> et TC +' + tc.toFixed(1) + ' — beaucoup de 10 restants, tirer est <strong>très risqué</strong>.'); }
+        else if (tc <= -1) { set('favor','✅','Vous avez <strong>' + pScore + '</strong> et TC ' + tc.toFixed(1) + ' — peu de grosses cartes. Tirer est <strong>moins risqué</strong>.'); }
+        else               { set('neutr','⚖️','Vous avez <strong>' + pScore + '</strong>. Compte neutre (TC ' + tc.toFixed(1) + ') — stratégie de base standard.'); }
+        return;
     }
-    if (tc >= 3) {
-        el.className = 'hl-advice favor'; icon.textContent = '🔥';
-        txt.textContent = 'Compte très élevé (+' + hlCount + ', TC ' + tc.toFixed(1) + ') — Beaucoup de 10/As restants. Très favorable : misez plus !';
-    } else if (tc >= 1) {
-        el.className = 'hl-advice favor'; icon.textContent = '✅';
-        txt.textContent = 'Compte positif (+' + hlCount + ', TC ' + tc.toFixed(1) + ') — Plus de grosses cartes que de petites. Favorable : vous pouvez miser davantage.';
-    } else if (tc <= -3) {
-        el.className = 'hl-advice unfav'; icon.textContent = '❄️';
-        txt.textContent = 'Compte très négatif (' + hlCount + ', TC ' + tc.toFixed(1) + ') — Beaucoup de petites cartes restantes. Très défavorable : misez le minimum.';
-    } else if (tc <= -1) {
-        el.className = 'hl-advice unfav'; icon.textContent = '⚠️';
-        txt.textContent = 'Compte négatif (' + hlCount + ', TC ' + tc.toFixed(1) + ') — Plus de petites cartes que de grosses. Défavorable : misez moins.';
-    } else {
-        el.className = 'hl-advice neutr'; icon.textContent = '⚖️';
-        txt.textContent = 'Compte neutre (' + (hlCount >= 0 ? '+' : '') + hlCount + ', TC ' + tc.toFixed(1) + ') — Composition équilibrée. Pas d\'avantage particulier.';
-    }
+
+    // Hors tour joueur : conseil mise
+    if      (tc >= 3)  set('favor','🔥','TC +' + tc.toFixed(1) + ' — Beaucoup de 10/As restants. <strong>Misez davantage !</strong>');
+    else if (tc >= 1)  set('favor','✅','TC +' + tc.toFixed(1) + ' — Favorable. Vous pouvez miser plus.');
+    else if (tc <= -3) set('unfav','❄️','TC ' + tc.toFixed(1) + ' — Très défavorable. Misez le minimum.');
+    else if (tc <= -1) set('unfav','⚠️','TC ' + tc.toFixed(1) + ' — Défavorable. Misez moins.');
+    else               set('neutr','⚖️','TC ' + ((hlCount>=0?'+':'') + hlCount) + ' — Composition équilibrée.');
 }
 
 function makeCardEl(card, hidden) {
@@ -939,10 +1020,10 @@ function addHistory(card, who, hidden) {
 function setMsg(text, type) {
     const el = document.getElementById('msgText');
     el.textContent = text;
-    el.className = 'msg-text ' + (type || 'info');
+    el.className = 'mp-msg ' + (type || 'info');
 }
-function setPhase(text) { document.getElementById('phaseBar').textContent = text; }
-function showExplain(html) { const b = document.getElementById('explainBox'); b.innerHTML = html; b.style.display = 'block'; }
+function setPhase(text) { /* absorbed into setMsg — kept for compat */ }
+function showExplain(html) { /* merged into mp-advice / updateHLAdvice — kept for compat */ }
 
 function updateScores() {
     const p = scoreDisplay(playerHand);
@@ -969,12 +1050,12 @@ function updateScores() {
 function setControls(mode) {
     const c = document.getElementById('simControls');
     if (mode === 'player') {
-        c.innerHTML = '<button class="btn btn-hit" id="btnHit">Carte</button><button class="btn btn-stand" id="btnStand">Rester</button>';
+        c.innerHTML = '<button class="btn btn-hit" id="btnHit">Tirer une carte</button><button class="btn btn-stand" id="btnStand">Rester</button>';
         document.getElementById('btnHit').addEventListener('click', playerHit);
         document.getElementById('btnStand').addEventListener('click', playerStand);
     } else {
         const canDeal = deck.length >= 10;
-        c.innerHTML = '<button class="btn btn-deal" id="btnDeal"' + (canDeal ? '' : ' disabled') + '>' + (canDeal ? 'Nouvelle manche' : 'Mélanger requis') + '</button><button class="btn btn-reset" id="btnReset">Reset</button>';
+        c.innerHTML = '<button class="btn btn-deal" id="btnDeal"' + (canDeal ? '' : ' disabled') + '>' + (canDeal ? 'Distribuer' : 'Mélanger requis') + '</button><button class="btn btn-reset" id="btnReset">Nouveau sabot</button>';
         document.getElementById('btnDeal').addEventListener('click', startGame);
         document.getElementById('btnReset').addEventListener('click', resetAll);
     }
@@ -997,18 +1078,16 @@ function startGame() {
     if (deck.length < 10) {
         deck = createDeck(); hlCount = 0;
         document.getElementById('historyList').innerHTML = '';
-        setMsg('Nouveau sabot mélangé (52 cartes)', 'info'); updateHL();
-        setPhase('Nouveau sabot — Cliquez sur Distribuer'); return;
+        setMsg('Nouveau sabot mélangé (52 cartes)', 'info'); updateHL(); return;
     }
     playerHand = []; dealerHand = []; hiddenCard = null; gamePhase = 'dealing';
     document.getElementById('playerCards').innerHTML = '';
     document.getElementById('dealerCards').innerHTML = '';
-    document.getElementById('explainBox').style.display = 'none';
     document.getElementById('playerScore').className = 'hand-score';
     document.getElementById('playerScore').textContent = '—';
     document.getElementById('dealerScore').className = 'hand-score';
     document.getElementById('dealerScore').textContent = '—';
-    setPhase('Distribution en cours...'); setMsg('Distribution en cours...', 'info');
+    setMsg('Distribution en cours…', 'info');
 
     const pC = document.getElementById('playerCards');
     const dC = document.getElementById('dealerCards');
@@ -1025,9 +1104,8 @@ function afterDeal() {
     gamePhase = 'playerTurn';
     const dVisible = dealerHand.find(c => c !== hiddenCard);
     const dVis = dVisible ? calcScore([dVisible]) : 0;
-    setPhase('Votre tour — Carte ou Rester ?');
-    setMsg('Vous avez ' + pScore + '. Croupier montre ' + dVis + '.', 'info');
-    showExplain('<strong>Règle du croupier :</strong> Il a une carte face cachée. Vous ne la voyez pas, mais elle <em>compte déjà</em> dans le High-Low !<br><br><strong>Compte actuel :</strong> ' + hlCount + ' (True Count : ' + (hlCount / Math.max(0.5, deck.length/52)).toFixed(1) + ')');
+    setMsg('Vous avez ' + pScore + ' — Croupier montre ' + dVis + '. Carte ou Rester ?', 'info');
+    updateHLAdvice();
     setControls('player');
 }
 
@@ -1051,17 +1129,13 @@ function playerHit() {
     const score = calcScore(playerHand);
     if (score > 21) {
         setMsg(score + ' — VOUS BRÛLEZ !', 'lose');
-        showExplain('<strong>Brûlé !</strong> Vous dépassez 21. Le croupier gagne sans jouer.');
         revealHidden(); setTimeout(() => endGame('bust'), 600);
     } else if (score === 21) {
         setMsg('21 ! Vous restez automatiquement.', 'info'); setTimeout(playerStand, 600);
     } else {
         const sd = scoreDisplay(playerHand);
-        const soft = sd.display.includes('/');
         setMsg('Vous avez ' + sd.display + '. Encore une carte ?', 'info');
-        showExplain(soft
-            ? "<strong>Main « soft » :</strong> Votre As vaut 11. Vous pouvez tirer sans risque car l'As peut redevenir 1."
-            : "<strong>Main « hard » :</strong> Attention ! Une carte de 10+ vous ferait dépasser 21.");
+        updateHLAdvice();
     }
 }
 
@@ -1103,20 +1177,17 @@ function determineWinner() {
 
 function endGame(result, customMsg) {
     gamePhase = 'ended'; updateScores();
-    const msgs = { blackjack:'BLACKJACK ! Victoire immédiate !', bust:'Vous brûlez. Perdu.', dealerBust:'Le croupier brûle ! Gagné !', win:'Vous gagnez !', lose:'Vous perdez.', push:'Égalité. Push.' };
-    const explains = { blackjack:'<strong>BLACKJACK !</strong> 21 avec 2 cartes (As + 10). Paiement 3:2.', bust:'<strong>Brûlé.</strong> En dépassant 21, vous perdez automatiquement.', dealerBust:'<strong>Victoire !</strong> Le croupier a dépassé 21.', win:'<strong>Victoire !</strong> Plus proche de 21 que le croupier.', lose:'<strong>Défaite.</strong> Le croupier est plus proche de 21.', push:'<strong>Push.</strong> Scores égaux — vous récupérez votre mise.' };
-    const tc = (hlCount / Math.max(0.5, deck.length/52)).toFixed(1);
-    let hlAdv;
-    if      (hlCount >= 2)  hlAdv = '<strong>Compte élevé (' + hlCount + ') — True Count ' + tc + '</strong><br>Beaucoup de grosses cartes restantes. Prochaine manche FAVORABLE. Misez plus !';
-    else if (hlCount <= -2) hlAdv = '<strong>Compte négatif (' + hlCount + ') — True Count ' + tc + '</strong><br>Beaucoup de petites cartes restantes. Prochaine manche DÉFAVORABLE. Misez moins.';
-    else                    hlAdv = '<strong>Compte neutre (' + hlCount + ') — True Count ' + tc + '</strong><br>Composition équilibrée. Pas d\'avantage particulier.';
+    const msgs = { blackjack:'BLACKJACK ! Victoire immédiate !', bust:'Vous brûlez — PERDU.', dealerBust:'Le croupier brûle — GAGNÉ !', win:'Vous gagnez !', lose:'Vous perdez.', push:'Égalité. Push.' };
     const msg = customMsg || msgs[result] || '';
     const winSet = new Set(['win','blackjack','dealerBust']);
     const loseSet = new Set(['lose','bust']);
     setMsg(msg, winSet.has(result) ? 'win' : loseSet.has(result) ? 'lose' : 'push');
-    showExplain((explains[result]||'') + '<br><br>' + hlAdv + '<br><br><strong>Cartes restantes :</strong> ' + deck.length + '/52');
-    setPhase('Partie terminée — ' + (deck.length < 10 ? 'Nouveau sabot nécessaire' : 'Même sabot, continuez !'));
+    updateHLAdvice(); // affiche le conseil mise pour la prochaine manche
     setControls('ended');
+    if (winSet.has(result))       { stats.win++;  }
+    else if (loseSet.has(result)) { stats.lose++; }
+    else                          { stats.push++; }
+    saveStats(); renderStats();
 }
 
 function resetAll() {
@@ -1125,16 +1196,20 @@ function resetAll() {
     document.getElementById('playerCards').innerHTML = '';
     document.getElementById('dealerCards').innerHTML = '';
     document.getElementById('historyList').innerHTML = '';
-    document.getElementById('explainBox').style.display = 'none';
     document.getElementById('playerScore').textContent = '—'; document.getElementById('playerScore').className = 'hand-score';
     document.getElementById('dealerScore').textContent = '—'; document.getElementById('dealerScore').className = 'hand-score';
     updateHL();
-    setPhase('Prêt — Cliquez sur Distribuer');
-    setMsg('Nouveau sabot de 52 cartes. Compteur High-Low à 0.', 'info');
+    setMsg('Nouveau sabot — 52 cartes mélangées. Prêt !', 'info');
     setControls('ended');
 }
 
-document.addEventListener('DOMContentLoaded', resetAll);
+document.addEventListener('DOMContentLoaded', () => {
+    loadStats();
+    document.getElementById('btnResetStats').addEventListener('click', () => {
+        if (confirm('Remettre toutes les stats à zéro ?')) resetStats();
+    });
+    resetAll();
+});
 </script>
 </body>
 </html>
