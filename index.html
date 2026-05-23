@@ -1,951 +1,1140 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Grand Oral Bac – Nombres premiers & Cybersécurité</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #0F0F11;
-      --surface: #18181B;
-      --surface-raised: #232326;
-      --primary: #22C55E;
-      --primary-dim: #16A34A;
-      --primary-glow: rgba(34,197,94,0.15);
-      --accent: #3B82F6;
-      --accent-glow: rgba(59,130,246,0.15);
-      --amber: #F59E0B;
-      --amber-glow: rgba(245,158,11,0.15);
-      --rose: #EF4444;
-      --rose-glow: rgba(239,68,68,0.15);
-      --text: #FAFAFA;
-      --text-secondary: #A1A1AA;
-      --text-muted: #71717A;
-      --border: #27272A;
-      --border-light: #3F3F46;
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      font-family: 'Inter', -apple-system, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-    }
-
-    /* ===== HERO ===== */
-    .hero {
-      background: linear-gradient(180deg, var(--surface) 0%, var(--bg) 100%);
-      border-bottom: 1px solid var(--border);
-      padding: 2rem 1.25rem 1.5rem;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      right: -20%;
-      width: 300px;
-      height: 300px;
-      background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      background: var(--primary-glow);
-      color: var(--primary);
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      padding: 0.35rem 0.9rem;
-      border-radius: 100px;
-      margin-bottom: 1rem;
-      border: 1px solid rgba(34,197,94,0.2);
-    }
-
-    .hero h1 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(1.6rem, 5vw, 2.4rem);
-      font-weight: 700;
-      line-height: 1.15;
-      letter-spacing: -0.02em;
-      margin-bottom: 0.75rem;
-    }
-
-    .hero h1 span { color: var(--primary); }
-
-    .hero-quote {
-      font-size: 0.95rem;
-      color: var(--text-secondary);
-      font-style: italic;
-      border-left: 3px solid var(--primary);
-      padding-left: 1rem;
-      margin: 1rem 0;
-      line-height: 1.5;
-    }
-
-    .meta-pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-top: 1rem;
-    }
-
-    .pill {
-      background: var(--surface-raised);
-      border: 1px solid var(--border);
-      padding: 0.3rem 0.8rem;
-      border-radius: 100px;
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: var(--text-secondary);
-    }
-
-    /* ===== TABS NAV ===== */
-    .tabs-wrapper {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(15,15,17,0.92);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      padding: 0.5rem 1rem;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-    }
-
-    .tabs-wrapper::-webkit-scrollbar { display: none; }
-
-    .tabs {
-      display: flex;
-      gap: 0.4rem;
-      min-width: max-content;
-    }
-
-    .tab-btn {
-      background: transparent;
-      border: 1px solid var(--border);
-      font-family: 'Inter', sans-serif;
-      font-weight: 600;
-      font-size: 0.8rem;
-      padding: 0.55rem 1rem;
-      border-radius: 100px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      color: var(--text-muted);
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .tab-btn.active {
-      background: var(--primary);
-      color: #000;
-      border-color: var(--primary);
-      box-shadow: 0 0 20px var(--primary-glow);
-    }
-
-    .tab-btn:not(.active):hover {
-      border-color: var(--border-light);
-      color: var(--text-secondary);
-    }
-
-    /* ===== PANELS ===== */
-    .panels-container { padding: 1.25rem; max-width: 800px; margin: 0 auto; }
-
-    .panel { display: none; animation: slideUp 0.3s ease; }
-    .panel.active-panel { display: block; }
-
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ===== CARDS ===== */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 1.5rem;
-      margin-bottom: 1rem;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--primary), transparent);
-      opacity: 0.6;
-    }
-
-    .card-header {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 1rem;
-    }
-
-    .card-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.3rem;
-      flex-shrink: 0;
-    }
-
-    .card-icon.green { background: var(--primary-glow); }
-    .card-icon.blue { background: var(--accent-glow); }
-    .card-icon.amber { background: var(--amber-glow); }
-    .card-icon.rose { background: var(--rose-glow); }
-
-    .card-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 700;
-      font-size: 1.15rem;
-      letter-spacing: -0.01em;
-    }
-
-    .card-subtitle {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-top: 0.15rem;
-    }
-
-    /* ===== TIMELINE ===== */
-    .timeline { list-style: none; }
-
-    .timeline-item {
-      position: relative;
-      padding-left: 1.5rem;
-      padding-bottom: 1.25rem;
-      border-left: 2px solid var(--border);
-    }
-
-    .timeline-item:last-child { border-left: 2px solid transparent; padding-bottom: 0; }
-
-    .timeline-item::before {
-      content: '';
-      position: absolute;
-      left: -6px;
-      top: 0.3rem;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--surface);
-      border: 2px solid var(--primary);
-    }
-
-    .timeline-time {
-      display: inline-block;
-      background: var(--primary-glow);
-      color: var(--primary);
-      font-size: 0.7rem;
-      font-weight: 700;
-      padding: 0.15rem 0.6rem;
-      border-radius: 100px;
-      margin-bottom: 0.4rem;
-    }
-
-    .timeline-title {
-      font-weight: 700;
-      font-size: 0.95rem;
-      margin-bottom: 0.3rem;
-    }
-
-    .timeline-desc {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      line-height: 1.55;
-    }
-
-    /* ===== SCRIPT SECTIONS ===== */
-    .script-section {
-      margin-bottom: 1.5rem;
-    }
-
-    .script-header {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .script-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--primary);
-      box-shadow: 0 0 8px var(--primary-glow);
-    }
-
-    .script-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 700;
-      font-size: 1rem;
-    }
-
-    .script-time {
-      margin-left: auto;
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      background: var(--surface-raised);
-      padding: 0.2rem 0.6rem;
-      border-radius: 100px;
-      border: 1px solid var(--border);
-    }
-
-    .script-body {
-      background: var(--surface-raised);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 1.1rem;
-      font-size: 0.9rem;
-      line-height: 1.7;
-      color: var(--text-secondary);
-    }
-
-    .script-body strong { color: var(--text); }
-    .script-body em { color: var(--primary); font-style: normal; font-weight: 500; }
-
-    .math-box {
-      background: rgba(34,197,94,0.06);
-      border: 1px solid rgba(34,197,94,0.15);
-      border-radius: 12px;
-      padding: 1rem;
-      margin: 0.75rem 0;
-      font-family: 'Space Grotesk', monospace;
-      font-size: 0.85rem;
-      color: var(--text);
-    }
-
-    .math-box .label {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--primary);
-      font-weight: 700;
-      margin-bottom: 0.4rem;
-    }
-
-    .math-line {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.3rem 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .math-line:last-child { border-bottom: none; }
-
-    .arrow { color: var(--primary); font-weight: 700; }
-
-    /* ===== Q&A ===== */
-    .qa-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      margin-bottom: 0.75rem;
-      overflow: hidden;
-      transition: all 0.2s ease;
-    }
-
-    .qa-card.open { border-color: var(--border-light); }
-
-    .qa-question-bar {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 1rem 1.1rem;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .qa-num {
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
-      background: var(--accent-glow);
-      color: var(--accent);
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 700;
-      font-size: 0.75rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .qa-question-text {
-      font-weight: 600;
-      font-size: 0.85rem;
-      line-height: 1.4;
-      flex: 1;
-    }
-
-    .qa-chevron {
-      color: var(--text-muted);
-      transition: transform 0.2s ease;
-      font-size: 1.1rem;
-    }
-
-    .qa-card.open .qa-chevron { transform: rotate(180deg); color: var(--primary); }
-
-    .qa-answer {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease, padding 0.3s ease;
-      padding: 0 1.1rem;
-    }
-
-    .qa-card.open .qa-answer {
-      max-height: 500px;
-      padding: 0 1.1rem 1.1rem;
-    }
-
-    .qa-answer-inner {
-      background: var(--surface-raised);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1rem;
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      line-height: 1.65;
-    }
-
-    .qa-answer-inner strong { color: var(--text); }
-
-    /* ===== TIPS ===== */
-    .tip-box {
-      background: linear-gradient(135deg, var(--amber-glow), transparent);
-      border: 1px solid rgba(245,158,11,0.2);
-      border-radius: 16px;
-      padding: 1rem 1.1rem;
-      margin: 1rem 0;
-      display: flex;
-      gap: 0.75rem;
-      align-items: flex-start;
-    }
-
-    .tip-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: -0.1rem; }
-
-    .tip-content { font-size: 0.85rem; color: var(--text-secondary); }
-    .tip-content strong { color: var(--amber); display: block; margin-bottom: 0.2rem; }
-
-    /* ===== PROGRESS BAR ===== */
-    .progress-track {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 3px;
-      background: var(--primary);
-      z-index: 200;
-      transition: width 0.1s linear;
-      box-shadow: 0 0 10px var(--primary-glow);
-    }
-
-    /* ===== FOOTER ===== */
-    .footer {
-      text-align: center;
-      padding: 2rem 1rem;
-      border-top: 1px solid var(--border);
-      margin-top: 1rem;
-    }
-
-    .footer-text {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-bottom: 1rem;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: var(--surface-raised);
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      font-weight: 600;
-      font-size: 0.85rem;
-      padding: 0.7rem 1.4rem;
-      border-radius: 100px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .btn:hover {
-      border-color: var(--primary);
-      background: var(--primary-glow);
-      color: var(--primary);
-    }
-
-    /* ===== SCROLLBAR ===== */
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 4px; }
-
-    /* ===== RESPONSIVE ===== */
-    @media (min-width: 640px) {
-      .hero { padding: 3rem 2rem 2rem; }
-      .panels-container { padding: 1.5rem; }
-      .card { padding: 1.75rem; }
-      .script-body { padding: 1.25rem; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Grand Oral — Blackjack & Probabilités</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* ===== RESET & BASE ===== */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        :root {
+            --bg:        #0a0e1a;
+            --bg-2:      #111827;
+            --bg-card:   #1a2236;
+            --bg-acc:    #1e293b;
+            --text:      #f8fafc;
+            --text-2:    #94a3b8;
+            --text-3:    #64748b;
+            --accent:    #f59e0b;
+            --acc-l:     #fbbf24;
+            --acc-d:     #d97706;
+            --success:   #10b981;
+            --danger:    #ef4444;
+            --info:      #3b82f6;
+            --purple:    #8b5cf6;
+            --border:    #2d3748;
+            --tbl-light: #15803d;
+            --tbl-mid:   #0d5c33;
+            --tbl-dark:  #052e16;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* ===== HEADER ===== */
+        .site-header {
+            background: linear-gradient(135deg, var(--bg-2) 0%, var(--bg) 100%);
+            border-bottom: 3px solid var(--accent);
+            padding: clamp(1.2rem, 4vw, 2rem) 1rem;
+            text-align: center;
+        }
+        .site-header h1 {
+            font-size: clamp(1.6rem, 5vw, 2.8rem);
+            font-weight: 900;
+            color: var(--accent);
+            letter-spacing: -0.02em;
+            margin-bottom: 0.4rem;
+        }
+        .site-header .subtitle {
+            font-size: clamp(0.95rem, 3vw, 1.25rem);
+            color: var(--text-2);
+            font-weight: 500;
+        }
+        .timer-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--bg-card);
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            margin-top: 0.8rem;
+        }
+
+        /* ===== NAV ===== */
+        .nav-container {
+            background: var(--bg-2);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 0.75rem;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-container::-webkit-scrollbar { display: none; }
+        .nav {
+            display: flex;
+            gap: 0.4rem;
+            min-width: max-content;
+        }
+        .nav-btn {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            color: var(--text-2);
+            padding: 0.65rem 0.95rem;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: clamp(0.78rem, 2.2vw, 0.88rem);
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            font-family: 'Inter', sans-serif;
+        }
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245,158,11,0.3);
+        }
+        .nav-btn.sim-btn.active {
+            background: linear-gradient(135deg, var(--success), #059669);
+            border-color: var(--success);
+            box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+        }
+
+        /* ===== SECTIONS ===== */
+        .main { max-width: 850px; margin: 0 auto; padding: 1rem 0.75rem 5rem; }
+        .section { display: none; animation: fadeIn 0.35s ease; }
+        .section.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: clamp(1.2rem, 4vw, 2rem);
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 25px -5px rgba(0,0,0,0.4);
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+        }
+        .card-number {
+            background: linear-gradient(135deg, var(--accent), var(--acc-d));
+            color: var(--bg);
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 1.2rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(245,158,11,0.3);
+        }
+        .card-title {
+            font-size: clamp(1.1rem, 3.5vw, 1.4rem);
+            font-weight: 800;
+            color: var(--text);
+            flex: 1;
+        }
+        .card-time {
+            background: var(--bg-acc);
+            color: var(--acc-l);
+            padding: 0.35rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border: 1px solid var(--acc-d);
+        }
+
+        /* ===== CONTENT ELEMENTS ===== */
+        .content-text { font-size: clamp(1rem, 3vw, 1.15rem); line-height: 1.9; color: var(--text); margin-bottom: 1.25rem; }
+        .content-text strong { color: var(--acc-l); font-weight: 700; }
+
+        .highlight-box { background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(245,158,11,0.05)); border-left: 5px solid var(--accent); padding: 1.25rem; border-radius: 0 14px 14px 0; margin: 1.25rem 0; }
+        .highlight-box p { font-size: clamp(0.95rem, 3vw, 1.1rem); font-weight: 500; color: var(--text); line-height: 1.8; }
+
+        .speech-bubble { background: var(--bg-acc); border: 2px solid var(--accent); border-radius: 18px; padding: 1.25rem 1.25rem 1.25rem 2.5rem; margin: 1.25rem 0; position: relative; }
+        .speech-bubble::before { content: '"'; font-size: 3.5rem; color: var(--accent); position: absolute; top: -0.6rem; left: 1rem; line-height: 1; font-family: Georgia, serif; }
+        .speech-bubble p { font-size: clamp(0.95rem, 3vw, 1.1rem); font-style: italic; color: var(--text); line-height: 1.8; }
+
+        .math-card { background: var(--bg-acc); border: 2px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1.25rem 0; overflow-x: auto; }
+        .math-label { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); font-weight: 800; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.4rem; }
+        .math-formula { font-size: clamp(1.1rem, 4vw, 1.5rem); font-weight: 700; color: var(--text); text-align: center; padding: 0.8rem; font-family: 'Times New Roman', serif; background: rgba(0,0,0,0.2); border-radius: 10px; margin: 0.5rem 0; }
+        .math-explain { font-size: 1rem; color: var(--text-2); margin-top: 0.8rem; text-align: center; font-style: italic; }
+        .math-consequence { background: rgba(59,130,246,0.1); border: 2px solid var(--info); border-radius: 10px; padding: 1rem; margin-top: 0.8rem; text-align: center; }
+        .math-consequence p { font-size: clamp(0.95rem, 3vw, 1.05rem); color: var(--text); font-weight: 600; line-height: 1.7; }
+
+        .data-table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: clamp(0.9rem, 2.5vw, 1.05rem); }
+        .data-table th { background: var(--bg-acc); color: var(--accent); padding: 1rem 0.8rem; text-align: left; font-weight: 800; border-bottom: 3px solid var(--accent); }
+        .data-table td { padding: 1rem 0.8rem; border-bottom: 1px solid var(--border); color: var(--text); }
+        .data-table tr:hover td { background: rgba(245,158,11,0.05); }
+
+        .timeline { position: relative; padding-left: 2.2rem; margin: 1.5rem 0; }
+        .timeline::before { content: ''; position: absolute; left: 0.5rem; top: 0; bottom: 0; width: 4px; background: linear-gradient(to bottom, var(--accent), var(--acc-d)); border-radius: 4px; }
+        .timeline-item { position: relative; margin-bottom: 1.5rem; padding-left: 1.2rem; }
+        .timeline-item::before { content: ''; position: absolute; left: -1.9rem; top: 0.35rem; width: 14px; height: 14px; background: var(--accent); border-radius: 50%; border: 3px solid var(--bg); box-shadow: 0 0 0 3px var(--acc-d); }
+        .timeline-title { font-weight: 800; font-size: clamp(1rem, 3vw, 1.15rem); color: var(--acc-l); margin-bottom: 0.4rem; }
+        .timeline-desc { color: var(--text-2); font-size: clamp(0.9rem, 2.5vw, 1rem); line-height: 1.7; }
+
+        .tag-container { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1.25rem 0; }
+        .tag { background: var(--bg-acc); color: var(--accent); padding: 0.4rem 0.9rem; border-radius: 25px; font-size: 0.85rem; font-weight: 700; border: 2px solid var(--border); }
+        .tag.program { background: rgba(16,185,129,0.15); color: var(--success); border-color: var(--success); }
+
+        .checklist { list-style: none; padding: 0; }
+        .checklist li { padding: 0.85rem 0 0.85rem 2.2rem; position: relative; font-size: clamp(0.95rem, 3vw, 1.05rem); border-bottom: 1px solid var(--border); line-height: 1.7; }
+        .checklist li::before { content: '✓'; position: absolute; left: 0; color: var(--success); font-weight: 900; font-size: 1.3rem; }
+
+        .alert { background: rgba(239,68,68,0.08); border: 2px solid var(--danger); border-radius: 14px; padding: 1.25rem; margin: 1.25rem 0; }
+        .alert-title { color: var(--danger); font-weight: 800; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+        .alert p { color: var(--text-2); font-size: clamp(0.9rem, 2.5vw, 1rem); line-height: 1.7; }
+
+        .info-box { background: rgba(59,130,246,0.08); border: 2px solid var(--info); border-radius: 14px; padding: 1.25rem; margin: 1.25rem 0; }
+        .info-box-title { color: var(--info); font-weight: 800; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+        .info-box p { color: var(--text-2); font-size: clamp(0.9rem, 2.5vw, 1rem); line-height: 1.7; }
+
+        .example-box { background: rgba(16,185,129,0.08); border: 2px solid var(--success); border-radius: 14px; padding: 1.25rem; margin: 1.25rem 0; }
+        .example-title { color: var(--success); font-weight: 800; margin-bottom: 0.8rem; }
+
+        .jury-tip { background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(139,92,246,0.05)); border: 2px solid var(--purple); border-radius: 14px; padding: 1.25rem; margin: 1.25rem 0; }
+        .jury-tip-title { color: var(--purple); font-weight: 800; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
+        .jury-tip p { color: var(--text-2); font-size: clamp(0.9rem, 2.5vw, 1rem); line-height: 1.7; }
+
+        .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.25rem 0; }
+        .comparison-box { padding: 1.25rem; border-radius: 14px; text-align: center; }
+        .comparison-box.positive { background: rgba(16,185,129,0.1); border: 2px solid var(--success); }
+        .comparison-box.negative { background: rgba(239,68,68,0.1); border: 2px solid var(--danger); }
+        .comparison-box .cval { font-size: 2.2rem; font-weight: 900; margin-bottom: 0.4rem; }
+        .comparison-box.positive .cval { color: var(--success); }
+        .comparison-box.negative .cval { color: var(--danger); }
+        .comparison-box .clbl { font-size: 0.9rem; color: var(--text-2); font-weight: 600; }
+
+        /* ===== SIMULATOR SECTION ===== */
+        #simulateur { padding: 0; }
+        #simulateur .sim-inner { padding: 0; }
+
+        .sim-info { background: linear-gradient(90deg, rgba(245,158,11,0.08), rgba(59,130,246,0.08)); border: 1px solid var(--border); border-radius: 12px; padding: 0.7rem 1rem; margin-bottom: 0.6rem; font-size: 0.82rem; color: var(--text-2); text-align: center; line-height: 1.6; }
+        .sim-info strong { color: var(--acc-l); }
+
+        .hl-bar { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; margin-bottom: 0.5rem; }
+        .hl-box { background: var(--bg-card); border: 2px solid var(--border); border-radius: 14px; padding: 0.55rem 0.4rem; text-align: center; transition: all 0.3s ease; }
+        .hl-box.hot { border-color: var(--success); box-shadow: 0 0 15px rgba(16,185,129,0.2); background: rgba(16,185,129,0.08); }
+        .hl-box.cold { border-color: var(--danger); box-shadow: 0 0 15px rgba(239,68,68,0.2); background: rgba(239,68,68,0.08); }
+        .hl-box .hl-lbl { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-2); font-weight: 700; margin-bottom: 0.15rem; }
+        .hl-box .hl-val { font-size: 1.7rem; font-weight: 900; transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+        .hl-box .hl-val.pop { transform: scale(1.3); }
+        .hl-box .hl-val.pos { color: var(--success); }
+        .hl-box .hl-val.neg { color: var(--danger); }
+        .hl-box .hl-val.neu { color: var(--text-2); }
+
+        .hl-advice { display: flex; align-items: flex-start; gap: 0.6rem; background: var(--bg-card); border: 2px solid var(--border); border-radius: 12px; padding: 0.65rem 0.9rem; margin-bottom: 0.5rem; font-size: 0.85rem; font-weight: 700; transition: all 0.4s ease; line-height: 1.5; }
+        .hl-advice.favor { border-color: var(--success); background: rgba(16,185,129,0.08); color: var(--success); }
+        .hl-advice.unfav { border-color: var(--danger);  background: rgba(239,68,68,0.08);  color: var(--danger);  }
+        .hl-advice.neutr { border-color: var(--border);  background: var(--bg-card);         color: var(--text-2); }
+        .hl-adv-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 0.05rem; }
+
+        .phase-bar { background: var(--bg-card); border: 2px solid var(--border); border-radius: 10px; padding: 0.45rem 0.9rem; text-align: center; margin-bottom: 0.5rem; font-size: 0.82rem; font-weight: 800; color: var(--accent); letter-spacing: 0.02em; }
+
+        .msg-area { background: var(--bg-card); border: 2px solid var(--border); border-radius: 12px; padding: 0.65rem 1rem; text-align: center; margin-bottom: 0.5rem; min-height: 46px; display: flex; align-items: center; justify-content: center; }
+        .msg-text { font-size: 0.9rem; font-weight: 600; line-height: 1.5; }
+        .msg-text.win  { color: var(--success); }
+        .msg-text.lose { color: var(--danger); }
+        .msg-text.push { color: var(--accent); }
+        .msg-text.info { color: var(--text-2); }
+
+        .table-area {
+            background: radial-gradient(ellipse at center, var(--tbl-light) 0%, var(--tbl-mid) 40%, var(--tbl-dark) 100%);
+            border-radius: 20px; padding: 1rem 0.75rem; margin-bottom: 0.5rem;
+            border: 3px solid #92400e;
+            box-shadow: inset 0 0 60px rgba(0,0,0,0.5), 0 10px 30px rgba(0,0,0,0.6);
+            position: relative;
+        }
+        .table-area::before { content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 100px; height: 50px; border: 3px solid rgba(255,255,255,0.07); border-radius: 50%; pointer-events: none; }
+        .hand-section { margin-bottom: 1rem; position: relative; z-index: 1; }
+        .hand-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; padding: 0 0.2rem; }
+        .hand-title { font-size: 0.82rem; font-weight: 800; color: rgba(255,255,255,0.85); text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+        .hand-score { background: rgba(0,0,0,0.6); padding: 0.3rem 0.8rem; border-radius: 18px; font-weight: 900; font-size: 1rem; color: var(--acc-l); border: 2px solid var(--accent); text-shadow: 0 1px 3px rgba(0,0,0,0.5); transition: all 0.3s ease; }
+        .hand-score.bust { background: rgba(239,68,68,0.4); border-color: var(--danger); color: #fca5a5; animation: shake 0.5s ease; }
+        .hand-score.blackjack { background: rgba(245,158,11,0.4); border-color: var(--accent); color: #fde68a; animation: pulse 1.2s ease infinite; }
+        .hand-score.stand { background: rgba(59,130,246,0.3); border-color: var(--info); color: #93c5fd; }
+        .cards-row { display: flex; justify-content: center; gap: 0.4rem; flex-wrap: wrap; min-height: 85px; align-items: center; padding: 0.2rem; }
+
+        .card-anim { width: 52px; height: 73px; background: white; color: #1a1a1a; border-radius: 7px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 800; box-shadow: 0 3px 10px rgba(0,0,0,0.4), 0 0 0 1px #ccc; position: relative; opacity: 0; transform: translateY(-40px) scale(0.8) rotateY(90deg); animation: cardDeal 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards; flex-shrink: 0; }
+        .card-anim.red { color: #dc2626; }
+        .card-anim .suit { font-size: 1.3rem; line-height: 1; }
+        .card-anim .val  { font-size: 0.75rem; margin-top: 0.1rem; font-weight: 700; }
+        .card-anim .hl-badge { position: absolute; bottom: -7px; right: -7px; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 900; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.4); opacity: 0; transform: scale(0); animation: badgePop 0.4s 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+        .hl-badge.plus  { background: var(--success); }
+        .hl-badge.zero  { background: #6b7280; }
+        .hl-badge.minus { background: var(--danger); }
+
+        .card-hidden { width: 52px; height: 73px; background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 50%, #991b1b 100%); border-radius: 7px; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 10px rgba(0,0,0,0.4), inset 0 0 20px rgba(0,0,0,0.3); border: 2px solid #b91c1c; position: relative; flex-shrink: 0; }
+        .card-hidden::before { content: ""; position: absolute; width: 70%; height: 70%; border: 2px solid rgba(255,255,255,0.15); border-radius: 4px; }
+        .card-hidden::after  { content: "🂠"; font-size: 1.6rem; color: rgba(255,255,255,0.25); }
+
+        @keyframes cardDeal { 0%   { opacity:0; transform:translateY(-40px) scale(0.8) rotateY(90deg); } 50%  { opacity:1; transform:translateY(5px) scale(1.05) rotateY(0deg); } 100% { opacity:1; transform:translateY(0) scale(1) rotateY(0deg); } }
+        @keyframes badgePop { 0%   { opacity:0; transform:scale(0); } 60%  { opacity:1; transform:scale(1.5); } 100% { opacity:1; transform:scale(1); } }
+        @keyframes flipReveal { 0% { transform:rotateY(0deg) scale(1); } 40% { transform:rotateY(90deg) scale(0.9); } 60% { transform:rotateY(90deg) scale(0.9); } 100% { transform:rotateY(0deg) scale(1); } }
+        @keyframes shake { 0%,100% { transform:translateX(0); } 20% { transform:translateX(-5px); } 40% { transform:translateX(5px); } 60% { transform:translateX(-3px); } 80% { transform:translateX(3px); } }
+        @keyframes pulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.05); } }
+
+        .sim-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.5rem; }
+        .btn { padding: 0.9rem; border-radius: 12px; font-weight: 800; font-size: 0.95rem; border: none; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.15s; text-align: center; box-shadow: 0 3px 10px rgba(0,0,0,0.3); }
+        .btn:active { transform: scale(0.95); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+        .btn-hit   { background: linear-gradient(135deg, var(--success), #059669); color: white; }
+        .btn-stand { background: linear-gradient(135deg, var(--danger), #b91c1c); color: white; }
+        .btn-deal  { background: linear-gradient(135deg, var(--accent), var(--acc-d)); color: var(--bg); }
+        .btn-reset { background: var(--bg-acc); color: var(--text); border: 2px solid var(--border); }
+
+        .explain-box { background: var(--bg-card); border-left: 4px solid var(--accent); border-radius: 0 12px 12px 0; padding: 0.9rem; margin-bottom: 0.5rem; font-size: 0.85rem; line-height: 1.7; color: var(--text-2); }
+        .explain-box strong { color: var(--acc-l); }
+
+        .sim-history { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 0.65rem; max-height: 150px; overflow-y: auto; }
+        .sim-hist-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); font-weight: 800; margin-bottom: 0.35rem; }
+        .history-item { display: flex; align-items: center; gap: 0.45rem; padding: 0.25rem 0; border-bottom: 1px solid var(--border); font-size: 0.78rem; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { opacity:0; transform:translateX(-6px); } to { opacity:1; transform:translateX(0); } }
+        .history-item .mini-card { width: 24px; height: 33px; background: white; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; color: #1a1a1a; flex-shrink: 0; }
+        .history-item .mini-card.red { color: #dc2626; }
+        .history-item .hl-dot { width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 900; color: white; flex-shrink: 0; }
+        .history-item .who { color: var(--text-2); }
+        .history-item .count-val { margin-left: auto; font-weight: 800; font-size: 0.85rem; }
+        .history-item .count-val.pos { color: var(--success); }
+        .history-item .count-val.neg { color: var(--danger); }
+        .history-item .count-val.neu { color: var(--text-2); }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 480px) {
+            .comparison-grid { grid-template-columns: 1fr; }
+            .card { padding: 1rem; }
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    </style>
 </head>
 <body>
 
-<div class="progress-track" id="progressBar"></div>
-
-<!-- ===== HERO ===== -->
-<header class="hero">
-  <div class="hero-badge">🎓 Grand Oral · Terminale · Mathématiques</div>
-  <h1>Nombres premiers <span>& cybersécurité</span></h1>
-  <p class="hero-quote">« Multiplier deux nombres premiers est facile, mais retrouver ces facteurs est un défi presque impossible. »</p>
-  <div class="meta-pills">
-    <span class="pill">⏱️ 10 min exposé + 10 min questions</span>
-    <span class="pill">🔐 RSA, factorisation, quantique</span>
-    <span class="pill">📚 Arithmétique · Euclide · restes</span>
-  </div>
+<header class="site-header">
+    <h1>🎲 BLACKJACK & PROBABILITÉS</h1>
+    <p class="subtitle">Grand Oral de Mathématiques — Terminale</p>
+    <div class="timer-badge">⏱️ Durée : 10 minutes</div>
 </header>
 
-<!-- ===== TABS ===== -->
-<nav class="tabs-wrapper">
-  <div class="tabs">
-    <button class="tab-btn active" data-tab="plan">📋 Plan</button>
-    <button class="tab-btn" data-tab="script">🎤 Script oral</button>
-    <button class="tab-btn" data-tab="questions">❓ Questions jury</button>
-    <button class="tab-btn" data-tab="memo">🧠 Fiches mémo</button>
-  </div>
+<nav class="nav-container">
+    <div class="nav">
+        <button class="nav-btn active"   onclick="showTab('intro',     this)">📋 Intro</button>
+        <button class="nav-btn"          onclick="showTab('regles',    this)">🃏 Règles</button>
+        <button class="nav-btn"          onclick="showTab('programme', this)">📚 Programme</button>
+        <button class="nav-btn"          onclick="showTab('proba',     this)">🎯 Proba. Cond.</button>
+        <button class="nav-btn"          onclick="showTab('va',        this)">📊 VA & Espérance</button>
+        <button class="nav-btn"          onclick="showTab('comptage',  this)">🔢 Comptage</button>
+        <button class="nav-btn"          onclick="showTab('strategie', this)">🧠 Stratégie</button>
+        <button class="nav-btn"          onclick="showTab('conclusion',this)">🏁 Conclusion</button>
+        <button class="nav-btn"          onclick="showTab('fiche',     this)">📄 Fiche</button>
+        <button class="nav-btn sim-btn"  onclick="showTab('simulateur',this)">🎮 Simulateur</button>
+    </div>
 </nav>
 
-<!-- ===== PANELS ===== -->
-<main class="panels-container">
+<main class="main">
 
-  <!-- PANEL 1: PLAN -->
-  <div id="plan" class="panel active-panel">
+<!-- ===== INTRO ===== -->
+<section id="intro" class="section active">
     <div class="card">
-      <div class="card-header">
-        <div class="card-icon green">🗺️</div>
-        <div>
-          <div class="card-title">Déroulé de l'exposé</div>
-          <div class="card-subtitle">10 minutes chronométrées</div>
+        <div class="card-header">
+            <div class="card-number">1</div>
+            <h2 class="card-title">Problématique d'entrée</h2>
+            <span class="card-time">15-20 sec</span>
         </div>
-      </div>
-      <ul class="timeline">
-        <li class="timeline-item">
-          <span class="timeline-time">0'00 – 1'00</span>
-          <div class="timeline-title">Introduction</div>
-          <div class="timeline-desc">Le cadenas HTTPS, les données bancaires. Problématique : comment les nombres premiers protègent-ils nos échanges ?</div>
-        </li>
-        <li class="timeline-item">
-          <span class="timeline-time">1'00 – 3'30</span>
-          <div class="timeline-title">I – Que sont les nombres premiers ?</div>
-          <div class="timeline-desc">Définition, exemples, infinité (preuve d'Euclide), décomposition unique. Asymétrie : multiplier facile / factoriser difficile.</div>
-        </li>
-        <li class="timeline-item">
-          <span class="timeline-time">3'30 – 6'30</span>
-          <div class="timeline-title">II – Le chiffrement RSA expliqué simplement</div>
-          <div class="timeline-desc">Exemple pédagogique : p=61, q=53, n=3233. Chiffrement avec e=17, déchiffrement avec d=2753. Explications par restes de division.</div>
-        </li>
-        <li class="timeline-item">
-          <span class="timeline-time">6'30 – 9'00</span>
-          <div class="timeline-title">III – Applications et limites</div>
-          <div class="timeline-desc">HTTPS, signatures numériques. Taille des clés (2048 bits). Menace quantique (Shor) et cryptographie post-quantique.</div>
-        </li>
-        <li class="timeline-item">
-          <span class="timeline-time">9'00 – 10'00</span>
-          <div class="timeline-title">Conclusion</div>
-          <div class="timeline-desc">Récapitulatif : l'asymétrie des nombres premiers au cœur de la confiance numérique. Ouverture sur les défis futurs.</div>
-        </li>
-      </ul>
+        <div class="speech-bubble">
+            <p>En terminale, on étudie des lois de probabilité et des variables aléatoires pour modéliser des situations aléatoires. Mon sujet est : <strong>en quoi les notions de probabilités vues en Terminale permettent-elles de comprendre comment les chances de gagner au blackjack changent au cours d'une partie, par exemple lorsqu'on observe les cartes déjà sorties ?</strong></p>
+        </div>
+        <div class="highlight-box">
+            <p>Je vais m'appuyer sur des notions de <strong>probabilités conditionnelles</strong>, de <strong>variable aléatoire</strong> et d'<strong>espérance</strong>, et montrer comment elles se retrouvent dans un jeu de casino comme le blackjack. Tout ce que je vais présenter est strictement au programme de Terminale.</p>
+        </div>
+        <div class="tag-container">
+            <span class="tag program">Probabilités conditionnelles</span>
+            <span class="tag program">Variable aléatoire</span>
+            <span class="tag program">Espérance</span>
+            <span class="tag program">Statistiques</span>
+        </div>
+        <div class="jury-tip">
+            <div class="jury-tip-title">💡 Phrase clé pour le jury</div>
+            <p>"Je ne vais pas introduire des outils hors programme, mais montrer comment ces notions vues en Terminale permettent de comprendre de façon simple pourquoi les chances de gagner changent au cours d'une partie."</p>
+        </div>
     </div>
 
-    <div class="tip-box">
-      <span class="tip-icon">💡</span>
-      <div class="tip-content">
-        <strong>Conseil pour le jury</strong>
-        Maîtrisez la preuve d'Euclide, l'exemple simple p=61, q=53 (en expliquant bien les restes), et la menace quantique.
-      </div>
-    </div>
-  </div>
-
-  <!-- PANEL 2: SCRIPT -->
-  <div id="script" class="panel">
     <div class="card">
-      <div class="card-header">
-        <div class="card-icon blue">🎙️</div>
-        <div>
-          <div class="card-title">Script oral détaillé</div>
-          <div class="card-subtitle">À lire à voix posée – calculs par restes de division</div>
+        <div class="card-header">
+            <div class="card-number">2</div>
+            <h2 class="card-title">Plan détaillé de l'oral</h2>
+            <span class="card-time">Total : 10 min</span>
         </div>
-      </div>
-
-      <div class="script-section">
-        <div class="script-header">
-          <div class="script-dot"></div>
-          <div class="script-title">Introduction</div>
-          <div class="script-time">1 min</div>
+        <div class="timeline">
+            <div class="timeline-item"><div class="timeline-title">Introduction (15-20s)</div><div class="timeline-desc">Accroche + problématique clairement formulée + annonce du plan</div></div>
+            <div class="timeline-item"><div class="timeline-title">Règles du blackjack (45-60s)</div><div class="timeline-desc">Cadrage du jeu, objectif, valeurs des cartes, composition du sabot</div></div>
+            <div class="timeline-item"><div class="timeline-title">Chapitres mobilisés (30-45s)</div><div class="timeline-desc">Expliciter les notions du programme : probabilités conditionnelles, VA, espérance, statistiques</div></div>
+            <div class="timeline-item"><div class="timeline-title">Probabilité conditionnelle (1 min)</div><div class="timeline-desc">Démonstration avec exemple simplifié (3 cartes) puis application au jeu de 52 cartes</div></div>
+            <div class="timeline-item"><div class="timeline-title">Variable aléatoire & Espérance (1 min)</div><div class="timeline-desc">Modélisation mathématique du tirage, calcul de E(X), interprétation concrète</div></div>
+            <div class="timeline-item"><div class="timeline-title">Comptage High-Low (1 min)</div><div class="timeline-desc">Système de comptage comme somme de variables aléatoires, interprétation du compte</div></div>
+            <div class="timeline-item"><div class="timeline-title">Impact stratégique (1 min)</div><div class="timeline-desc">Lien entre probabilités et décision de mise, limites de la modélisation</div></div>
+            <div class="timeline-item"><div class="timeline-title">Conclusion (30-45s)</div><div class="timeline-desc">Synthèse des notions utilisées + ouverture sur les limites</div></div>
         </div>
-        <div class="script-body">
-          « Bonjour. Aujourd'hui, je vais répondre à une question très concrète : <em>Comment les nombres premiers protègent-ils nos données numériques ?</em><br><br>
-          Quand vous achetez en ligne ou que vous consultez vos mails, un petit cadenas vert s'affiche. Derrière ce cadenas se cache une prouesse mathématique vieille de plus de 2000 ans : les nombres premiers. Je vais vous montrer en quoi ils sont devenus les gardiens de l'internet. D'abord, je rappellerai leurs propriétés essentielles. Ensuite, je décrirai le principe du chiffrement RSA avec un exemple très simple. Enfin, je parlerai des applications quotidiennes et de la menace de l'ordinateur quantique. »
-        </div>
-      </div>
-
-      <div class="script-section">
-        <div class="script-header">
-          <div class="script-dot"></div>
-          <div class="script-title">I – Nombres premiers : l'outil parfait</div>
-          <div class="script-time">2'30</div>
-        </div>
-        <div class="script-body">
-          « Un nombre premier est un entier supérieur ou égal à 2 qui n'est divisible que par 1 et par lui-même. Exemples : 2, 3, 5, 7, 11, 13…<br><br>
-          <strong>Première propriété remarquable :</strong> ils sont <em>en quantité infinie</em>. Euclide l'a démontré il y a plus de 2000 ans. Supposons que nous ayons une liste finie de tous les nombres premiers : p₁, p₂, …, pₖ. Si nous fabriquons le nombre N = (p₁×p₂×…×pₖ) + 1, alors N ne peut être divisible par aucun des pᵢ, car le reste de la division serait 1. Donc N est soit un nouveau nombre premier, soit divisible par un nouveau nombre premier. C'est une contradiction : il y a donc une infinité de nombres premiers.<br><br>
-          <strong>Deuxième propriété fondamentale :</strong> tout nombre entier se décompose de façon unique comme produit de nombres premiers. Par exemple 360 = 2³ × 3² × 5. C'est le théorème fondamental de l'arithmétique.<br><br>
-          Ce qui intéresse les cryptographes, c'est une <em>asymétrie</em> : multiplier deux nombres premiers (même très grands) est extrêmement rapide. Mais à partir du seul résultat de la multiplication, retrouver les deux facteurs premiers — c'est ce qu'on appelle la factorisation — est un problème très difficile pour les ordinateurs classiques. »
-        </div>
-      </div>
-
-      <div class="script-section">
-        <div class="script-header">
-          <div class="script-dot"></div>
-          <div class="script-title">II – Le principe du RSA</div>
-          <div class="script-time">3 min</div>
-        </div>
-        <div class="script-body">
-          « En 1977, trois chercheurs Rivest, Shamir et Adleman ont eu l'idée d'utiliser cette asymétrie pour créer un système de chiffrement que l'on appelle RSA.<br><br>
-          <strong>Voici comment cela fonctionne sur un petit exemple pédagogique :</strong> »
-
-          <div class="math-box">
-            <div class="label">🔑 Génération des clés</div>
-            <div class="math-line"><span>p = 61</span> <span class="arrow">→</span> <span style="color:var(--text-muted)">secret</span></div>
-            <div class="math-line"><span>q = 53</span> <span class="arrow">→</span> <span style="color:var(--text-muted)">secret</span></div>
-            <div class="math-line"><span>n = 61 × 53 = <strong>3233</strong></span> <span class="arrow">→</span> <span style="color:var(--primary)">public</span></div>
-            <div class="math-line"><span>e = 17</span> <span class="arrow">→</span> <span style="color:var(--primary)">clé publique</span></div>
-            <div class="math-line"><span>d = 2753</span> <span class="arrow">→</span> <span style="color:var(--rose)">clé privée</span></div>
-          </div>
-
-          « <strong>Chiffrement du message 12 :</strong><br>
-          On élève le message 12 à la puissance e=17 : cela donne 12¹⁷, un nombre énorme (environ 2,22×10¹⁸). Ensuite, on divise ce nombre par n=3233 et on ne garde que le <em>reste</em> de la division. Ce reste vaut <strong>2542</strong>. Le message chiffré est donc 2542.<br><br>
-          <strong>Déchiffrement :</strong><br>
-          Pour déchiffrer 2542, on l'élève à la puissance d=2753 (c'est un nombre gigantesque), puis on divise par 3233 et on prend le reste. Incroyablement, ce reste est <strong>12</strong> — le message original. Ceci fonctionne grâce aux propriétés mathématiques des nombres premiers p et q.<br><br>
-          <strong>Pourquoi est-ce sûr ?</strong> Sans connaître p=61 et q=53, on ne peut pas trouver d=2753. Même en connaissant n=3233, la factorisation pour retrouver 61 et 53 est triviale ici car les nombres sont petits, mais dans la réalité p et q ont plus de 150 chiffres chacun, ce qui rend la factorisation impossible. »
-        </div>
-      </div>
-
-      <div class="script-section">
-        <div class="script-header">
-          <div class="script-dot"></div>
-          <div class="script-title">III – Applications et limites</div>
-          <div class="script-time">2'30</div>
-        </div>
-        <div class="script-body">
-          « Où utilise-t-on RSA tous les jours ? Dans le protocole HTTPS : lorsque le cadenas vert s'affiche dans votre navigateur, votre ordinateur et le site web utilisent RSA (ou d'autres algorithmes similaires) pour échanger une clé secrète. Les signatures numériques, les certificats électroniques, les cartes bancaires reposent aussi sur cette difficulté de factorisation.<br><br>
-          Cependant, il y a des limites. Si la clé est trop petite (par exemple 512 bits), des algorithmes perfectionnés peuvent la casser. Aujourd'hui on utilise des clés de <strong>2048 bits</strong>, considérées comme sûres jusqu'en 2030 environ.<br><br>
-          La menace la plus sérieuse vient de l'<em>ordinateur quantique</em>. En 1994, le mathématicien Peter Shor a montré qu'un ordinateur quantique suffisamment puissant pourrait factoriser n très rapidement. Si un tel ordinateur voit le jour, RSA deviendra caduc. C'est pourquoi les chercheurs travaillent d'urgence sur la <em>cryptographie post-quantique</em>, basée sur d'autres problèmes mathématiques (réseaux euclidiens, codes correcteurs…). »
-        </div>
-      </div>
-
-      <div class="script-section">
-        <div class="script-header">
-          <div class="script-dot"></div>
-          <div class="script-title">Conclusion</div>
-          <div class="script-time">1 min</div>
-        </div>
-        <div class="script-body">
-          « Pour conclure, les nombres premiers, étudiés pour le plaisir des mathématiciens grecs, sont devenus les piliers de la sécurité numérique. L'asymétrie entre multiplication et factorisation permet à RSA de protéger nos données. Malgré la menace quantique, cette histoire illustre magnifiquement comment les mathématiques abstraites finissent par transformer notre quotidien.<br><br>
-          Merci de votre attention. Je suis prêt à répondre à vos questions. »
-        </div>
-      </div>
     </div>
+</section>
 
-    <div class="tip-box">
-      <span class="tip-icon">🎯</span>
-      <div class="tip-content">
-        <strong>Si le jury demande « pourquoi e = 17 ? »</strong>
-        C'est un petit nombre qui n'a aucun diviseur commun avec (p−1)×(q−1) = 3120, ce qui est la condition pour que le système marche. Dans la pratique, on prend souvent e = 65537 pour des raisons d'efficacité.
-      </div>
-    </div>
-  </div>
-
-  <!-- PANEL 3: QUESTIONS -->
-  <div id="questions" class="panel">
+<!-- ===== RÈGLES ===== -->
+<section id="regles" class="section">
     <div class="card">
-      <div class="card-header">
-        <div class="card-icon amber">❓</div>
-        <div>
-          <div class="card-title">12 questions du jury</div>
-          <div class="card-subtitle">Cliquez pour révéler la réponse</div>
+        <div class="card-header">
+            <div class="card-number">1</div>
+            <h2 class="card-title">Rappel des règles du blackjack</h2>
+            <span class="card-time">45-60 sec</span>
         </div>
-      </div>
-
-      <div class="qa-card" onclick="this.classList.toggle('open')">
-        <div class="qa-question-bar">
-          <div class="qa-num">1</div>
-          <div class="qa-question-text">Pouvez-vous redémontrer l'infinité des nombres premiers ?</div>
-          <div class="qa-chevron">▼</div>
+        <p class="content-text">Dans le blackjack, <strong>le but est de se rapprocher de 21 sans le dépasser</strong>. On joue contre le croupier qui suit des règles strictes et fixes. C'est un jeu de tirage sans remise : chaque carte sortie modifie la composition du sabot restant.</p>
+        <table class="data-table">
+            <thead><tr><th>Carte</th><th>Valeur</th><th>Détail</th></tr></thead>
+            <tbody>
+                <tr><td>2 à 10</td><td>Valeur faciale</td><td>Le 2 vaut 2, le 7 vaut 7, etc.</td></tr>
+                <tr><td>10, V, D, R</td><td>10</td><td>Appelées les <strong>"bûches"</strong> (16 cartes)</td></tr>
+                <tr><td>As</td><td>1 ou 11</td><td>Au choix du joueur (4 cartes)</td></tr>
+            </tbody>
+        </table>
+        <div class="highlight-box">
+            <p><strong>Le croupier tire jusqu'à atteindre au moins 17.</strong> S'il dépasse 21, il "brûle" et le joueur gagne. Même si le jeu paraît simple, il repose sur des probabilités qui varient au fur et à mesure que les cartes sont tirées, car on joue <strong>sans remise</strong>.</p>
         </div>
-        <div class="qa-answer">
-          <div class="qa-answer-inner">
-            <strong>Preuve d'Euclide :</strong> supposons une liste finie p₁, p₂, …, pₖ. Considérons N = (p₁×p₂×…×pₖ) + 1. Si on divise N par l'un des pᵢ, le reste est 1, donc aucun pᵢ ne divise N. Par conséquent, N est soit un nombre premier (plus grand que tous les pᵢ), soit divisible par un nombre premier qui n'est pas dans la liste. Dans les deux cas, on trouve un nouveau nombre premier, ce qui contredit l'hypothèse de finitude. Il y a donc une infinité de nombres premiers.
-          </div>
+        <div class="math-card">
+            <div class="math-label">📊 Décompte des cartes</div>
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.75rem;margin-top:0.5rem;">
+                <div style="text-align:center;padding:0.9rem;background:rgba(245,158,11,0.1);border-radius:10px;border:2px solid var(--accent);">
+                    <div style="font-size:2rem;font-weight:900;color:var(--accent);">16</div>
+                    <div style="font-size:0.9rem;color:var(--text-2);margin-top:0.4rem;">Bûches<br>(10, V, D, R)<br><span style="color:var(--accent);">× 4 couleurs</span></div>
+                </div>
+                <div style="text-align:center;padding:0.9rem;background:rgba(59,130,246,0.1);border-radius:10px;border:2px solid var(--info);">
+                    <div style="font-size:2rem;font-weight:900;color:var(--info);">4</div>
+                    <div style="font-size:0.9rem;color:var(--text-2);margin-top:0.4rem;">As<br><span style="color:var(--info);">× 4 couleurs</span></div>
+                </div>
+                <div style="text-align:center;padding:0.9rem;background:rgba(16,185,129,0.1);border-radius:10px;border:2px solid var(--success);">
+                    <div style="font-size:2rem;font-weight:900;color:var(--success);">32</div>
+                    <div style="font-size:0.9rem;color:var(--text-2);margin-top:0.4rem;">Autres cartes<br>(2 à 9)<br><span style="color:var(--success);">8 valeurs × 4</span></div>
+                </div>
+                <div style="text-align:center;padding:0.9rem;background:rgba(255,255,255,0.05);border-radius:10px;border:2px solid var(--text-3);">
+                    <div style="font-size:2rem;font-weight:900;color:var(--text);">52</div>
+                    <div style="font-size:0.9rem;color:var(--text-2);margin-top:0.4rem;">Total<br>16 + 4 + 32</div>
+                </div>
+            </div>
         </div>
-      </div>
-
-      <div class="qa-card" onclick="this.classList.toggle('open')">
-        <div class="qa-question-bar">
-          <div class="qa-num">2</div>
-          <div class="qa-question-text">Pourquoi est-il difficile de factoriser un grand nombre alors que la multiplication est facile ?</div>
-          <div class="qa-chevron">▼</div>
+        <div class="jury-tip">
+            <div class="jury-tip-title">💡 Phrase clé pour le jury</div>
+            <p>"Avant même de faire des calculs, on voit que la composition du jeu est asymétrique : 16 cartes sur 52 valent 10. Cette proportion va évoluer au fil de la partie, et c'est précisément ce que les probabilités conditionnelles nous permettent de quantifier."</p>
         </div>
-        <div class="qa-answer">
-          <div class="qa-answer-inner">
-            La multiplication est une opération directe. Pour deux nombres de 200 chiffres, un ordinateur les multiplie en une fraction de seconde. En revanche, factoriser signifie retrouver les deux facteurs à partir du seul produit. Les meilleurs algorithmes connus (crible général des corps de nombres) ont une complexité bien plus élevée. Pour un nombre de 600 chiffres, même avec des supercalculateurs, il faudrait des milliards d'années. C'est cette difficulté qui assure la sécurité de RSA.
-          </div>
-        </div>
-      </div>
-
-      <div class="qa-card" onclick="this.classList.toggle('open')">
-        <div class="qa-question-bar">
-          <div class="qa-num">3</div>
-          <div class="qa-question-text">Expliquez l'exemple RSA avec p=61, q=53, sans utiliser le mot modulo.</div>
-          <div class="qa-chevron">▼</div>
-        </div>
-        <div class="qa-answer">
-          <div class="qa-answer-inner">
-            On choisit p=61, q=53 secrets, n=3233 public. <strong>Chiffrement :</strong> pour envoyer le message 12, on calcule 12¹⁷, on divise par 3233, le reste est 2542. Le message chiffré est 2542. <strong>Déchiffrement :</strong> on prend 2542, on calcule 2542²⁷⁵³, on divise par 3233, le reste est 12. La clé privée 2753 est construite à partir de p et q. Sans p et q, on ne peut pas trouver 2753, donc on ne peut pas déchiffrer.
-          </div>
-        </div>
-      </div>
-
-      <div class="qa-card" onclick="this.classList.toggle('open')">
-        <div class="qa-question-bar">
-          <div class="qa-num">4</div>
-          <div class="qa-question-text">Un ordinateur quantique menace-t-il vraiment RSA ?</div>
-          <div class="qa-chevron">▼</div>
-        </div>
-        <div class="qa-answer">
-          <div class="qa-answer-inner">
-            Oui. L'algorithme de Shor permet à un ordinateur quantique de factoriser n très rapidement, en un temps polynomial. Un tel ordinateur n'existe pas encore à l'échelle industrielle, mais il est en développement. S'il voit le jour, RSA deviendra vulnérable. C'est pourquoi on prépare dès maintenant la cryptographie post-quantique.
-          </div>
-        </div>
-      </div>
-
-      <div class="qa-card" onclick="this.classList.toggle('open')">
-        <div class="qa-question-bar">
-          <div class="qa-num">5</div>
-          <div class="qa-question-text">Quelle différence entre chiffrement symétrique et asymétrique ?</div>
-          <div class="qa-chevron">▼</div>
-        </div>
-        <div class="qa-answer">
-          <div class="qa-answer-inner">
-            <strong>Symétrique :</strong> une seule clé secrète pour chiffrer et déchiffrer. C'est rapide, mais problème : comment partager cette clé discrètement ? <strong>Asymétrique (RSA) :</strong> deux clés différentes. La clé publique sert à chiffrer, n'importe qui peut l'avoir. La clé privée sert à déchiffrer, elle reste secrète. Cela résout le problème de la distribution, mais c'est plus lent. En pratique on combine les deux : RSA pour échanger une clé symétrique, puis chiffrement symétrique pour les données.
-          </div>
-        </div>
-      </div>
-
-      <div class="qa-card" onclick="this.classList.toggle('open')">
-        <div class="qa-question-bar">
-          <div class="qa-num">6</div>
-          <div class="qa-question-text">Comment choisit-on p et q dans la vraie vie ?</div>
-          <div class="qa-chevron">▼</div>
-        </div>
-        <div class="qa-answer">
-          <div class="qa-answer-inner">
-            On utilise des générateurs de nombres aléatoires, puis on teste la primalité avec des tests probabilistes (Miller-Rabin). Ces tests sont très rapides et les erreurs sont extrêmement rares. On exige aussi que p et q ne soient pas trop proches l'un de l'autre, sinon une attaque simple (Fermat) pourrait les retrouver.
-          </div>
-        </div>
-      </div>
-
-      <div class="qa-card" onclick="this.classList.toggle('open')">
-        <div class="qa-question-bar">
-          <div class="qa-num">7</div>
-          <div class="qa-question-text">Peut-on casser RSA 2048 bits avec un supercalculateur classique ?</div>
-          <div class="qa-chevron">▼</div>
-        </div>
-        <div class="qa-answer">
-          <div class="qa-answer-inner">
-            Non, pas dans un temps raisonnable. Les estimations donnent plusieurs milliards d'années avec les meilleurs algorithmes. Le record de factorisation est d'environ 250 chiffres décimaux (829 bits) ; RSA 2048 correspond à 617 chiffres décimaux, c'est hors de portée.
-          </div>
-        </div>
-      </div>
-
-      <div class="qa-card" onclick="this.classList.toggle('open')">
-        <div class="qa-question-bar">
-          <div class="qa-num">8</div>
-          <div class="qa-question-text">Citez une autre application des nombres premiers hors RSA.</div>
-          <div class="qa-chevron">▼</div>
-        </div>
-        <div class="qa-answer">
-          <div class="qa-answer-inner">
-            Les générateurs de nombres aléatoires (Blum Blum Shub), les codes correcteurs d'erreurs (codes BCH), et même en biologie : certaines cigales ont un cycle de vie de 13 ou 17 ans — des nombres premiers — pour éviter de coïncider avec les cycles de leurs prédateurs.
-          </div>
-        </div>
-      </div>
-
-      <div class="qa-card" onclick="this.classList.toggle('open')">
-        <div class="qa-question-bar">
-          <div class="qa-num">9</div>
-          <div class="qa-question-text">Pourquoi 1 n'est-il pas considéré comme premier ?</div>
-          <div class="qa-chevron">▼</div>
-        </div>
-        <div class="qa-answer">
-          <div class="qa-answer-inner">
-            Pour garantir l'unicité de la décomposition en facteurs premiers. Si 1 était premier, on pourrait écrire 6 = 2×3 = 1×2×3 = 1²×2×3..., ce qui briserait l'unicité. Cette unicité est importante en cryptographie car elle assure que le produit n = p×q ne peut être représenté que par ces deux facteurs.
-          </div>
-        </div>
-      </div>
-
-      <div class="qa-card" onclick="this.classList.toggle('open')">
-        <div class="qa-question-bar">
-          <div class="qa-num">10</div>
-          <div class="qa-question-text">Que se passe-t-il si p et q sont trop proches ?</div>
-          <div class="qa-chevron">▼</div>
-        </div>
-        <div class="qa-answer">
-          <div class="qa-answer-inner">
-            Si p et q sont très proches, alors n = p×q est voisin de p². On peut alors calculer la racine carrée de n, puis tâtonner autour pour trouver p et q (attaque de Fermat). C'est pourquoi la génération de clés impose une différence d'au moins quelques centaines de bits entre p et q.
-          </div>
-        </div>
-      </div>
-
-      <div class="qa-card" onclick="this.classList.toggle('open')">
-        <div class="qa-question-bar">
-          <div class="qa-num">11</div>
-          <div class="qa-question-text">A-t-on déjà factorisé un très grand nombre RSA ?</div>
-          <div class="qa-chevron">▼</div>
-        </div>
-        <div class="qa-answer">
-          <div class="qa-answer-inner">
-            Oui, dans le cadre du « RSA Factoring Challenge ». RSA-250 (250 chiffres décimaux, 829 bits) a été factorisé en 2020 après plusieurs mois de calculs sur de nombreux ordinateurs. Mais RSA-2048 (617 chiffres) reste impossible aujourd'hui.
-          </div>
-        </div>
-      </div>
-
-      <div class="qa-card" onclick="this.classList.toggle('open')">
-        <div class="qa-question-bar">
-          <div class="qa-num">12</div>
-          <div class="qa-question-text">Quel est l'avenir de la cryptographie si RSA est cassé ?</div>
-          <div class="qa-chevron">▼</div>
-        </div>
-        <div class="qa-answer">
-          <div class="qa-answer-inner">
-            On migrera vers la cryptographie post-quantique. Le NIST a déjà sélectionné plusieurs algorithmes basés sur des problèmes mathématiques résistants aux ordinateurs quantiques : réseaux euclidiens (Kyber, Dilithium), codes correcteurs (McEliece). Ces nouvelles méthodes sont progressivement intégrées dans les protocoles comme TLS 1.3. D'ici 2030-2035, RSA sera progressivement remplacé.
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
+</section>
 
-  <!-- PANEL 4: MEMO -->
-  <div id="memo" class="panel">
+<!-- ===== PROGRAMME ===== -->
+<section id="programme" class="section">
     <div class="card">
-      <div class="card-header">
-        <div class="card-icon rose">🧠</div>
-        <div>
-          <div class="card-title">Fiches mémo rapides</div>
-          <div class="card-subtitle">À réviser avant l'oral</div>
+        <div class="card-header">
+            <div class="card-number">2</div>
+            <h2 class="card-title">Chapitres de Terminale mobilisés</h2>
+            <span class="card-time">30-45 sec</span>
         </div>
-      </div>
-
-      <div class="math-box">
-        <div class="label">📐 Preuve d'Euclide (à savoir par cœur)</div>
-        <div style="margin-top:0.5rem; line-height:1.8;">
-          1. Supposons une liste finie de premiers : p₁, p₂, …, pₖ<br>
-          2. Posons N = p₁×p₂×…×pₖ + 1<br>
-          3. N divisé par pᵢ donne reste 1 → aucun pᵢ ne divise N<br>
-          4. N est premier OU divisible par un nouveau premier<br>
-          5. Contradiction → infinité des nombres premiers ✓
+        <p class="content-text">Pour analyser ce jeu, je m'appuie sur <strong>plusieurs notions vues en Terminale</strong>, sans jamais introduire d'outils hors programme. Je vais explicitement citer les chapitres du programme pour montrer l'ancrage pédagogique de mon sujet.</p>
+        <div class="timeline">
+            <div class="timeline-item"><div class="timeline-title">Probabilités conditionnelles</div><div class="timeline-desc">Formule P(A|B) = P(A∩B)/P(B), arbres de probabilités, tirages sans remise</div></div>
+            <div class="timeline-item"><div class="timeline-title">Variable aléatoire</div><div class="timeline-desc">Définition d'une VA, loi de probabilité, tableau de distribution</div></div>
+            <div class="timeline-item"><div class="timeline-title">Espérance</div><div class="timeline-desc">Formule E(X) = Σ xᵢ × P(X=xᵢ), interprétation comme valeur moyenne</div></div>
+            <div class="timeline-item"><div class="timeline-title">Statistiques</div><div class="timeline-desc">Proportions, fréquences observées, évolution d'une composition</div></div>
         </div>
-      </div>
-
-      <div class="math-box">
-        <div class="label">🔐 Exemple RSA (à maîtriser)</div>
-        <div style="margin-top:0.5rem; line-height:1.8;">
-          p = 61 (secret) &nbsp;&nbsp; q = 53 (secret)<br>
-          n = 3233 (public) &nbsp;&nbsp; e = 17 (publique)<br>
-          d = 2753 (privée)<br><br>
-          <strong>Chiffrer 12 :</strong> 12¹⁷ ÷ 3233 → reste = <span style="color:var(--primary)">2542</span><br>
-          <strong>Déchiffrer 2542 :</strong> 2542²⁷⁵³ ÷ 3233 → reste = <span style="color:var(--primary)">12</span>
+        <div class="speech-bubble">
+            <p>Je ne vais donc pas introduire des outils hors programme, mais montrer comment ces notions de probabilités, vues en Terminale, permettent de comprendre de façon simple pourquoi les chances de gagner changent au cours d'une partie.</p>
         </div>
-      </div>
-
-      <div class="math-box">
-        <div class="label">⚡ Points clés à retenir</div>
-        <div style="margin-top:0.5rem; line-height:1.8;">
-          • Multiplication facile → factorisation difficile = sécurité RSA<br>
-          • Clés actuelles : 2048 bits (sûr jusqu'en ~2030)<br>
-          • Menace : ordinateur quantique + algorithme de Shor<br>
-          • Solution : cryptographie post-quantique (Kyber, Dilithium)<br>
-          • 1 n'est pas premier → unicité de la décomposition
+        <div class="jury-tip">
+            <div class="jury-tip-title">💡 Phrase indispensable pour le jury</div>
+            <p>"Tout ce que je vais vous présenter est strictement au programme de Terminale : les probabilités conditionnelles, les variables aléatoires et l'espérance, et les raisonnements sur les proportions."</p>
         </div>
-      </div>
     </div>
-  </div>
+</section>
+
+<!-- ===== PROBA COND ===== -->
+<section id="proba" class="section">
+    <div class="card">
+        <div class="card-header">
+            <div class="card-number">3</div>
+            <h2 class="card-title">Probabilité conditionnelle</h2>
+            <span class="card-time">1 minute</span>
+        </div>
+        <p class="content-text"><strong>Le principe fondamental du blackjack</strong> : comme on joue sans remise, chaque carte sortante modifie la composition du sabot restant. C'est exactement la notion de <strong>probabilité conditionnelle</strong> vue en Terminale.</p>
+        <div class="highlight-box"><p><strong>Exemple simplifié pour l'oral :</strong> Imaginons un sabot avec seulement 3 cartes : deux cartes valant 10 et une carte valant 2.</p></div>
+        <div class="math-card">
+            <div class="math-label">Étape 1 — Tirage initial</div>
+            <div class="math-formula">P(première carte = 10) = 2/3 ≈ 0,667</div>
+            <div class="math-explain">Il y a 2 cartes "10" parmi les 3 cartes totales du sabot</div>
+            <div class="math-consequence"><p>🎯 <strong>Cela signifie qu'au départ, j'ai deux chances sur trois de tirer une carte valant 10.</strong></p></div>
+        </div>
+        <div class="math-card">
+            <div class="math-label">Étape 2 — Probabilité conditionnelle</div>
+            <div class="math-formula">P(deuxième = 10 | première = 10) = 1/2 = 0,5</div>
+            <div class="math-explain">Sachant que la première carte tirée est un 10, il ne reste plus qu'une seule carte "10" parmi les 2 cartes restantes</div>
+            <div class="math-consequence"><p>🎯 <strong>Ma chance de tirer un deuxième 10 est passée de 66,7% à 50% simplement parce que j'ai observé la première carte. C'est l'essence de la probabilité conditionnelle.</strong></p></div>
+        </div>
+        <div class="alert">
+            <div class="alert-title">⚠️ Point clé pour le jury</div>
+            <p>La probabilité de tirer une bûche <strong>change</strong> selon les cartes déjà vues. C'est exactement la définition de <strong>P(A|B)</strong> vue en Terminale.</p>
+        </div>
+        <div class="math-card">
+            <div class="math-label">Application — Jeu de 52 cartes</div>
+            <div class="math-formula">P(bûche) = 16/52 = 4/13 ≈ 30,77%</div>
+            <div class="math-formula">P(bûche | 8 bûches déjà sorties) = 8/44 ≈ 18,18%</div>
+            <div class="math-formula">P(bûche | 4 bûches déjà sorties) = 12/48 = 25,00%</div>
+            <div class="math-consequence"><p>🎯 <strong>La probabilité de tirer une bûche varie de 30,77% à 18,18% selon ce qu'on a déjà vu sortir.</strong></p></div>
+        </div>
+        <div class="jury-tip">
+            <div class="jury-tip-title">💡 Phrase clé pour le jury</div>
+            <p>"Ce qui rend le blackjack mathématiquement intéressant, c'est que chaque carte visible constitue une information qui modifie nos probabilités. Ce n'est plus du hasard pur : c'est de l'information conditionnelle."</p>
+        </div>
+    </div>
+</section>
+
+<!-- ===== VA & ESPERANCE ===== -->
+<section id="va" class="section">
+    <div class="card">
+        <div class="card-header">
+            <div class="card-number">4</div>
+            <h2 class="card-title">Variable aléatoire & Espérance</h2>
+            <span class="card-time">1 minute</span>
+        </div>
+        <p class="content-text">Pour formaliser ce que nous venons de voir, on va <strong>modéliser le tirage comme une variable aléatoire</strong>, outil central du programme de Terminale.</p>
+        <div class="math-card">
+            <div class="math-label">Définition de la Variable Aléatoire X</div>
+            <div class="math-formula">X = 1 si la prochaine carte est une bûche<br>X = 0 sinon</div>
+            <div class="math-explain">X suit une loi de Bernoulli. Sa loi de probabilité dépend de la composition du sabot restant.</div>
+        </div>
+        <div class="math-card">
+            <div class="math-label">Calcul de l'Espérance — Début de partie</div>
+            <div class="math-formula">E(X) = 1 × P(X=1) + 0 × P(X=0) = 16/52 ≈ 0,308</div>
+            <div class="math-consequence"><p>🎯 <strong>Cela signifie qu'en début de partie, on s'attend à ce qu'environ 30,8% des cartes tirées soient des bûches.</strong></p></div>
+        </div>
+        <div class="math-card">
+            <div class="math-label">Évolution de l'Espérance en cours de partie</div>
+            <div class="math-formula">E(X | 8 bûches sorties) = 8/44 ≈ 0,182</div>
+            <div class="math-formula">E(X | 4 bûches sorties) = 12/48 = 0,250</div>
+            <div class="math-consequence"><p>🎯 <strong>L'espérance diminue si les bûches sortent tôt, et reste plus élevée si peu de bûches sont sorties. C'est l'espérance comme indicateur dynamique.</strong></p></div>
+        </div>
+        <div class="highlight-box">
+            <p><strong>L'espérance E(X) devient un indicateur de la qualité du sabot.</strong> Plus elle est élevée, plus le sabot est favorable au joueur. C'est une notion abstraite du programme qui prend ici un sens concret et décisionnel.</p>
+        </div>
+        <div class="jury-tip">
+            <div class="jury-tip-title">💡 Phrase clé pour le jury</div>
+            <p>"Ce qui est remarquable, c'est que l'espérance — une notion théorique — devient ici un outil de décision. Quand E(X) est élevée, le sabot est favorable. C'est la puissance de la modélisation."</p>
+        </div>
+    </div>
+</section>
+
+<!-- ===== COMPTAGE ===== -->
+<section id="comptage" class="section">
+    <div class="card">
+        <div class="card-header">
+            <div class="card-number">5</div>
+            <h2 class="card-title">Comptage High-Low</h2>
+            <span class="card-time">1 minute</span>
+        </div>
+        <p class="content-text">Le système High-Low est une façon élégante de <strong>résumer l'information sur la composition du sabot</strong> en une seule valeur, à partir de variables aléatoires.</p>
+        <div class="math-card">
+            <div class="math-label">Définition du système High-Low</div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.6rem;margin:0.8rem 0;">
+                <div style="text-align:center;padding:0.8rem;background:rgba(16,185,129,0.1);border-radius:10px;border:2px solid var(--success);">
+                    <div style="font-size:1.5rem;font-weight:900;color:var(--success);">+1</div>
+                    <div style="font-size:0.82rem;color:var(--text-2);margin-top:0.3rem;">Cartes 2 à 6<br>(20 cartes)</div>
+                </div>
+                <div style="text-align:center;padding:0.8rem;background:rgba(100,116,139,0.1);border-radius:10px;border:2px solid var(--text-3);">
+                    <div style="font-size:1.5rem;font-weight:900;color:var(--text-2);">0</div>
+                    <div style="font-size:0.82rem;color:var(--text-2);margin-top:0.3rem;">Cartes 7 à 9<br>(12 cartes)</div>
+                </div>
+                <div style="text-align:center;padding:0.8rem;background:rgba(239,68,68,0.1);border-radius:10px;border:2px solid var(--danger);">
+                    <div style="font-size:1.5rem;font-weight:900;color:var(--danger);">−1</div>
+                    <div style="font-size:0.82rem;color:var(--text-2);margin-top:0.3rem;">10, V, D, R, As<br>(20 cartes)</div>
+                </div>
+            </div>
+        </div>
+        <div class="math-card">
+            <div class="math-label">Formule mathématique du compte</div>
+            <div class="math-formula">Cₙ = X₁ + X₂ + ... + Xₙ = Σ Xᵢ</div>
+            <div class="math-explain">Cₙ est une somme de variables aléatoires — notion de Terminale</div>
+            <div class="math-consequence"><p>🎯 <strong>Un compte élevé signifie que beaucoup de petites cartes sont sorties → il reste beaucoup de bûches → favorable au joueur.</strong></p></div>
+        </div>
+        <div class="math-card">
+            <div class="math-label">Exemple concret — 5 cartes tirées</div>
+            <div class="math-formula">3♥ (+1) + A♠ (−1) + 5♦ (+1) + 8♣ (0) + 2♥ (+1) = +2</div>
+            <div class="math-consequence"><p>🎯 <strong>Compte = +2 : plus de petites cartes que de grosses ont été tirées. Il reste donc proportionnellement plus de bûches dans le sabot. La situation est favorable.</strong></p></div>
+        </div>
+        <div class="speech-bubble">
+            <p>Je ne cherche pas à calculer la loi exacte de Cₙ, mais à montrer que ce comptage est une statistique qui résume l'information sur la composition du sabot. Quand le compte est élevé, la probabilité de tirer une bûche est plus grande.</p>
+        </div>
+        <div class="jury-tip">
+            <div class="jury-tip-title">💡 Phrase clé pour le jury</div>
+            <p>"Ce qui est élégant dans le High-Low, c'est qu'on remplace un problème complexe — suivre 52 cartes individuellement — par une simple somme de nombres. C'est exactement l'esprit de la modélisation mathématique."</p>
+        </div>
+    </div>
+</section>
+
+<!-- ===== STRATÉGIE ===== -->
+<section id="strategie" class="section">
+    <div class="card">
+        <div class="card-header">
+            <div class="card-number">6</div>
+            <h2 class="card-title">Impact sur la stratégie de jeu</h2>
+            <span class="card-time">1 minute</span>
+        </div>
+        <p class="content-text">Maintenant que nous avons établi les outils mathématiques, voyons comment ils se traduisent concrètement en décision de jeu.</p>
+        <div class="math-card">
+            <div class="math-label">Formule générale</div>
+            <div class="math-formula">P(bûche) = B<sub>restantes</sub> / N</div>
+            <div class="math-explain">N = nombre total de cartes restantes dans le sabot</div>
+            <div class="math-consequence"><p>🎯 <strong>Plus ce rapport est élevé, plus le joueur est avantagé.</strong></p></div>
+        </div>
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-title">🟢 Beaucoup de bûches restantes (compte élevé)</div>
+                <div class="timeline-desc">Le joueur a plus de chances de faire un blackjack. Le croupier a plus de chances de dépasser 21. <strong>L'espérance de gain est positive.</strong></div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-title">🔴 Peu de bûches restantes (compte faible)</div>
+                <div class="timeline-desc">Le joueur a moins de chances de faire 21. Le croupier a moins de chances de brûler. <strong>L'espérance de gain est négative.</strong></div>
+            </div>
+        </div>
+        <div class="math-card">
+            <div class="math-label">Lien entre espérance et décision de mise</div>
+            <div style="display:grid;gap:0.75rem;">
+                <div style="padding:1rem;background:rgba(16,185,129,0.1);border-radius:10px;border:2px solid var(--success);">
+                    <div style="font-weight:800;color:var(--success);margin-bottom:0.4rem;">✅ E(X) élevée → Miser plus</div>
+                    <div style="color:var(--text-2);font-size:0.95rem;">Quand le compte est positif, l'espérance de tirer une bûche est supérieure à la normale. Le jeu devient mathématiquement favorable.</div>
+                </div>
+                <div style="padding:1rem;background:rgba(239,68,68,0.1);border-radius:10px;border:2px solid var(--danger);">
+                    <div style="font-weight:800;color:var(--danger);margin-bottom:0.4rem;">❌ E(X) faible → Miser moins</div>
+                    <div style="color:var(--text-2);font-size:0.95rem;">Quand le compte est négatif, l'espérance de tirer une bûche est inférieure à la normale. Le jeu devient défavorable.</div>
+                </div>
+            </div>
+        </div>
+        <div class="alert">
+            <div class="alert-title">⚠️ Limite de la modélisation</div>
+            <p>En pratique, les casinos mélangent souvent les cartes (shuffle), ce qui rend le comptage très difficile. Mais <strong>l'idée mathématique reste valide</strong> : les probabilités conditionnelles et l'espérance montrent que voir les cartes déjà sorties modifie les chances de gagner.</p>
+        </div>
+        <div class="jury-tip">
+            <div class="jury-tip-title">💡 Phrase clé pour le jury</div>
+            <p>"Ce qui est fascinant, c'est que des notions abstraites comme l'espérance deviennent des outils concrets de décision. Le joueur ne calcule pas E(X) à chaque coup, mais le compte High-Low lui donne une approximation suffisante. C'est la puissance de la modélisation : simplifier sans trahir."</p>
+        </div>
+    </div>
+</section>
+
+<!-- ===== CONCLUSION ===== -->
+<section id="conclusion" class="section">
+    <div class="card">
+        <div class="card-header">
+            <div class="card-number">7</div>
+            <h2 class="card-title">Conclusion</h2>
+            <span class="card-time">30-45 sec</span>
+        </div>
+        <p class="content-text">En résumé, ce jeu illustre <strong>plusieurs notions de Terminale</strong> :</p>
+        <ul class="checklist">
+            <li><strong>Probabilités conditionnelles</strong> : la probabilité d'une bûche change selon les cartes déjà vues. On a vu passer P(bûche) de 30,77% à 18,18% après 8 bûches sorties.</li>
+            <li><strong>Variables aléatoires et espérance</strong> : la variable X = 1 si bûche permet de modéliser le tirage, et son espérance E(X) évolue au fil de la partie, passant de 0,308 à 0,182.</li>
+            <li><strong>Statistiques</strong> : le compte High-Low Cₙ = ΣXᵢ est une statistique qui résume la composition du sabot.</li>
+        </ul>
+        <div class="speech-bubble">
+            <p>Le blackjack devient alors un exemple concret pour montrer que les probabilités ne sont pas seulement des exercices de manuel, mais des outils qui aident à comprendre des situations réelles, même dans un casino.</p>
+        </div>
+        <div class="highlight-box">
+            <p><strong>Ouverture :</strong> Cette modélisation montre aussi les limites des mathématiques face aux pratiques des casinos, qui utilisent le mélange des cartes pour annuler l'avantage statistique. Le modèle est parfait, mais la réalité impose ses contraintes.</p>
+        </div>
+        <div class="jury-tip">
+            <div class="jury-tip-title">💡 Phrase de fermeture pour le jury</div>
+            <p>"Ce que je retiens de ce sujet, c'est que les mathématiques de Terminale — probabilités conditionnelles, variables aléatoires, espérance — ne sont pas de simples formules à apprendre par cœur. Ce sont des outils de pensée qui permettent de comprendre le monde, même sous les néons d'un casino."</p>
+        </div>
+    </div>
+</section>
+
+<!-- ===== FICHE ===== -->
+<section id="fiche" class="section">
+    <div class="card">
+        <div class="card-header">
+            <div class="card-number">★</div>
+            <h2 class="card-title">Fiche récapitulative complète</h2>
+            <span class="card-time">À réviser</span>
+        </div>
+
+        <div style="background:var(--bg-acc);padding:1.25rem;border-radius:12px;margin-bottom:1.25rem;">
+            <h3 style="color:var(--accent);margin-bottom:0.9rem;font-size:1.1rem;">📋 Ordre de passage avec durées</h3>
+            <ol style="padding-left:1.5rem;line-height:2.2;font-size:1rem;">
+                <li><strong>Introduction</strong> (15-20s) — Problématique + annonce du plan</li>
+                <li><strong>Règles</strong> (45-60s) — Cadrage du jeu, 16 bûches, 4 As, 32 autres</li>
+                <li><strong>Programme</strong> (30-45s) — 4 notions de Terminale explicitées</li>
+                <li><strong>Proba. conditionnelle</strong> (1min) — Exemple 3 cartes + calculs 52 cartes</li>
+                <li><strong>VA & Espérance</strong> (1min) — X = 1 si bûche, E(X) = 16/52, évolution</li>
+                <li><strong>High-Low</strong> (1min) — Cₙ = ΣXᵢ, +1/0/−1, interprétation du compte</li>
+                <li><strong>Stratégie</strong> (1min) — E(X) élevée → miser plus, limite du shuffle</li>
+                <li><strong>Conclusion</strong> (30-45s) — Synthèse + ouverture</li>
+            </ol>
+        </div>
+
+        <div style="background:var(--bg-acc);padding:1.25rem;border-radius:12px;margin-bottom:1.25rem;">
+            <h3 style="color:var(--accent);margin-bottom:0.9rem;font-size:1.1rem;">📝 Calculs à préparer sur papier</h3>
+            <div style="display:grid;gap:0.75rem;">
+                <div style="padding:0.9rem;background:var(--bg-card);border-radius:8px;font-family:serif;font-size:1.05rem;line-height:1.9;">
+                    <div style="font-weight:700;color:var(--acc-l);font-family:'Inter',sans-serif;font-size:0.9rem;margin-bottom:0.4rem;">Exemple simplifié (3 cartes)</div>
+                    P(1ère = 10) = 2/3<br>P(2ème = 10 | 1ère = 10) = 1/2
+                </div>
+                <div style="padding:0.9rem;background:var(--bg-card);border-radius:8px;font-family:serif;font-size:1.05rem;line-height:1.9;">
+                    <div style="font-weight:700;color:var(--acc-l);font-family:'Inter',sans-serif;font-size:0.9rem;margin-bottom:0.4rem;">Jeu de 52 cartes</div>
+                    P(bûche) = 16/52 ≈ 30,77%<br>P(bûche | 8 sorties) = 8/44 ≈ 18,18%<br>P(bûche | 4 sorties) = 12/48 = 25,00%
+                </div>
+                <div style="padding:0.9rem;background:var(--bg-card);border-radius:8px;font-family:serif;font-size:1.05rem;line-height:1.9;">
+                    <div style="font-weight:700;color:var(--acc-l);font-family:'Inter',sans-serif;font-size:0.9rem;margin-bottom:0.4rem;">VA & Espérance</div>
+                    X = 1 si bûche, 0 sinon<br>E(X) = 16/52 ≈ 0,308<br>E(X | 8 sorties) = 8/44 ≈ 0,182
+                </div>
+                <div style="padding:0.9rem;background:var(--bg-card);border-radius:8px;font-family:serif;font-size:1.05rem;line-height:1.9;">
+                    <div style="font-weight:700;color:var(--acc-l);font-family:'Inter',sans-serif;font-size:0.9rem;margin-bottom:0.4rem;">High-Low</div>
+                    Cₙ = X₁ + X₂ + ... + Xₙ<br>+1 : 2-6 (20 cartes) | 0 : 7-9 (12) | −1 : 10-A (20)<br>Compte total jeu neuf = 0
+                </div>
+            </div>
+        </div>
+
+        <div style="background:var(--bg-acc);padding:1.25rem;border-radius:12px;margin-bottom:1.25rem;">
+            <h3 style="color:var(--accent);margin-bottom:0.9rem;font-size:1.1rem;">🗣️ Phrases indispensables</h3>
+            <ul class="checklist">
+                <li>"Tout ce que je présente est strictement au programme de Terminale"</li>
+                <li>"Je ne calcule pas la loi exacte de Cₙ, je montre que c'est une statistique"</li>
+                <li>"L'espérance E(X) devient un indicateur de la qualité du sabot"</li>
+                <li>"Le blackjack est un jeu d'information partielle, pas de hasard pur"</li>
+                <li>"C'est la puissance de la modélisation : simplifier sans trahir"</li>
+            </ul>
+        </div>
+
+        <div style="background:var(--bg-acc);padding:1.25rem;border-radius:12px;">
+            <h3 style="color:var(--accent);margin-bottom:0.9rem;font-size:1.1rem;">🎯 Ce que le jury attend pour un 20/20</h3>
+            <ul class="checklist">
+                <li><strong>Clarté</strong> : jeu → maths → lien, structure cartésienne</li>
+                <li><strong>Rigueur</strong> : notations correctes (P(A|B), E(X), Cₙ)</li>
+                <li><strong>Ancrage au programme</strong> : citer explicitement les chapitres de Terminale</li>
+                <li><strong>Concret</strong> : exemples avec nombres réels (16/52, 8/44, 0,308...)</li>
+                <li><strong>Interprétation</strong> : chaque calcul suivi de "cela signifie que..."</li>
+                <li><strong>Ouverture</strong> : limite de la modélisation (mélange des cartes)</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- ===== SIMULATEUR ===== -->
+<section id="simulateur" class="section">
+<div class="sim-inner">
+
+    <div class="sim-info">
+        <strong>Objectif :</strong> Approcher 21 sans dépasser.
+        <strong>Règle :</strong> Le croupier cache sa 2ème carte.
+        <strong>High-Low :</strong> On compte TOUTES les cartes (même cachées) — même sabot !
+    </div>
+
+    <div class="hl-bar">
+        <div class="hl-box" id="hlBox">
+            <div class="hl-lbl">Compte HL</div>
+            <div class="hl-val neu" id="hlCount">0</div>
+        </div>
+        <div class="hl-box">
+            <div class="hl-lbl">True Count</div>
+            <div class="hl-val neu" id="trueCount">0</div>
+        </div>
+        <div class="hl-box">
+            <div class="hl-lbl">Restantes</div>
+            <div class="hl-val" id="remaining" style="color:var(--info);">52</div>
+        </div>
+    </div>
+
+    <div class="hl-advice neutr" id="hlAdvice">
+        <span class="hl-adv-icon" id="hlAdvIcon">⚪</span>
+        <span id="hlAdvText">En attente de la première carte…</span>
+    </div>
+
+    <div class="phase-bar" id="phaseBar">Prêt à jouer — Cliquez sur Distribuer</div>
+
+    <div class="msg-area">
+        <div class="msg-text info" id="msgText">Distribution : 2 cartes au joueur, 2 au croupier (1 cachée)</div>
+    </div>
+
+    <div class="table-area">
+        <div class="hand-section">
+            <div class="hand-header">
+                <span class="hand-title">CROUPIER</span>
+                <span class="hand-score" id="dealerScore">—</span>
+            </div>
+            <div class="cards-row" id="dealerCards"></div>
+        </div>
+        <div class="hand-section" style="margin-bottom:0;">
+            <div class="hand-header">
+                <span class="hand-title">VOTRE MAIN</span>
+                <span class="hand-score" id="playerScore">—</span>
+            </div>
+            <div class="cards-row" id="playerCards"></div>
+        </div>
+    </div>
+
+    <div class="explain-box" id="explainBox" style="display:none;"></div>
+
+    <div class="sim-controls" id="simControls">
+        <button class="btn btn-deal" id="btnDeal">Distribuer</button>
+        <button class="btn btn-reset" id="btnReset">Reset</button>
+    </div>
+
+    <div class="sim-history">
+        <div class="sim-hist-title">Historique (même sabot, pas de mélange !)</div>
+        <div id="historyList"></div>
+    </div>
+
+</div>
+</section>
 
 </main>
 
-<!-- ===== FOOTER ===== -->
-<footer class="footer">
-  <p class="footer-text">Version optimisée mobile-first · Sans modulo · Explications par restes de division</p>
-  <button class="btn" onclick="window.print()">🖨️ Imprimer / PDF</button>
-</footer>
-
 <script>
-  // ===== TABS =====
-  const tabs = document.querySelectorAll('.tab-btn');
-  const panels = document.querySelectorAll('.panel');
+// ===== TAB NAVIGATION =====
+function showTab(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      const target = tab.dataset.tab;
-      tabs.forEach(t => t.classList.remove('active'));
-      panels.forEach(p => p.classList.remove('active-panel'));
-      tab.classList.add('active');
-      document.getElementById(target).classList.add('active-panel');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  });
+// ===== BLACKJACK ENGINE =====
+const SUITS  = ['♠','♥','♦','♣'];
+const VALUES = ['2','3','4','5','6','7','8','9','10','V','D','R','A'];
+const HL_MAP = { '2':1,'3':1,'4':1,'5':1,'6':1,'7':0,'8':0,'9':0,'10':-1,'V':-1,'D':-1,'R':-1,'A':-1 };
 
-  // ===== PROGRESS BAR =====
-  window.addEventListener('scroll', () => {
-    const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-    const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-    const progress = (scrollTop / scrollHeight) * 100;
-    document.getElementById('progressBar').style.width = progress + '%';
-  });
+let deck = [], hlCount = 0, playerHand = [], dealerHand = [], hiddenCard = null, gamePhase = 'idle';
 
-  // ===== HASH ROUTING =====
-  const hashMap = { '#plan': 'plan', '#script': 'script', '#questions': 'questions', '#memo': 'memo' };
-  if (window.location.hash && hashMap[window.location.hash]) {
-    const target = hashMap[window.location.hash];
-    tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === target));
-    panels.forEach(p => p.classList.toggle('active-panel', p.id === target));
-  }
+function isRed(s)    { return s === '♥' || s === '♦'; }
+function hlCls(hl)   { return hl > 0 ? 'plus' : hl < 0 ? 'minus' : 'zero'; }
+function hlBadge(hl) { return hl > 0 ? '+1' : hl < 0 ? '−1' : '0'; }
+
+function createDeck() {
+    const d = [];
+    for (const s of SUITS) for (const v of VALUES) d.push({ suit: s, value: v, hl: HL_MAP[v] });
+    for (let i = d.length - 1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [d[i],d[j]]=[d[j],d[i]]; }
+    return d;
+}
+
+function calcScore(hand) {
+    let score = 0, aces = 0;
+    for (const c of hand) {
+        if (c.value === 'A') { aces++; score += 11; }
+        else if (['10','V','D','R'].includes(c.value)) score += 10;
+        else score += parseInt(c.value);
+    }
+    while (score > 21 && aces > 0) { score -= 10; aces--; }
+    return score;
+}
+
+function scoreDisplay(hand) {
+    const score = calcScore(hand);
+    const hasAce = hand.some(c => c.value === 'A');
+    if (hasAce && score + 10 <= 21) return { score, display: score + '/' + (score + 10) };
+    return { score, display: String(score) };
+}
+
+function updateHL() {
+    const el = document.getElementById('hlCount');
+    const tcEl = document.getElementById('trueCount');
+    const remEl = document.getElementById('remaining');
+    const box = document.getElementById('hlBox');
+
+    el.classList.add('pop');
+    setTimeout(() => el.classList.remove('pop'), 300);
+    el.textContent = (hlCount > 0 ? '+' : '') + hlCount;
+    el.className = 'hl-val ' + (hlCount > 0 ? 'pos' : hlCount < 0 ? 'neg' : 'neu');
+
+    const decksRem = Math.max(0.5, deck.length / 52);
+    const tc = (hlCount / decksRem).toFixed(1);
+    tcEl.textContent = (parseFloat(tc) > 0 ? '+' : '') + tc;
+    tcEl.className = 'hl-val ' + (parseFloat(tc) > 0 ? 'pos' : parseFloat(tc) < 0 ? 'neg' : 'neu');
+    remEl.textContent = deck.length;
+    box.classList.remove('hot','cold');
+    if (hlCount >= 2) box.classList.add('hot');
+    if (hlCount <= -2) box.classList.add('cold');
+    updateHLAdvice();
+}
+
+function updateHLAdvice() {
+    const el = document.getElementById('hlAdvice');
+    const icon = document.getElementById('hlAdvIcon');
+    const txt = document.getElementById('hlAdvText');
+    const tc = hlCount / Math.max(0.5, deck.length / 52);
+
+    if (hlCount === 0 && deck.length >= 50) {
+        el.className = 'hl-advice neutr'; icon.textContent = '⚪';
+        txt.textContent = 'En attente de la première carte…'; return;
+    }
+    if (tc >= 3) {
+        el.className = 'hl-advice favor'; icon.textContent = '🔥';
+        txt.textContent = 'Compte très élevé (+' + hlCount + ', TC ' + tc.toFixed(1) + ') — Beaucoup de 10/As restants. Très favorable : misez plus !';
+    } else if (tc >= 1) {
+        el.className = 'hl-advice favor'; icon.textContent = '✅';
+        txt.textContent = 'Compte positif (+' + hlCount + ', TC ' + tc.toFixed(1) + ') — Plus de grosses cartes que de petites. Favorable : vous pouvez miser davantage.';
+    } else if (tc <= -3) {
+        el.className = 'hl-advice unfav'; icon.textContent = '❄️';
+        txt.textContent = 'Compte très négatif (' + hlCount + ', TC ' + tc.toFixed(1) + ') — Beaucoup de petites cartes restantes. Très défavorable : misez le minimum.';
+    } else if (tc <= -1) {
+        el.className = 'hl-advice unfav'; icon.textContent = '⚠️';
+        txt.textContent = 'Compte négatif (' + hlCount + ', TC ' + tc.toFixed(1) + ') — Plus de petites cartes que de grosses. Défavorable : misez moins.';
+    } else {
+        el.className = 'hl-advice neutr'; icon.textContent = '⚖️';
+        txt.textContent = 'Compte neutre (' + (hlCount >= 0 ? '+' : '') + hlCount + ', TC ' + tc.toFixed(1) + ') — Composition équilibrée. Pas d\'avantage particulier.';
+    }
+}
+
+function makeCardEl(card, hidden) {
+    if (hidden) {
+        const d = document.createElement('div');
+        d.className = 'card-hidden'; d.id = 'hiddenCardEl'; return d;
+    }
+    const d = document.createElement('div');
+    d.className = 'card-anim' + (isRed(card.suit) ? ' red' : '');
+    d.innerHTML = '<div class="suit">' + card.suit + '</div><div class="val">' + card.value + '</div><div class="hl-badge ' + hlCls(card.hl) + '">' + hlBadge(card.hl) + '</div>';
+    return d;
+}
+
+function addHistory(card, who, hidden) {
+    const list = document.getElementById('historyList');
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    const cc = hlCount > 0 ? 'pos' : hlCount < 0 ? 'neg' : 'neu';
+    item.innerHTML =
+        '<div class="mini-card' + (isRed(card.suit) ? ' red' : '') + '">' + card.value + card.suit + '</div>' +
+        '<div class="hl-dot ' + hlCls(card.hl) + '">' + hlBadge(card.hl) + '</div>' +
+        '<span class="who">' + who + (hidden ? ' (cachée)' : '') + '</span>' +
+        '<span class="count-val ' + cc + '">C=' + hlCount + '</span>';
+    list.insertBefore(item, list.firstChild);
+}
+
+function setMsg(text, type) {
+    const el = document.getElementById('msgText');
+    el.textContent = text;
+    el.className = 'msg-text ' + (type || 'info');
+}
+function setPhase(text) { document.getElementById('phaseBar').textContent = text; }
+function showExplain(html) { const b = document.getElementById('explainBox'); b.innerHTML = html; b.style.display = 'block'; }
+
+function updateScores() {
+    const p = scoreDisplay(playerHand);
+    const pEl = document.getElementById('playerScore');
+    pEl.textContent = p.display; pEl.className = 'hand-score';
+    if (p.score > 21) pEl.classList.add('bust');
+    else if (p.score === 21 && playerHand.length === 2) pEl.classList.add('blackjack');
+
+    const dEl = document.getElementById('dealerScore');
+    if (hiddenCard && gamePhase !== 'ended' && gamePhase !== 'dealerTurn') {
+        const visible = dealerHand.filter(c => c !== hiddenCard);
+        const vis = scoreDisplay(visible);
+        dEl.textContent = (visible.length ? vis.display : '0') + ' + ?';
+        dEl.className = 'hand-score';
+    } else {
+        const d = scoreDisplay(dealerHand);
+        dEl.textContent = d.display; dEl.className = 'hand-score';
+        if (d.score > 21) dEl.classList.add('bust');
+        else if (d.score === 21 && dealerHand.length === 2) dEl.classList.add('blackjack');
+        else if (gamePhase === 'ended' && d.score >= 17) dEl.classList.add('stand');
+    }
+}
+
+function setControls(mode) {
+    const c = document.getElementById('simControls');
+    if (mode === 'player') {
+        c.innerHTML = '<button class="btn btn-hit" id="btnHit">Carte</button><button class="btn btn-stand" id="btnStand">Rester</button>';
+        document.getElementById('btnHit').addEventListener('click', playerHit);
+        document.getElementById('btnStand').addEventListener('click', playerStand);
+    } else {
+        const canDeal = deck.length >= 10;
+        c.innerHTML = '<button class="btn btn-deal" id="btnDeal"' + (canDeal ? '' : ' disabled') + '>' + (canDeal ? 'Nouvelle manche' : 'Mélanger requis') + '</button><button class="btn btn-reset" id="btnReset">Reset</button>';
+        document.getElementById('btnDeal').addEventListener('click', startGame);
+        document.getElementById('btnReset').addEventListener('click', resetAll);
+    }
+}
+
+function drawCard() {
+    if (deck.length === 0) return null;
+    const card = deck.pop();
+    hlCount += card.hl;
+    updateHL();
+    return card;
+}
+
+function placeCard(card, container, hidden) {
+    container.appendChild(makeCardEl(card, hidden));
+}
+
+function startGame() {
+    if (gamePhase === 'dealing') return;
+    if (deck.length < 10) {
+        deck = createDeck(); hlCount = 0;
+        document.getElementById('historyList').innerHTML = '';
+        setMsg('Nouveau sabot mélangé (52 cartes)', 'info'); updateHL();
+        setPhase('Nouveau sabot — Cliquez sur Distribuer'); return;
+    }
+    playerHand = []; dealerHand = []; hiddenCard = null; gamePhase = 'dealing';
+    document.getElementById('playerCards').innerHTML = '';
+    document.getElementById('dealerCards').innerHTML = '';
+    document.getElementById('explainBox').style.display = 'none';
+    document.getElementById('playerScore').className = 'hand-score';
+    document.getElementById('playerScore').textContent = '—';
+    document.getElementById('dealerScore').className = 'hand-score';
+    document.getElementById('dealerScore').textContent = '—';
+    setPhase('Distribution en cours...'); setMsg('Distribution en cours...', 'info');
+
+    const pC = document.getElementById('playerCards');
+    const dC = document.getElementById('dealerCards');
+
+    setTimeout(() => { const c = drawCard(); playerHand.push(c); placeCard(c, pC, false); addHistory(c,'Vous',false); updateScores(); }, 300);
+    setTimeout(() => { const c = drawCard(); hiddenCard = c; dealerHand.push(c); placeCard(c, dC, true); addHistory(c,'Croupier',true); updateScores(); }, 800);
+    setTimeout(() => { const c = drawCard(); playerHand.push(c); placeCard(c, pC, false); addHistory(c,'Vous',false); updateScores(); }, 1300);
+    setTimeout(() => { const c = drawCard(); dealerHand.push(c); placeCard(c, dC, false); addHistory(c,'Croupier',false); updateScores(); afterDeal(); }, 1800);
+}
+
+function afterDeal() {
+    const pScore = calcScore(playerHand);
+    if (pScore === 21) { revealHidden(); setTimeout(() => endGame('blackjack'), 700); return; }
+    gamePhase = 'playerTurn';
+    const dVisible = dealerHand.find(c => c !== hiddenCard);
+    const dVis = dVisible ? calcScore([dVisible]) : 0;
+    setPhase('Votre tour — Carte ou Rester ?');
+    setMsg('Vous avez ' + pScore + '. Croupier montre ' + dVis + '.', 'info');
+    showExplain('<strong>Règle du croupier :</strong> Il a une carte face cachée. Vous ne la voyez pas, mais elle <em>compte déjà</em> dans le High-Low !<br><br><strong>Compte actuel :</strong> ' + hlCount + ' (True Count : ' + (hlCount / Math.max(0.5, deck.length/52)).toFixed(1) + ')');
+    setControls('player');
+}
+
+function revealHidden() {
+    const hiddenEl = document.getElementById('hiddenCardEl');
+    if (!hiddenEl || !hiddenCard) return;
+    hiddenEl.style.animation = 'flipReveal 0.7s ease forwards';
+    setTimeout(() => {
+        const newEl = makeCardEl(hiddenCard, false);
+        newEl.style.opacity = '1'; newEl.style.transform = 'none'; newEl.style.animation = 'none';
+        hiddenEl.replaceWith(newEl); hiddenCard = null; updateScores();
+    }, 350);
+}
+
+function playerHit() {
+    if (gamePhase !== 'playerTurn') return;
+    const card = drawCard();
+    playerHand.push(card);
+    placeCard(card, document.getElementById('playerCards'), false);
+    addHistory(card, 'Vous', false); updateScores();
+    const score = calcScore(playerHand);
+    if (score > 21) {
+        setMsg(score + ' — VOUS BRÛLEZ !', 'lose');
+        showExplain('<strong>Brûlé !</strong> Vous dépassez 21. Le croupier gagne sans jouer.');
+        revealHidden(); setTimeout(() => endGame('bust'), 600);
+    } else if (score === 21) {
+        setMsg('21 ! Vous restez automatiquement.', 'info'); setTimeout(playerStand, 600);
+    } else {
+        const sd = scoreDisplay(playerHand);
+        const soft = sd.display.includes('/');
+        setMsg('Vous avez ' + sd.display + '. Encore une carte ?', 'info');
+        showExplain(soft
+            ? "<strong>Main « soft » :</strong> Votre As vaut 11. Vous pouvez tirer sans risque car l'As peut redevenir 1."
+            : "<strong>Main « hard » :</strong> Attention ! Une carte de 10+ vous ferait dépasser 21.");
+    }
+}
+
+function playerStand() {
+    if (gamePhase !== 'playerTurn') return;
+    gamePhase = 'dealerTurn';
+    setPhase('Tour du croupier');
+    setMsg('Vous restez. Le croupier révèle sa carte cachée…', 'info');
+    revealHidden(); setTimeout(dealerTurn, 1000);
+}
+
+function dealerTurn() {
+    if (gamePhase !== 'dealerTurn') return;
+    updateScores();
+    const score = calcScore(dealerHand);
+    if (score > 21) { setMsg('Le croupier brûle avec ' + score + ' ! VOUS GAGNEZ !', 'win'); endGame('dealerBust'); return; }
+    if (score < 17) {
+        setMsg('Croupier a ' + score + ' (< 17) — Il tire une carte…', 'info');
+        setTimeout(() => {
+            if (gamePhase !== 'dealerTurn') return;
+            const card = drawCard(); dealerHand.push(card);
+            placeCard(card, document.getElementById('dealerCards'), false);
+            addHistory(card, 'Croupier', false); updateScores(); dealerTurn();
+        }, 1200);
+    } else {
+        setMsg('Croupier reste à ' + score + ' (≥ 17).', 'info');
+        setTimeout(determineWinner, 800);
+    }
+}
+
+function determineWinner() {
+    const p = calcScore(playerHand), d = calcScore(dealerHand);
+    if      (p > 21) endGame('bust',       'Vous avez ' + p + ', vous brûlez. PERDU.');
+    else if (d > 21) endGame('dealerBust', 'Croupier brûle avec ' + d + ' ! GAGNÉ !');
+    else if (p > d)  endGame('win',        'Vous ' + p + ' vs Croupier ' + d + '. VOUS GAGNEZ !');
+    else if (p < d)  endGame('lose',       'Vous ' + p + ' vs Croupier ' + d + '. PERDU.');
+    else             endGame('push',       'ÉGALITÉ à ' + p + ' points. PUSH.');
+}
+
+function endGame(result, customMsg) {
+    gamePhase = 'ended'; updateScores();
+    const msgs = { blackjack:'BLACKJACK ! Victoire immédiate !', bust:'Vous brûlez. Perdu.', dealerBust:'Le croupier brûle ! Gagné !', win:'Vous gagnez !', lose:'Vous perdez.', push:'Égalité. Push.' };
+    const explains = { blackjack:'<strong>BLACKJACK !</strong> 21 avec 2 cartes (As + 10). Paiement 3:2.', bust:'<strong>Brûlé.</strong> En dépassant 21, vous perdez automatiquement.', dealerBust:'<strong>Victoire !</strong> Le croupier a dépassé 21.', win:'<strong>Victoire !</strong> Plus proche de 21 que le croupier.', lose:'<strong>Défaite.</strong> Le croupier est plus proche de 21.', push:'<strong>Push.</strong> Scores égaux — vous récupérez votre mise.' };
+    const tc = (hlCount / Math.max(0.5, deck.length/52)).toFixed(1);
+    let hlAdv;
+    if      (hlCount >= 2)  hlAdv = '<strong>Compte élevé (' + hlCount + ') — True Count ' + tc + '</strong><br>Beaucoup de grosses cartes restantes. Prochaine manche FAVORABLE. Misez plus !';
+    else if (hlCount <= -2) hlAdv = '<strong>Compte négatif (' + hlCount + ') — True Count ' + tc + '</strong><br>Beaucoup de petites cartes restantes. Prochaine manche DÉFAVORABLE. Misez moins.';
+    else                    hlAdv = '<strong>Compte neutre (' + hlCount + ') — True Count ' + tc + '</strong><br>Composition équilibrée. Pas d\'avantage particulier.';
+    const msg = customMsg || msgs[result] || '';
+    const winSet = new Set(['win','blackjack','dealerBust']);
+    const loseSet = new Set(['lose','bust']);
+    setMsg(msg, winSet.has(result) ? 'win' : loseSet.has(result) ? 'lose' : 'push');
+    showExplain((explains[result]||'') + '<br><br>' + hlAdv + '<br><br><strong>Cartes restantes :</strong> ' + deck.length + '/52');
+    setPhase('Partie terminée — ' + (deck.length < 10 ? 'Nouveau sabot nécessaire' : 'Même sabot, continuez !'));
+    setControls('ended');
+}
+
+function resetAll() {
+    deck = createDeck(); hlCount = 0;
+    playerHand = []; dealerHand = []; hiddenCard = null; gamePhase = 'idle';
+    document.getElementById('playerCards').innerHTML = '';
+    document.getElementById('dealerCards').innerHTML = '';
+    document.getElementById('historyList').innerHTML = '';
+    document.getElementById('explainBox').style.display = 'none';
+    document.getElementById('playerScore').textContent = '—'; document.getElementById('playerScore').className = 'hand-score';
+    document.getElementById('dealerScore').textContent = '—'; document.getElementById('dealerScore').className = 'hand-score';
+    updateHL();
+    setPhase('Prêt — Cliquez sur Distribuer');
+    setMsg('Nouveau sabot de 52 cartes. Compteur High-Low à 0.', 'info');
+    setControls('ended');
+}
+
+document.addEventListener('DOMContentLoaded', resetAll);
 </script>
-
 </body>
 </html>
