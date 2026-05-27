@@ -1,1214 +1,802 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Grand Oral — Blackjack & Probabilités</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <style>
-        /* ===== RESET & BASE ===== */
-        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Grand Oral — Blackjack</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0a0e1a;--bg2:#111827;--bg3:#1a2238;
+  --text:#f0f4f8;--text2:#94a3b8;--text3:#64748b;
+  --gold:#fbbf24;--gold2:#f59e0b;--gold3:#d97706;
+  --green:#22c55e;--red:#ef4444;--blue:#3b82f6;--purple:#a78bfa;
+  --border:#1e293b;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;min-height:100vh;-webkit-font-smoothing:antialiased}
+.site-header{background:var(--bg2);border-bottom:2px solid var(--gold3);padding:1rem;text-align:center}
+.site-header h1{font-size:clamp(1.4rem,5vw,2rem);font-weight:900;color:var(--gold);letter-spacing:-0.02em}
+.site-header .sub{font-size:0.85rem;color:var(--text2);font-weight:600;margin-top:0.2rem}
+.nav-wrap{background:var(--bg2);border-bottom:1px solid var(--border);padding:0.4rem;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:sticky;top:0;z-index:100}
+.nav-wrap::-webkit-scrollbar{display:none}
+.nav{display:flex;gap:0.25rem;min-width:max-content}
+.nb{background:var(--bg3);border:1.5px solid var(--border);color:var(--text2);padding:0.5rem 0.75rem;border-radius:8px;font-weight:700;font-size:0.78rem;cursor:pointer;transition:all 0.15s;white-space:nowrap;font-family:'Inter',sans-serif}
+.nb:hover,.nb.active{background:var(--gold);border-color:var(--gold);color:var(--bg)}
+.nb.sim.active{background:var(--green);border-color:var(--green);color:white}
+.main{max-width:800px;margin:0 auto;padding:0.6rem 0.5rem 3rem}
+.section{display:none}
+.section.active{display:block;animation:fadeUp 0.2s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:clamp(0.9rem,3vw,1.3rem);margin-bottom:0.8rem}
+.ch{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.8rem;flex-wrap:wrap}
+.cn{background:var(--gold);color:var(--bg);width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:0.9rem;flex-shrink:0}
+.ct{font-size:clamp(1.05rem,3vw,1.2rem);font-weight:800;color:var(--text);flex:1;line-height:1.25}
+.ctm{background:var(--bg3);color:var(--gold);padding:0.2rem 0.6rem;border-radius:12px;font-size:0.72rem;font-weight:800;border:1px solid var(--gold3)}
+.p{font-size:clamp(0.92rem,2.5vw,1.05rem);line-height:1.75;color:var(--text);margin-bottom:0.7rem}
+.p strong{color:var(--gold);font-weight:700}
+.hbox{background:rgba(251,191,36,0.06);border-left:3px solid var(--gold);padding:0.9rem 0.9rem 0.9rem 1.1rem;border-radius:0 10px 10px 0;margin:0.7rem 0}
+.hbox p{font-size:clamp(0.9rem,2.3vw,1rem);color:var(--text);line-height:1.7}
+.hbox strong{color:var(--gold)}
+.jury{background:rgba(167,139,250,0.05);border:1.5px solid rgba(167,139,250,0.25);border-radius:10px;padding:0.9rem;margin:0.7rem 0}
+.jury-t{color:var(--purple);font-weight:800;margin-bottom:0.3rem;font-size:0.88rem}
+.jury p{color:var(--text2);font-size:clamp(0.88rem,2.2vw,0.95rem);line-height:1.7}
+.warn{background:rgba(239,68,68,0.05);border:1.5px solid rgba(239,68,68,0.25);border-radius:10px;padding:0.9rem;margin:0.7rem 0}
+.warn-t{color:var(--red);font-weight:800;margin-bottom:0.3rem;font-size:0.88rem}
+.warn p{color:var(--text2);font-size:clamp(0.88rem,2.2vw,0.95rem);line-height:1.7}
+.ok{background:rgba(34,197,94,0.05);border:1.5px solid rgba(34,197,94,0.25);border-radius:10px;padding:0.9rem;margin:0.7rem 0}
+.ok-t{color:var(--green);font-weight:800;margin-bottom:0.3rem;font-size:0.88rem}
+.ok p{color:var(--text2);font-size:clamp(0.88rem,2.2vw,0.95rem);line-height:1.7}
+.info{background:rgba(59,130,246,0.05);border:1.5px solid rgba(59,130,246,0.25);border-radius:10px;padding:0.9rem;margin:0.7rem 0}
+.info-t{color:var(--blue);font-weight:800;margin-bottom:0.3rem;font-size:0.88rem}
+.info p{color:var(--text2);font-size:clamp(0.88rem,2.2vw,0.95rem);line-height:1.7}
+.mblock{background:var(--bg3);border:1.5px solid var(--border);border-radius:10px;padding:0.9rem;margin:0.7rem 0;overflow-x:auto}
+.ml{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--gold);font-weight:800;margin-bottom:0.5rem}
+.mf{font-size:clamp(1rem,3vw,1.15rem);font-weight:700;color:var(--text);text-align:center;padding:0.4rem;font-family:'JetBrains Mono',monospace;background:rgba(0,0,0,0.25);border-radius:6px;margin:0.25rem 0;overflow-x:auto;white-space:nowrap}
+.me{font-size:0.85rem;color:var(--text2);margin-top:0.3rem;text-align:center;font-style:italic}
+.mc{background:rgba(34,197,94,0.05);border:1.5px solid rgba(34,197,94,0.25);border-radius:6px;padding:0.6rem;margin-top:0.4rem;text-align:center}
+.mc p{font-size:clamp(0.88rem,2.3vw,1rem);color:var(--text);font-weight:600;line-height:1.6}
+.speech{background:var(--bg3);border:1.5px solid var(--gold3);border-radius:12px;padding:0.9rem 0.9rem 0.9rem 1.8rem;margin:0.7rem 0;position:relative}
+.speech::before{content:'"';font-size:2.5rem;color:var(--gold);position:absolute;top:-0.3rem;left:0.5rem;line-height:1;font-family:Georgia,serif}
+.speech p{font-size:clamp(0.9rem,2.3vw,1rem);font-style:italic;color:var(--text);line-height:1.7}
+.dt{width:100%;border-collapse:collapse;margin:0.7rem 0;font-size:clamp(0.82rem,2.2vw,0.95rem)}
+.dt th{background:var(--bg3);color:var(--gold);padding:0.65rem 0.5rem;text-align:left;font-weight:800;border-bottom:2px solid var(--gold3)}
+.dt td{padding:0.6rem 0.5rem;border-bottom:1px solid var(--border);color:var(--text)}
+.distrib{width:100%;border-collapse:collapse;margin:0.6rem 0;font-size:clamp(0.78rem,2vw,0.88rem)}
+.distrib th{background:rgba(167,139,250,0.08);color:var(--purple);padding:0.55rem 0.35rem;text-align:center;border:1.5px solid rgba(167,139,250,0.2);font-family:'JetBrains Mono',monospace}
+.distrib td{padding:0.55rem 0.35rem;text-align:center;border:1.5px solid var(--border);font-weight:700;font-family:'JetBrains Mono',monospace}
+.distrib td.xi{background:rgba(167,139,250,0.04);color:var(--purple)}
+.distrib td.pi{background:rgba(34,197,94,0.04);color:var(--green)}
+.timeline{position:relative;padding-left:1.6rem;margin:0.8rem 0}
+.timeline::before{content:'';position:absolute;left:0.35rem;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--gold),var(--gold3));border-radius:2px}
+.ti{position:relative;margin-bottom:0.9rem;padding-left:0.7rem}
+.ti::before{content:'';position:absolute;left:-1.45rem;top:0.25rem;width:10px;height:10px;background:var(--gold);border-radius:50%;border:2px solid var(--bg);box-shadow:0 0 0 2px var(--gold3)}
+.ti-t{font-weight:800;font-size:clamp(0.9rem,2.5vw,1.05rem);color:var(--gold);margin-bottom:0.2rem}
+.ti-d{color:var(--text2);font-size:clamp(0.85rem,2.2vw,0.95rem);line-height:1.6}
+.cl{list-style:none;padding:0}
+.cl li{padding:0.6rem 0 0.6rem 1.6rem;position:relative;font-size:clamp(0.88rem,2.2vw,0.95rem);border-bottom:1px solid var(--border);line-height:1.6;color:var(--text)}
+.cl li::before{content:'✓';position:absolute;left:0;color:var(--green);font-weight:900;font-size:1.1rem}
+.cl li strong{color:var(--gold)}
+.tags{display:flex;flex-wrap:wrap;gap:0.3rem;margin:0.6rem 0}
+.tag{background:rgba(34,197,94,0.08);color:var(--green);padding:0.25rem 0.6rem;border-radius:16px;font-size:0.75rem;font-weight:700;border:1.5px solid rgba(34,197,94,0.15)}
+.qalist{background:var(--bg3);border-radius:10px;padding:0.9rem;margin:0.6rem 0}
+.qa{margin-bottom:0.8rem;border-bottom:1px solid var(--border);padding-bottom:0.8rem}
+.qa:last-child{margin-bottom:0;border-bottom:none;padding-bottom:0}
+.qq{color:var(--red);font-weight:800;font-size:0.85rem;margin-bottom:0.3rem}
+.qa-a{color:var(--text2);font-size:0.85rem;line-height:1.7}
+.qa-a strong{color:var(--gold)}
+.chrono-table{width:100%;border-collapse:collapse;margin:0.7rem 0;font-size:clamp(0.78rem,2vw,0.88rem)}
+.chrono-table th{background:var(--bg3);color:var(--gold);padding:0.6rem 0.4rem;text-align:left;font-weight:800;border-bottom:2px solid var(--gold3)}
+.chrono-table td{padding:0.55rem 0.4rem;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top}
+.tdur{font-family:'JetBrains Mono',monospace;color:var(--gold);font-weight:700;white-space:nowrap;font-size:0.82rem}
+.tcum{font-family:'JetBrains Mono',monospace;color:var(--text3);font-size:0.72rem}
+.timer-section{background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:0.9rem;margin-bottom:0.8rem;text-align:center}
+.timer-display{font-size:clamp(3.5rem,12vw,5rem);font-weight:900;font-family:'JetBrains Mono',monospace;color:var(--gold);letter-spacing:0.03em;margin:0.2rem 0;line-height:1}
+.timer-display.danger{color:var(--red)}
+.timer-label{font-size:0.82rem;color:var(--text2);font-weight:700;margin-bottom:0.2rem}
+.timer-progress{height:5px;background:var(--bg3);border-radius:3px;margin:0.4rem 0;overflow:hidden}
+.timer-prog-fill{height:100%;border-radius:3px;transition:width 0.5s,background 0.5s;background:var(--green)}
+.timer-btns{display:flex;gap:0.35rem;justify-content:center;margin-top:0.4rem;flex-wrap:wrap}
+.tbtn{padding:0.5rem 1rem;border-radius:7px;font-weight:800;font-size:0.8rem;border:1.5px solid;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s}
+.tbtn:active{transform:scale(0.96)}
+.tbtn-start{background:var(--green);border-color:var(--green);color:white}
+.tbtn-pause{background:var(--gold);border-color:var(--gold);color:var(--bg)}
+.tbtn-reset{background:var(--bg3);border-color:var(--border);color:var(--text2)}
+.section-pills{display:flex;flex-wrap:wrap;gap:0.25rem;justify-content:center;margin:0.4rem 0}
+.spill{padding:0.3rem 0.55rem;border-radius:16px;font-size:0.7rem;font-weight:700;cursor:pointer;border:1.5px solid var(--border);background:var(--bg3);color:var(--text2);transition:all 0.15s}
+.spill.active{background:var(--gold);border-color:var(--gold);color:var(--bg)}
 
-        :root {
-            --bg:        #0a0e1a;
-            --bg-2:      #111827;
-            --bg-card:   #1a2236;
-            --bg-acc:    #1e293b;
-            --text:      #f8fafc;
-            --text-2:    #94a3b8;
-            --text-3:    #64748b;
-            --accent:    #f59e0b;
-            --acc-l:     #fbbf24;
-            --acc-d:     #d97706;
-            --success:   #10b981;
-            --danger:    #ef4444;
-            --info:      #3b82f6;
-            --purple:    #8b5cf6;
-            --border:    #2d3748;
-            --tbl-light: #15803d;
-            --tbl-mid:   #0d5c33;
-            --tbl-dark:  #052e16;
-        }
+/* SIMULATEUR */
+.table-area{background:radial-gradient(ellipse at center,#15803d 0%,#0d5c33 40%,#052e16 100%);border-radius:14px;padding:0.8rem 0.5rem;border:2px solid #92400e;box-shadow:inset 0 0 40px rgba(0,0,0,0.5)}
+.hand-sec{margin-bottom:0.7rem}
+.hh{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem;padding:0 0.1rem}
+.ht{font-size:0.72rem;font-weight:800;color:rgba(255,255,255,0.85);text-shadow:0 1px 2px rgba(0,0,0,0.5)}
+.hs{background:rgba(0,0,0,0.5);padding:0.2rem 0.55rem;border-radius:12px;font-weight:900;font-size:0.82rem;color:var(--gold);border:2px solid var(--gold);text-shadow:0 1px 2px rgba(0,0,0,0.5)}
+.hs.bust{background:rgba(239,68,68,0.35);border-color:var(--red);color:#fca5a5;animation:shake 0.5s ease}
+.hs.bj{background:rgba(251,191,36,0.35);border-color:var(--gold);color:#fde68a;animation:pulse 1.2s ease infinite}
+.cards-row{display:flex;justify-content:center;gap:0.25rem;flex-wrap:wrap;min-height:64px;align-items:center;padding:0.1rem}
 
-        body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.7;
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
+.card-anim{width:40px;height:56px;background:white;color:#1a1a1a;border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;box-shadow:0 2px 6px rgba(0,0,0,0.4);position:relative;opacity:0;transform:translateY(-25px) scale(0.8) rotateY(90deg);animation:cardDeal 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;flex-shrink:0}
+.card-anim.red{color:#dc2626}
+.card-anim .suit{font-size:1rem;line-height:1}
+.card-anim .val{font-size:0.6rem;margin-top:0.05rem;font-weight:700}
+.card-anim .hlb{position:absolute;bottom:-5px;right:-5px;width:15px;height:15px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.5rem;font-weight:900;color:white;box-shadow:0 1px 3px rgba(0,0,0,0.4);opacity:0;transform:scale(0);animation:badgePop 0.35s 0.25s cubic-bezier(0.34,1.56,0.64,1) forwards}
+.hlb.plus{background:var(--green)}.hlb.zero{background:#6b7280}.hlb.minus{background:var(--red)}
+.card-hidden{width:40px;height:56px;background:linear-gradient(135deg,#991b1b,#7f1d1d,#991b1b);border-radius:5px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.4);border:2px solid #b91c1c;position:relative;flex-shrink:0}
+.card-hidden::before{content:"";position:absolute;width:70%;height:70%;border:2px solid rgba(255,255,255,0.15);border-radius:3px}
+.card-hidden::after{content:"🂠";font-size:1.2rem;color:rgba(255,255,255,0.25)}
 
-        /* ===== HEADER ===== */
-        .site-header {
-            background: linear-gradient(135deg, var(--bg-2) 0%, var(--bg) 100%);
-            border-bottom: 3px solid var(--accent);
-            padding: clamp(1.2rem, 4vw, 2rem) 1rem;
-            text-align: center;
-        }
-        .site-header h1 {
-            font-size: clamp(1.6rem, 5vw, 2.8rem);
-            font-weight: 900;
-            color: var(--accent);
-            letter-spacing: -0.02em;
-            margin-bottom: 0.4rem;
-        }
-        .site-header .subtitle {
-            font-size: clamp(0.95rem, 3vw, 1.25rem);
-            color: var(--text-2);
-            font-weight: 500;
-        }
-        .timer-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: var(--bg-card);
-            border: 2px solid var(--accent);
-            color: var(--accent);
-            padding: 0.6rem 1.2rem;
-            border-radius: 50px;
-            font-weight: 800;
-            font-size: 1.1rem;
-            margin-top: 0.8rem;
-        }
+@keyframes cardDeal{0%{opacity:0;transform:translateY(-25px) scale(0.8) rotateY(90deg)}50%{opacity:1;transform:translateY(3px) scale(1.05) rotateY(0deg)}100%{opacity:1;transform:translateY(0) scale(1) rotateY(0deg)}}
+@keyframes badgePop{0%{opacity:0;transform:scale(0)}60%{opacity:1;transform:scale(1.4)}100%{opacity:1;transform:scale(1)}}
+@keyframes flipReveal{0%{transform:rotateY(0deg) scale(1)}40%{transform:rotateY(90deg) scale(0.9)}60%{transform:rotateY(90deg) scale(0.9)}100%{transform:rotateY(0deg) scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-2px)}80%{transform:translateX(2px)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
 
-        /* ===== NAV ===== */
-        .nav-container {
-            background: var(--bg-2);
-            border-bottom: 1px solid var(--border);
-            padding: 0.75rem 0.75rem;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .nav-container::-webkit-scrollbar { display: none; }
-        .nav {
-            display: flex;
-            gap: 0.4rem;
-            min-width: max-content;
-        }
-        .nav-btn {
-            background: var(--bg-card);
-            border: 2px solid var(--border);
-            color: var(--text-2);
-            padding: 0.65rem 0.95rem;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: clamp(0.78rem, 2.2vw, 0.88rem);
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
-            font-family: 'Inter', sans-serif;
-        }
-        .nav-btn:hover, .nav-btn.active {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: var(--bg);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(245,158,11,0.3);
-        }
-        .nav-btn.sim-btn.active {
-            background: linear-gradient(135deg, var(--success), #059669);
-            border-color: var(--success);
-            box-shadow: 0 4px 12px rgba(16,185,129,0.3);
-        }
+.mp{background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;padding:0.6rem 0.7rem;display:flex;flex-direction:column;gap:0.3rem}
+.mp-msg{font-size:0.85rem;font-weight:700;text-align:center;color:var(--text2);line-height:1.35}
+.mp-msg.win{color:var(--green);font-size:0.92rem}
+.mp-msg.lose{color:var(--red);font-size:0.92rem}
+.mp-adv{display:flex;align-items:flex-start;gap:0.35rem;background:var(--bg3);border-radius:7px;padding:0.4rem 0.6rem;font-size:0.75rem;font-weight:600;line-height:1.4;border-left:3px solid var(--border)}
+.mp-adv.fav{border-left-color:var(--green);color:var(--green);background:rgba(34,197,94,0.05)}
+.mp-adv.unf{border-left-color:var(--red);color:var(--red);background:rgba(239,68,68,0.05)}
+.mp-adv.neu{border-left-color:var(--border);color:var(--text2)}
+.mise-disp{background:var(--bg3);border-radius:7px;padding:0.4rem 0.6rem;display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;border:1px solid var(--border)}
+.mise-lbl{color:var(--text3);font-weight:700;font-size:0.65rem;text-transform:uppercase;flex-shrink:0}
+.mise-val{font-weight:900;font-size:0.9rem}
+.mise-rsn{color:var(--text2);font-size:0.7rem}
 
-        /* ===== SECTIONS ===== */
-        .main { max-width: 850px; margin: 0 auto; padding: 1rem 0.75rem 5rem; }
-        .section { display: none; animation: fadeIn 0.35s ease; }
-        .section.active { display: block; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(12px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
+.sim-btns{display:grid;grid-template-columns:1fr 1fr;gap:0.35rem;margin-bottom:0.35rem}
+.btn{padding:0.7rem;border-radius:9px;font-weight:800;font-size:0.85rem;border:none;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;text-align:center}
+.btn:active{transform:scale(0.95)}.btn:disabled{opacity:0.4;cursor:not-allowed}
+.btn-hit{background:linear-gradient(135deg,var(--green),#16a34a);color:white}
+.btn-stand{background:linear-gradient(135deg,var(--red),#b91c1c);color:white}
+.btn-deal{background:linear-gradient(135deg,var(--gold),var(--gold3));color:var(--bg)}
+.btn-reset{background:var(--bg3);color:var(--text);border:1.5px solid var(--border)}
 
-        /* ===== CARDS ===== */
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: clamp(1.2rem, 4vw, 2rem);
-            margin-bottom: 1.5rem;
-            box-shadow: 0 8px 25px -5px rgba(0,0,0,0.4);
-        }
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            margin-bottom: 1.25rem;
-            flex-wrap: wrap;
-        }
-        .card-number {
-            background: linear-gradient(135deg, var(--accent), var(--acc-d));
-            color: var(--bg);
-            width: 40px; height: 40px;
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 900; font-size: 1.2rem;
-            flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(245,158,11,0.3);
-        }
-        .card-title {
-            font-size: clamp(1.1rem, 3.5vw, 1.4rem);
-            font-weight: 800;
-            color: var(--text);
-            flex: 1;
-        }
-        .card-time {
-            background: var(--bg-acc);
-            color: var(--acc-l);
-            padding: 0.35rem 0.9rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            border: 1px solid var(--acc-d);
-        }
+.bstrip{display:flex;align-items:center;background:var(--bg2);border:1px solid var(--border);border-radius:9px;overflow:hidden}
+.bsc{flex:1;text-align:center;padding:0.35rem 0.1rem;border-right:1px solid var(--border)}
+.bsc:last-of-type{border-right:none}
+.bsl{font-size:0.5rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--text3);font-weight:700;margin-bottom:0.05rem}
+.bsv{font-size:0.95rem;font-weight:900;transition:all 0.3s}
+.bsv.pos{color:var(--green)}.bsv.neg{color:var(--red)}.bsv.neu{color:var(--text2)}
+.bsep{width:1px;background:var(--gold);opacity:0.25;align-self:stretch}
+.bs-reset{flex-shrink:0;background:none;border:none;border-left:1px solid var(--border);color:var(--red);font-size:0.9rem;cursor:pointer;padding:0 0.5rem;align-self:stretch;opacity:0.6}
+.bs-reset:hover{opacity:1}
+.winbar-wrap{height:3px;background:var(--bg3);border-radius:2px;overflow:hidden}
+.winbar{height:100%;background:linear-gradient(90deg,var(--green),var(--gold));border-radius:2px;transition:width 0.5s ease}
+.sim-hist{background:var(--bg2);border:1px solid var(--border);border-radius:9px;overflow:hidden}
+.sim-hist-t{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--text3);font-weight:700;padding:0.4rem 0.55rem;cursor:pointer;list-style:none}
+.sim-hist-t::-webkit-details-marker{display:none}
+#historyList{padding:0 0.5rem 0.3rem;max-height:90px;overflow-y:auto}
+.history-item{display:flex;align-items:center;gap:0.3rem;padding:0.18rem 0;border-bottom:1px solid var(--border);font-size:0.72rem}
+.mini-card{background:white;color:#1a1a1a;padding:0.1rem 0.2rem;border-radius:3px;font-weight:800;font-size:0.68rem;min-width:24px;text-align:center}
+.mini-card.red{color:#dc2626}
+.hl-dot{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.55rem;font-weight:900;color:white;flex-shrink:0}
+.hl-dot.plus{background:var(--green)}.hl-dot.zero{background:#6b7280}.hl-dot.minus{background:var(--red)}
+.who{color:var(--text2);flex:1;font-size:0.7rem}
+.count-val{font-size:0.7rem;font-weight:800;font-family:'JetBrains Mono',monospace}
+.count-val.pos{color:var(--green)}.count-val.neg{color:var(--red)}.count-val.neu{color:var(--text2)}
 
-        /* ===== CONTENT ELEMENTS ===== */
-        .content-text { font-size: clamp(1rem, 3vw, 1.15rem); line-height: 1.9; color: var(--text); margin-bottom: 1.25rem; }
-        .content-text strong { color: var(--acc-l); font-weight: 700; }
-
-        .highlight-box { background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(245,158,11,0.05)); border-left: 5px solid var(--accent); padding: 1.25rem; border-radius: 0 14px 14px 0; margin: 1.25rem 0; }
-        .highlight-box p { font-size: clamp(0.95rem, 3vw, 1.1rem); font-weight: 500; color: var(--text); line-height: 1.8; }
-
-        .speech-bubble { background: var(--bg-acc); border: 2px solid var(--accent); border-radius: 18px; padding: 1.25rem 1.25rem 1.25rem 2.5rem; margin: 1.25rem 0; position: relative; }
-        .speech-bubble::before { content: '"'; font-size: 3.5rem; color: var(--accent); position: absolute; top: -0.6rem; left: 1rem; line-height: 1; font-family: Georgia, serif; }
-        .speech-bubble p { font-size: clamp(0.95rem, 3vw, 1.1rem); font-style: italic; color: var(--text); line-height: 1.8; }
-
-        .math-card { background: var(--bg-acc); border: 2px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1.25rem 0; overflow-x: auto; }
-        .math-label { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); font-weight: 800; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.4rem; }
-        .math-formula { font-size: clamp(1.1rem, 4vw, 1.5rem); font-weight: 700; color: var(--text); text-align: center; padding: 0.8rem; font-family: 'Times New Roman', serif; background: rgba(0,0,0,0.2); border-radius: 10px; margin: 0.5rem 0; }
-        .math-explain { font-size: 1rem; color: var(--text-2); margin-top: 0.8rem; text-align: center; font-style: italic; }
-        .math-consequence { background: rgba(59,130,246,0.1); border: 2px solid var(--info); border-radius: 10px; padding: 1rem; margin-top: 0.8rem; text-align: center; }
-        .math-consequence p { font-size: clamp(0.95rem, 3vw, 1.05rem); color: var(--text); font-weight: 600; line-height: 1.7; }
-
-        .data-table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: clamp(0.9rem, 2.5vw, 1.05rem); }
-        .data-table th { background: var(--bg-acc); color: var(--accent); padding: 1rem 0.8rem; text-align: left; font-weight: 800; border-bottom: 3px solid var(--accent); }
-        .data-table td { padding: 1rem 0.8rem; border-bottom: 1px solid var(--border); color: var(--text); }
-        .data-table tr:hover td { background: rgba(245,158,11,0.05); }
-
-        .timeline { position: relative; padding-left: 2.2rem; margin: 1.5rem 0; }
-        .timeline::before { content: ''; position: absolute; left: 0.5rem; top: 0; bottom: 0; width: 4px; background: linear-gradient(to bottom, var(--accent), var(--acc-d)); border-radius: 4px; }
-        .timeline-item { position: relative; margin-bottom: 1.5rem; padding-left: 1.2rem; }
-        .timeline-item::before { content: ''; position: absolute; left: -1.9rem; top: 0.35rem; width: 14px; height: 14px; background: var(--accent); border-radius: 50%; border: 3px solid var(--bg); box-shadow: 0 0 0 3px var(--acc-d); }
-        .timeline-title { font-weight: 800; font-size: clamp(1rem, 3vw, 1.15rem); color: var(--acc-l); margin-bottom: 0.4rem; }
-        .timeline-desc { color: var(--text-2); font-size: clamp(0.9rem, 2.5vw, 1rem); line-height: 1.7; }
-
-        .tag-container { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1.25rem 0; }
-        .tag { background: var(--bg-acc); color: var(--accent); padding: 0.4rem 0.9rem; border-radius: 25px; font-size: 0.85rem; font-weight: 700; border: 2px solid var(--border); }
-        .tag.program { background: rgba(16,185,129,0.15); color: var(--success); border-color: var(--success); }
-
-        .checklist { list-style: none; padding: 0; }
-        .checklist li { padding: 0.85rem 0 0.85rem 2.2rem; position: relative; font-size: clamp(0.95rem, 3vw, 1.05rem); border-bottom: 1px solid var(--border); line-height: 1.7; }
-        .checklist li::before { content: '✓'; position: absolute; left: 0; color: var(--success); font-weight: 900; font-size: 1.3rem; }
-
-        .alert { background: rgba(239,68,68,0.08); border: 2px solid var(--danger); border-radius: 14px; padding: 1.25rem; margin: 1.25rem 0; }
-        .alert-title { color: var(--danger); font-weight: 800; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
-        .alert p { color: var(--text-2); font-size: clamp(0.9rem, 2.5vw, 1rem); line-height: 1.7; }
-
-        .info-box { background: rgba(59,130,246,0.08); border: 2px solid var(--info); border-radius: 14px; padding: 1.25rem; margin: 1.25rem 0; }
-        .info-box-title { color: var(--info); font-weight: 800; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
-        .info-box p { color: var(--text-2); font-size: clamp(0.9rem, 2.5vw, 1rem); line-height: 1.7; }
-
-        .example-box { background: rgba(16,185,129,0.08); border: 2px solid var(--success); border-radius: 14px; padding: 1.25rem; margin: 1.25rem 0; }
-        .example-title { color: var(--success); font-weight: 800; margin-bottom: 0.8rem; }
-
-        .jury-tip { background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(139,92,246,0.05)); border: 2px solid var(--purple); border-radius: 14px; padding: 1.25rem; margin: 1.25rem 0; }
-        .jury-tip-title { color: var(--purple); font-weight: 800; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; }
-        .jury-tip p { color: var(--text-2); font-size: clamp(0.9rem, 2.5vw, 1rem); line-height: 1.7; }
-
-        .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.25rem 0; }
-        .comparison-box { padding: 1.25rem; border-radius: 14px; text-align: center; }
-        .comparison-box.positive { background: rgba(16,185,129,0.1); border: 2px solid var(--success); }
-        .comparison-box.negative { background: rgba(239,68,68,0.1); border: 2px solid var(--danger); }
-        .comparison-box .cval { font-size: 2.2rem; font-weight: 900; margin-bottom: 0.4rem; }
-        .comparison-box.positive .cval { color: var(--success); }
-        .comparison-box.negative .cval { color: var(--danger); }
-        .comparison-box .clbl { font-size: 0.9rem; color: var(--text-2); font-weight: 600; }
-
-        /* ===== SIMULATOR SECTION ===== */
-        #simulateur { padding: 0; }
-        #simulateur .sim-inner { padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
-
-        /* ── Panneau central résultat + conseil ── */
-        .main-panel { background: var(--bg-card); border: 2px solid var(--border); border-radius: 14px; padding: 0.75rem 1rem; display: flex; flex-direction: column; gap: 0.4rem; }
-        .mp-msg { font-size: 0.95rem; font-weight: 700; text-align: center; color: var(--text-2); line-height: 1.4; }
-        .mp-msg.win  { color: var(--success); font-size: 1.05rem; }
-        .mp-msg.lose { color: var(--danger);  font-size: 1.05rem; }
-        .mp-msg.push { color: var(--accent);  }
-        .mp-advice { display: flex; align-items: flex-start; gap: 0.5rem; background: var(--bg-acc); border-radius: 10px; padding: 0.55rem 0.8rem; font-size: 0.82rem; font-weight: 600; line-height: 1.5; border-left: 3px solid var(--border); }
-        .mp-advice.favor { border-left-color: var(--success); color: var(--success); background: rgba(16,185,129,0.08); }
-        .mp-advice.unfav { border-left-color: var(--danger);  color: var(--danger);  background: rgba(239,68,68,0.08); }
-        .mp-advice.neutr { border-left-color: var(--border);  color: var(--text-2); }
-
-        /* ── Bande HL + Stats (ligne unique) ── */
-        .bottom-strip { display: flex; align-items: center; gap: 0; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-        .bs-cell { flex: 1; text-align: center; padding: 0.5rem 0.2rem; border-right: 1px solid var(--border); }
-        .bs-cell:last-of-type { border-right: none; }
-        .bs-lbl { font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); font-weight: 700; margin-bottom: 0.1rem; }
-        .bs-val { font-size: 1.2rem; font-weight: 900; transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); }
-        .bs-val.pop { transform: scale(1.4); }
-        .bs-val.pos { color: var(--success); }
-        .bs-val.neg { color: var(--danger); }
-        .bs-val.neu { color: var(--text-2); }
-        .bs-sep { width: 1px; background: var(--accent); opacity: 0.4; align-self: stretch; }
-        .hl-cell { transition: background 0.3s; }
-        .hl-cell.hot  { background: rgba(16,185,129,0.12); }
-        .hl-cell.cold { background: rgba(239,68,68,0.12); }
-        .bs-reset-btn { flex-shrink: 0; background: none; border: none; border-left: 1px solid var(--border); color: var(--danger); font-size: 1.1rem; cursor: pointer; padding: 0 0.7rem; align-self: stretch; opacity: 0.6; transition: opacity 0.2s; }
-        .bs-reset-btn:hover { opacity: 1; }
-
-        /* ── Barre win rate ── */
-        .stats-winbar-wrap { height: 4px; background: var(--bg-acc); border-radius: 2px; overflow: hidden; }
-        .stats-winbar { height: 100%; background: linear-gradient(90deg, var(--success), var(--accent)); border-radius: 2px; transition: width 0.5s ease; }
-
-        /* ── Historique collapsible ── */
-        .sim-history { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-        .sim-hist-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); font-weight: 700; padding: 0.5rem 0.75rem; cursor: pointer; list-style: none; }
-        .sim-hist-title::-webkit-details-marker { display: none; }
-        #historyList { padding: 0 0.65rem 0.5rem; max-height: 130px; overflow-y: auto; }
-
-        .table-area {
-            background: radial-gradient(ellipse at center, var(--tbl-light) 0%, var(--tbl-mid) 40%, var(--tbl-dark) 100%);
-            border-radius: 20px; padding: 1rem 0.75rem; margin-bottom: 0.5rem;
-            border: 3px solid #92400e;
-            box-shadow: inset 0 0 60px rgba(0,0,0,0.5), 0 10px 30px rgba(0,0,0,0.6);
-            position: relative;
-        }
-        .table-area::before { content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 100px; height: 50px; border: 3px solid rgba(255,255,255,0.07); border-radius: 50%; pointer-events: none; }
-        .hand-section { margin-bottom: 1rem; position: relative; z-index: 1; }
-        .hand-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; padding: 0 0.2rem; }
-        .hand-title { font-size: 0.82rem; font-weight: 800; color: rgba(255,255,255,0.85); text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
-        .hand-score { background: rgba(0,0,0,0.6); padding: 0.3rem 0.8rem; border-radius: 18px; font-weight: 900; font-size: 1rem; color: var(--acc-l); border: 2px solid var(--accent); text-shadow: 0 1px 3px rgba(0,0,0,0.5); transition: all 0.3s ease; }
-        .hand-score.bust { background: rgba(239,68,68,0.4); border-color: var(--danger); color: #fca5a5; animation: shake 0.5s ease; }
-        .hand-score.blackjack { background: rgba(245,158,11,0.4); border-color: var(--accent); color: #fde68a; animation: pulse 1.2s ease infinite; }
-        .hand-score.stand { background: rgba(59,130,246,0.3); border-color: var(--info); color: #93c5fd; }
-        .cards-row { display: flex; justify-content: center; gap: 0.4rem; flex-wrap: wrap; min-height: 85px; align-items: center; padding: 0.2rem; }
-
-        .card-anim { width: 52px; height: 73px; background: white; color: #1a1a1a; border-radius: 7px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 800; box-shadow: 0 3px 10px rgba(0,0,0,0.4), 0 0 0 1px #ccc; position: relative; opacity: 0; transform: translateY(-40px) scale(0.8) rotateY(90deg); animation: cardDeal 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards; flex-shrink: 0; }
-        .card-anim.red { color: #dc2626; }
-        .card-anim .suit { font-size: 1.3rem; line-height: 1; }
-        .card-anim .val  { font-size: 0.75rem; margin-top: 0.1rem; font-weight: 700; }
-        .card-anim .hl-badge { position: absolute; bottom: -7px; right: -7px; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 900; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.4); opacity: 0; transform: scale(0); animation: badgePop 0.4s 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards; }
-        .hl-badge.plus  { background: var(--success); }
-        .hl-badge.zero  { background: #6b7280; }
-        .hl-badge.minus { background: var(--danger); }
-
-        .card-hidden { width: 52px; height: 73px; background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 50%, #991b1b 100%); border-radius: 7px; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 10px rgba(0,0,0,0.4), inset 0 0 20px rgba(0,0,0,0.3); border: 2px solid #b91c1c; position: relative; flex-shrink: 0; }
-        .card-hidden::before { content: ""; position: absolute; width: 70%; height: 70%; border: 2px solid rgba(255,255,255,0.15); border-radius: 4px; }
-        .card-hidden::after  { content: "🂠"; font-size: 1.6rem; color: rgba(255,255,255,0.25); }
-
-        @keyframes cardDeal { 0%   { opacity:0; transform:translateY(-40px) scale(0.8) rotateY(90deg); } 50%  { opacity:1; transform:translateY(5px) scale(1.05) rotateY(0deg); } 100% { opacity:1; transform:translateY(0) scale(1) rotateY(0deg); } }
-        @keyframes badgePop { 0%   { opacity:0; transform:scale(0); } 60%  { opacity:1; transform:scale(1.5); } 100% { opacity:1; transform:scale(1); } }
-        @keyframes flipReveal { 0% { transform:rotateY(0deg) scale(1); } 40% { transform:rotateY(90deg) scale(0.9); } 60% { transform:rotateY(90deg) scale(0.9); } 100% { transform:rotateY(0deg) scale(1); } }
-        @keyframes shake { 0%,100% { transform:translateX(0); } 20% { transform:translateX(-5px); } 40% { transform:translateX(5px); } 60% { transform:translateX(-3px); } 80% { transform:translateX(3px); } }
-        @keyframes pulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.05); } }
-
-        .sim-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.5rem; }
-        .btn { padding: 0.9rem; border-radius: 12px; font-weight: 800; font-size: 0.95rem; border: none; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.15s; text-align: center; box-shadow: 0 3px 10px rgba(0,0,0,0.3); }
-        .btn:active { transform: scale(0.95); }
-        .btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
-        .btn-hit   { background: linear-gradient(135deg, var(--success), #059669); color: white; }
-        .btn-stand { background: linear-gradient(135deg, var(--danger), #b91c1c); color: white; }
-        .btn-deal  { background: linear-gradient(135deg, var(--accent), var(--acc-d)); color: var(--bg); }
-        .btn-reset { background: var(--bg-acc); color: var(--text); border: 2px solid var(--border); }
-
-        .explain-box { background: var(--bg-card); border-left: 4px solid var(--accent); border-radius: 0 12px 12px 0; padding: 0.9rem; margin-bottom: 0.5rem; font-size: 0.85rem; line-height: 1.7; color: var(--text-2); }
-        .explain-box strong { color: var(--acc-l); }
-
-        .explain-box { display: none; } /* kept for JS compat, hidden */
-
-        .sim-history { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 0.65rem; max-height: 150px; overflow-y: auto; }
-        .sim-hist-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); font-weight: 800; margin-bottom: 0.35rem; }
-        .history-item { display: flex; align-items: center; gap: 0.45rem; padding: 0.25rem 0; border-bottom: 1px solid var(--border); font-size: 0.78rem; animation: slideIn 0.3s ease; }
-        @keyframes slideIn { from { opacity:0; transform:translateX(-6px); } to { opacity:1; transform:translateX(0); } }
-        .history-item .mini-card { width: 24px; height: 33px; background: white; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; color: #1a1a1a; flex-shrink: 0; }
-        .history-item .mini-card.red { color: #dc2626; }
-        .history-item .hl-dot { width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 900; color: white; flex-shrink: 0; }
-        .history-item .who { color: var(--text-2); }
-        .history-item .count-val { margin-left: auto; font-weight: 800; font-size: 0.85rem; }
-        .history-item .count-val.pos { color: var(--success); }
-        .history-item .count-val.neg { color: var(--danger); }
-        .history-item .count-val.neu { color: var(--text-2); }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 480px) {
-            .comparison-grid { grid-template-columns: 1fr; }
-            .card { padding: 1rem; }
-        }
-
-        /* ===== SCROLLBAR ===== */
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-track { background: var(--bg); }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-    </style>
+/* TRAP QUESTIONS */
+.trap{background:rgba(251,191,36,0.04);border:1.5px solid rgba(251,191,36,0.2);border-radius:10px;padding:0.9rem;margin:0.7rem 0}
+.trap-t{color:var(--gold);font-weight:800;margin-bottom:0.3rem;font-size:0.88rem;display:flex;align-items:center;gap:0.4rem}
+.trap-t::before{content:"🪤";font-size:1rem}
+.trap .hesite{color:var(--text3);font-style:italic;font-size:0.82rem;margin-bottom:0.3rem;padding-left:0.5rem;border-left:2px solid var(--border)}
+.trap .reveal{color:var(--text);font-size:0.85rem;line-height:1.7}
+.trap .reveal strong{color:var(--gold)}
+.trap .phrase-jury{background:rgba(34,197,94,0.06);border-left:3px solid var(--green);padding:0.5rem 0.7rem;border-radius:0 6px 6px 0;margin-top:0.4rem;font-size:0.82rem;font-style:italic;color:var(--text2)}
+.trap .phrase-jury strong{color:var(--green)}
+</style>
+<base target="_blank">
 </head>
 <body>
 
 <header class="site-header">
-    <h1>🎲 BLACKJACK & PROBABILITÉS</h1>
-    <p class="subtitle">Grand Oral de Mathématiques — Terminale</p>
-    <div class="timer-badge">⏱️ Durée : 10 minutes</div>
+  <h1>♠ Grand Oral — Blackjack</h1>
+  <div class="sub">Terminale — Probabilités & Espérance</div>
 </header>
 
-<nav class="nav-container">
-    <div class="nav">
-        <button class="nav-btn active"   onclick="showTab('intro',     this)">📋 Intro</button>
-        <button class="nav-btn"          onclick="showTab('regles',    this)">🃏 Règles</button>
-        <button class="nav-btn"          onclick="showTab('programme', this)">📚 Programme</button>
-        <button class="nav-btn"          onclick="showTab('proba',     this)">🎯 Proba. Cond.</button>
-        <button class="nav-btn"          onclick="showTab('va',        this)">📊 VA & Espérance</button>
-        <button class="nav-btn"          onclick="showTab('comptage',  this)">🔢 Comptage</button>
-        <button class="nav-btn"          onclick="showTab('strategie', this)">🧠 Stratégie</button>
-        <button class="nav-btn"          onclick="showTab('conclusion',this)">🏁 Conclusion</button>
-        <button class="nav-btn"          onclick="showTab('fiche',     this)">📄 Fiche</button>
-        <button class="nav-btn sim-btn"  onclick="showTab('simulateur',this)">🎮 Simulateur</button>
-    </div>
+<nav class="nav-wrap">
+  <div class="nav">
+    <button class="nb active" onclick="show('plan',this)">📋 Plan</button>
+    <button class="nb" onclick="show('apprendre',this)">💬 Par cœur</button>
+    <button class="nb" onclick="show('connaitre',this)">📐 Connaître</button>
+    <button class="nb" onclick="show('lire',this)">📖 Lire</button>
+    <button class="nb sim" onclick="show('simu',this)">♠ Simu</button>
+  </div>
 </nav>
 
 <main class="main">
 
-<!-- ===== INTRO ===== -->
-<section id="intro" class="section active">
-    <div class="card">
-        <div class="card-header">
-            <div class="card-number">1</div>
-            <h2 class="card-title">Problématique d'entrée</h2>
-            <span class="card-time">15-20 sec</span>
-        </div>
-        <div class="speech-bubble">
-            <p>En terminale, on étudie des lois de probabilité et des variables aléatoires pour modéliser des situations aléatoires. Mon sujet est : <strong>en quoi les notions de probabilités vues en Terminale permettent-elles de comprendre comment les chances de gagner au blackjack changent au cours d'une partie, par exemple lorsqu'on observe les cartes déjà sorties ?</strong></p>
-        </div>
-        <div class="highlight-box">
-            <p>Je vais m'appuyer sur des notions de <strong>probabilités conditionnelles</strong>, de <strong>variable aléatoire</strong> et d'<strong>espérance</strong>, et montrer comment elles se retrouvent dans un jeu de casino comme le blackjack. Tout ce que je vais présenter est strictement au programme de Terminale.</p>
-        </div>
-        <div class="tag-container">
-            <span class="tag program">Probabilités conditionnelles</span>
-            <span class="tag program">Variable aléatoire</span>
-            <span class="tag program">Espérance</span>
-            <span class="tag program">Statistiques</span>
-        </div>
-        <div class="jury-tip">
-            <div class="jury-tip-title">💡 Phrase clé pour le jury</div>
-            <p>"Je ne vais pas introduire des outils hors programme, mais montrer comment ces notions vues en Terminale permettent de comprendre de façon simple pourquoi les chances de gagner changent au cours d'une partie."</p>
-        </div>
+<!-- ============ PLAN ============ -->
+<section id="plan" class="section active">
+  <div class="card">
+    <div class="ch"><div class="cn">📋</div><h2 class="ct">Plan — 10 minutes</h2></div>
+    <table class="chrono-table">
+      <thead><tr><th>Partie</th><th>Contenu</th><th>Temps</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Intro</strong></td><td>Accroche + Problématique + Plan 3 parties</td><td class="tdur">1 min 30</td></tr>
+        <tr><td><strong>1</strong></td><td>Info → Probas : P(A|B) + exemple 4/52 → 4/51</td><td class="tdur">2 min 30</td></tr>
+        <tr><td><strong>2</strong></td><td>Probas → Esp : VA Hi-Lo + E(X)=0 + évolution</td><td class="tdur">3 min</td></tr>
+        <tr><td><strong>3</strong></td><td>Esp → Décision : comptage + LGN + True Count</td><td class="tdur">2 min 30</td></tr>
+        <tr><td><strong>Concl.</strong></td><td>Synthèse + Ouverture (casinos mélangent)</td><td class="tdur">30 sec</td></tr>
+      </tbody>
+    </table>
+    <div class="ok"><div class="ok-t">🌟 Fil directeur</div><p><strong>"L'information observée modifie les probabilités, les probabilités modifient l'espérance, l'espérance modifie la décision."</strong></p></div>
+    <div class="timeline">
+      <div class="ti"><div class="ti-t">Cartes sorties</div><div class="ti-d">→ Information conditionnelle</div></div>
+      <div class="ti"><div class="ti-t">P(A|B) = P(A∩B)/P(B)</div><div class="ti-d">→ Probabilités modifiées</div></div>
+      <div class="ti"><div class="ti-t">E(X) = Σ xᵢ × P(X=xᵢ)</div><div class="ti-d">→ Espérance qui évolue</div></div>
+      <div class="ti"><div class="ti-t">True Count = RC / jeux restants</div><div class="ti-d">→ Décision de mise</div></div>
     </div>
+  </div>
 
-    <div class="card">
-        <div class="card-header">
-            <div class="card-number">2</div>
-            <h2 class="card-title">Plan détaillé de l'oral</h2>
-            <span class="card-time">Total : 10 min</span>
-        </div>
-        <div class="timeline">
-            <div class="timeline-item"><div class="timeline-title">Introduction (15-20s)</div><div class="timeline-desc">Accroche + problématique clairement formulée + annonce du plan</div></div>
-            <div class="timeline-item"><div class="timeline-title">Règles du blackjack (45-60s)</div><div class="timeline-desc">Cadrage du jeu, objectif, valeurs des cartes, composition du sabot</div></div>
-            <div class="timeline-item"><div class="timeline-title">Chapitres mobilisés (30-45s)</div><div class="timeline-desc">Expliciter les notions du programme : probabilités conditionnelles, VA, espérance, statistiques</div></div>
-            <div class="timeline-item"><div class="timeline-title">Probabilité conditionnelle (1 min)</div><div class="timeline-desc">Démonstration avec exemple simplifié (3 cartes) puis application au jeu de 52 cartes</div></div>
-            <div class="timeline-item"><div class="timeline-title">Variable aléatoire & Espérance (1 min)</div><div class="timeline-desc">Modélisation mathématique du tirage, calcul de E(X), interprétation concrète</div></div>
-            <div class="timeline-item"><div class="timeline-title">Comptage High-Low (1 min)</div><div class="timeline-desc">Système de comptage comme somme de variables aléatoires, interprétation du compte</div></div>
-            <div class="timeline-item"><div class="timeline-title">Impact stratégique (1 min)</div><div class="timeline-desc">Lien entre probabilités et décision de mise, limites de la modélisation</div></div>
-            <div class="timeline-item"><div class="timeline-title">Conclusion (30-45s)</div><div class="timeline-desc">Synthèse des notions utilisées + ouverture sur les limites</div></div>
-        </div>
+  <div class="card">
+    <div class="ch"><div class="cn">⏱</div><h2 class="ct">Minuteur</h2></div>
+    <div class="timer-section">
+      <div class="timer-label" id="timerLabel">Oral complet</div>
+      <div class="timer-display" id="timerDisplay">10:00</div>
+      <div class="timer-progress"><div class="timer-prog-fill" id="timerFill" style="width:100%"></div></div>
+      <div class="timer-btns">
+        <button class="tbtn tbtn-start" id="btnTimerStart" onclick="timerStart()">▶ Démarrer</button>
+        <button class="tbtn tbtn-pause" id="btnTimerPause" onclick="timerPause()" style="display:none">⏸ Pause</button>
+        <button class="tbtn tbtn-reset" onclick="timerReset()">↺ Reset</button>
+      </div>
     </div>
+    <div class="section-pills">
+      <button class="spill active" onclick="setTimerSection(this,600,'Oral complet')">10 min</button>
+      <button class="spill" onclick="setTimerSection(this,90,'Introduction')">Intro 1m30</button>
+      <button class="spill" onclick="setTimerSection(this,150,'Partie 1')">P1 2m30</button>
+      <button class="spill" onclick="setTimerSection(this,180,'Partie 2')">P2 3min</button>
+      <button class="spill" onclick="setTimerSection(this,150,'Partie 3')">P3 2m30</button>
+      <button class="spill" onclick="setTimerSection(this,30,'Conclusion')">Concl. 30s</button>
+    </div>
+  </div>
 </section>
 
-<!-- ===== RÈGLES ===== -->
-<section id="regles" class="section">
-    <div class="card">
-        <div class="card-header">
-            <div class="card-number">1</div>
-            <h2 class="card-title">Rappel des règles du blackjack</h2>
-            <span class="card-time">45-60 sec</span>
-        </div>
-        <p class="content-text">Dans le blackjack, <strong>le but est de se rapprocher de 21 sans le dépasser</strong>. On joue contre le croupier qui suit des règles strictes et fixes. C'est un jeu de tirage sans remise : chaque carte sortie modifie la composition du sabot restant.</p>
-        <table class="data-table">
-            <thead><tr><th>Carte</th><th>Valeur</th><th>Détail</th></tr></thead>
-            <tbody>
-                <tr><td>2 à 10</td><td>Valeur faciale</td><td>Le 2 vaut 2, le 7 vaut 7, etc.</td></tr>
-                <tr><td>10, V, D, R</td><td>10</td><td>Appelées les <strong>"bûches"</strong> (16 cartes)</td></tr>
-                <tr><td>As</td><td>1 ou 11</td><td>Au choix du joueur (4 cartes)</td></tr>
-            </tbody>
-        </table>
-        <div class="highlight-box">
-            <p><strong>Le croupier tire jusqu'à atteindre au moins 17.</strong> S'il dépasse 21, il "brûle" et le joueur gagne. Même si le jeu paraît simple, il repose sur des probabilités qui varient au fur et à mesure que les cartes sont tirées, car on joue <strong>sans remise</strong>.</p>
-        </div>
-        <div class="math-card">
-            <div class="math-label">📊 Décompte des cartes</div>
-            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.75rem;margin-top:0.5rem;">
-                <div style="text-align:center;padding:0.9rem;background:rgba(245,158,11,0.1);border-radius:10px;border:2px solid var(--accent);">
-                    <div style="font-size:2rem;font-weight:900;color:var(--accent);">16</div>
-                    <div style="font-size:0.9rem;color:var(--text-2);margin-top:0.4rem;">Bûches<br>(10, V, D, R)<br><span style="color:var(--accent);">× 4 couleurs</span></div>
-                </div>
-                <div style="text-align:center;padding:0.9rem;background:rgba(59,130,246,0.1);border-radius:10px;border:2px solid var(--info);">
-                    <div style="font-size:2rem;font-weight:900;color:var(--info);">4</div>
-                    <div style="font-size:0.9rem;color:var(--text-2);margin-top:0.4rem;">As<br><span style="color:var(--info);">× 4 couleurs</span></div>
-                </div>
-                <div style="text-align:center;padding:0.9rem;background:rgba(16,185,129,0.1);border-radius:10px;border:2px solid var(--success);">
-                    <div style="font-size:2rem;font-weight:900;color:var(--success);">32</div>
-                    <div style="font-size:0.9rem;color:var(--text-2);margin-top:0.4rem;">Autres cartes<br>(2 à 9)<br><span style="color:var(--success);">8 valeurs × 4</span></div>
-                </div>
-                <div style="text-align:center;padding:0.9rem;background:rgba(255,255,255,0.05);border-radius:10px;border:2px solid var(--text-3);">
-                    <div style="font-size:2rem;font-weight:900;color:var(--text);">52</div>
-                    <div style="font-size:0.9rem;color:var(--text-2);margin-top:0.4rem;">Total<br>16 + 4 + 32</div>
-                </div>
-            </div>
-        </div>
-        <div class="jury-tip">
-            <div class="jury-tip-title">💡 Phrase clé pour le jury</div>
-            <p>"Avant même de faire des calculs, on voit que la composition du jeu est asymétrique : 16 cartes sur 52 valent 10. Cette proportion va évoluer au fil de la partie, et c'est précisément ce que les probabilités conditionnelles nous permettent de quantifier."</p>
-        </div>
+<!-- ============ APPRENDRE PAR COEUR ============ -->
+<section id="apprendre" class="section">
+  <div class="card">
+    <div class="ch"><div class="cn">💬</div><h2 class="ct">Phrases à apprendre mot pour mot</h2><span class="ctm">10 phrases</span></div>
+
+    <div class="speech"><p><strong>1. Accroche :</strong> "En Terminale, on apprend que les probabilités conditionnelles permettent de mettre à jour une probabilité quand on obtient une nouvelle information."</p></div>
+    <div class="speech"><p><strong>2. Problématique :</strong> "Comment les notions de probabilités conditionnelles, de variable aléatoire et d'espérance permettent-elles de comprendre pourquoi l'observation des cartes change les probabilités au blackjack ?"</p></div>
+    <div class="speech"><p><strong>3. Plan :</strong> "Je montrerai d'abord que l'information modifie les probabilités. Puis que les probabilités modifient l'espérance. Enfin que l'espérance modifie la décision."</p></div>
+    <div class="speech"><p><strong>4. P1 conclusion :</strong> "Voir une carte n'est pas neutre : cela modifie le calcul des probabilités. C'est exactement ce que formalise la notion de probabilité conditionnelle."</p></div>
+    <div class="speech"><p><strong>5. P2 définition :</strong> "L'espérance est la valeur moyenne théorique que l'on peut attendre si l'on répète l'expérience un grand nombre de fois."</p></div>
+    <div class="speech"><p><strong>6. P2 évolution :</strong> "L'espérance n'est pas fixe : elle évolue avec la composition du sabot."</p></div>
+    <div class="speech"><p><strong>7. P3 True Count :</strong> "Le compte brut ne suffit pas : il faut le normaliser par le nombre de cartes restantes. C'est le True Count qui mesure la densité réelle d'information."</p></div>
+    <div class="speech"><p><strong>8. P3 comptage :</strong> "Le comptage ne garantit pas de gagner chaque coup, mais il améliore la décision moyenne sur un grand nombre de parties."</p></div>
+    <div class="speech"><p><strong>9. Conclusion :</strong> "En conclusion, le blackjack montre que les notions de Terminale ne sont pas abstraites : elles permettent de modéliser une situation réelle où l'information modifie les probabilités, puis l'espérance, puis la décision."</p></div>
+    <div class="speech"><p><strong>10. Ouverture :</strong> "Cette modélisation a une limite : les casinos mélangent les cartes pour empêcher l'accumulation d'information et casser cet avantage statistique."</p></div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="cn">🔢</div><h2 class="ct">Calculs par coeur</h2></div>
+    <div class="mblock">
+      <div class="ml">Partie 1</div>
+      <div class="mf">P(As) = 4/52 = 1/13 ≈ 0,0769</div>
+      <div class="mf">P(As | Roi sorti) = 4/51 ≈ 0,0784</div>
+      <div class="mc"><p>→ L'information modifie la probabilité</p></div>
     </div>
+    <div class="mblock">
+      <div class="ml">Partie 2 — Symétrie Hi-Lo</div>
+      <div class="mf">Basses (2-6) : 5 valeurs × 4 = 20 cartes → +1</div>
+      <div class="mf">Hautes (10-A) : 5 valeurs × 4 = 20 cartes → −1</div>
+      <div class="mf">E(X) = (+1)(20/52) + (0)(12/52) + (−1)(20/52) = 0</div>
+      <div class="mc"><p>→ Symétrie parfaite → E(X)=0 au départ</p></div>
+    </div>
+    <div class="mblock">
+      <div class="ml">Partie 3 — True Count</div>
+      <div class="mf">TC = Running Count ÷ (cartes restantes / 52)</div>
+      <div class="mf">Exemple : RC=+10, 26 cartes restantes → TC = +20</div>
+      <div class="mc"><p>→ Plus on approche de la fin, plus le TC est fiable</p></div>
+    </div>
+  </div>
 </section>
 
-<!-- ===== PROGRAMME ===== -->
-<section id="programme" class="section">
-    <div class="card">
-        <div class="card-header">
-            <div class="card-number">2</div>
-            <h2 class="card-title">Chapitres de Terminale mobilisés</h2>
-            <span class="card-time">30-45 sec</span>
-        </div>
-        <p class="content-text">Pour analyser ce jeu, je m'appuie sur <strong>plusieurs notions vues en Terminale</strong>, sans jamais introduire d'outils hors programme. Je vais explicitement citer les chapitres du programme pour montrer l'ancrage pédagogique de mon sujet.</p>
-        <div class="timeline">
-            <div class="timeline-item"><div class="timeline-title">Probabilités conditionnelles</div><div class="timeline-desc">Formule P(A|B) = P(A∩B)/P(B), arbres de probabilités, tirages sans remise</div></div>
-            <div class="timeline-item"><div class="timeline-title">Variable aléatoire</div><div class="timeline-desc">Définition d'une VA, loi de probabilité, tableau de distribution</div></div>
-            <div class="timeline-item"><div class="timeline-title">Espérance</div><div class="timeline-desc">Formule E(X) = Σ xᵢ × P(X=xᵢ), interprétation comme valeur moyenne</div></div>
-            <div class="timeline-item"><div class="timeline-title">Statistiques</div><div class="timeline-desc">Proportions, fréquences observées, évolution d'une composition</div></div>
-        </div>
-        <div class="speech-bubble">
-            <p>Je ne vais donc pas introduire des outils hors programme, mais montrer comment ces notions de probabilités, vues en Terminale, permettent de comprendre de façon simple pourquoi les chances de gagner changent au cours d'une partie.</p>
-        </div>
-        <div class="jury-tip">
-            <div class="jury-tip-title">💡 Phrase indispensable pour le jury</div>
-            <p>"Tout ce que je vais vous présenter est strictement au programme de Terminale : les probabilités conditionnelles, les variables aléatoires et l'espérance, et les raisonnements sur les proportions."</p>
-        </div>
+<!-- ============ CONNAITRE ============ -->
+<section id="connaitre" class="section">
+  <div class="card">
+    <div class="ch"><div class="cn">📐</div><h2 class="ct">Formules à écrire</h2></div>
+    <div class="mblock">
+      <div class="ml">Probabilité conditionnelle</div>
+      <div class="mf">P(A | B) = P(A ∩ B) / P(B)</div>
     </div>
+    <div class="mblock">
+      <div class="ml">Espérance</div>
+      <div class="mf">E(X) = Σ xᵢ × P(X = xᵢ)</div>
+    </div>
+    <div class="mblock">
+      <div class="ml">True Count</div>
+      <div class="mf">TC = RC / (cartes restantes / 52)</div>
+      <div class="me">RC = Running Count (compte brut)</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="cn">📊</div><h2 class="ct">Tableau Hi-Lo — Pourquoi 2 à 6 ?</h2></div>
+    <table class="distrib">
+      <thead><tr><th>xᵢ</th><th>+1</th><th>0</th><th>−1</th></tr></thead>
+      <tbody>
+        <tr><td class="xi">Cartes</td><td class="pi">2-6</td><td class="pi">7-9</td><td class="pi">10-A</td></tr>
+        <tr><td class="xi">Nombre</td><td class="pi">20</td><td class="pi">12</td><td class="pi">20</td></tr>
+        <tr><td class="xi">Proba</td><td class="pi">20/52</td><td class="pi">12/52</td><td class="pi">20/52</td></tr>
+      </tbody>
+    </table>
+    <div class="ok"><div class="ok-t">✅ Pourquoi 2-6 et pas 1-5 ?</div>
+      <p><strong>Symétrie obligatoire.</strong> Avec 2-6 : 20 basses (+1) et 20 hautes (−1). Les contributions s'annulent exactement → <strong>E(X)=0</strong>.<br><br>
+      Avec 1-5 : 16 basses (+1) et 20 hautes (−1) → E(X) = (16−20)/52 = −4/52 ≠ 0. Le système serait biaisé dès le départ !</p>
+    </div>
+    <div class="info"><div class="info-t">💡 À retenir</div><p>20 basses (+1), 12 neutres (0), 20 hautes (−1). <strong>Symétrique</strong> → E(X)=0. C'est notre référence neutre.</p></div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="cn">📚</div><h2 class="ct">Terminologie</h2></div>
+    <ul class="cl">
+      <li><strong>Univers Ω</strong> — ensemble de toutes les issues possibles</li>
+      <li><strong>Événement</strong> — sous-ensemble de l'univers</li>
+      <li><strong>Intersection</strong> — A et B ensemble</li>
+      <li><strong>Sans remise</strong> — la carte ne revient pas</li>
+      <li><strong>Probabilité conditionnelle</strong> — P(A|B), sachant une info</li>
+      <li><strong>Variable aléatoire discrète</strong> — fonction numérique</li>
+      <li><strong>Distribution</strong> — tableau valeurs + probas</li>
+      <li><strong>Espérance</strong> — valeur moyenne théorique</li>
+      <li><strong>Loi des grands nombres</strong> — fréquences → probas</li>
+      <li><strong>Running Count</strong> — compte brut Hi-Lo</li>
+      <li><strong>True Count</strong> — compte normalisé par cartes restantes</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="cn">⚠️</div><h2 class="ct">Pièges à éviter</h2></div>
+    <div class="warn"><div class="warn-t">1. Comptage = garantie ?</div><p><strong>NON.</strong> Le jury pénalise. Dire "décision moyenne sur le long terme".</p></div>
+    <div class="warn"><div class="warn-t">2. Oublier "sachant que"</div><p>Toujours dire <strong>P(A sachant B)</strong> pour P(A|B). C'est la définition.</p></div>
+    <div class="warn"><div class="warn-t">3. Espérance = gain certain ?</div><p><strong>NON.</strong> E(X)=0 ne veut pas dire qu'on ne gagne jamais. C'est une moyenne.</p></div>
+    <div class="warn"><div class="warn-t">4. Trop de chiffres</div><p><strong>Un seul calcul par partie.</strong> 4/52→4/51 pour P1, E(X)=0 pour P2.</p></div>
+    <div class="warn"><div class="warn-t">5. Confondre RC et TC</div><p><strong>Le Running Count seul ne suffit pas.</strong> Il faut le normaliser par les cartes restantes (True Count).</p></div>
+  </div>
 </section>
 
-<!-- ===== PROBA COND ===== -->
-<section id="proba" class="section">
-    <div class="card">
-        <div class="card-header">
-            <div class="card-number">3</div>
-            <h2 class="card-title">Probabilité conditionnelle</h2>
-            <span class="card-time">1 minute</span>
-        </div>
-        <p class="content-text"><strong>Le principe fondamental du blackjack</strong> : comme on joue sans remise, chaque carte sortante modifie la composition du sabot restant. C'est exactement la notion de <strong>probabilité conditionnelle</strong> vue en Terminale.</p>
-        <div class="highlight-box"><p><strong>Exemple simplifié pour l'oral :</strong> Imaginons un sabot avec seulement 3 cartes : deux cartes valant 10 et une carte valant 2.</p></div>
-        <div class="math-card">
-            <div class="math-label">Étape 1 — Tirage initial</div>
-            <div class="math-formula">P(première carte = 10) = 2/3 ≈ 0,667</div>
-            <div class="math-explain">Il y a 2 cartes "10" parmi les 3 cartes totales du sabot</div>
-            <div class="math-consequence"><p>🎯 <strong>Cela signifie qu'au départ, j'ai deux chances sur trois de tirer une carte valant 10.</strong></p></div>
-        </div>
-        <div class="math-card">
-            <div class="math-label">Étape 2 — Probabilité conditionnelle</div>
-            <div class="math-formula">P(deuxième = 10 | première = 10) = 1/2 = 0,5</div>
-            <div class="math-explain">Sachant que la première carte tirée est un 10, il ne reste plus qu'une seule carte "10" parmi les 2 cartes restantes</div>
-            <div class="math-consequence"><p>🎯 <strong>Ma chance de tirer un deuxième 10 est passée de 66,7% à 50% simplement parce que j'ai observé la première carte. C'est l'essence de la probabilité conditionnelle.</strong></p></div>
-        </div>
-        <div class="alert">
-            <div class="alert-title">⚠️ Point clé pour le jury</div>
-            <p>La probabilité de tirer une bûche <strong>change</strong> selon les cartes déjà vues. C'est exactement la définition de <strong>P(A|B)</strong> vue en Terminale.</p>
-        </div>
-        <div class="math-card">
-            <div class="math-label">Application — Jeu de 52 cartes</div>
-            <div class="math-formula">P(bûche) = 16/52 = 4/13 ≈ 30,77%</div>
-            <div class="math-formula">P(bûche | 8 bûches déjà sorties) = 8/44 ≈ 18,18%</div>
-            <div class="math-formula">P(bûche | 4 bûches déjà sorties) = 12/48 = 25,00%</div>
-            <div class="math-consequence"><p>🎯 <strong>La probabilité de tirer une bûche varie de 30,77% à 18,18% selon ce qu'on a déjà vu sortir.</strong></p></div>
-        </div>
-        <div class="jury-tip">
-            <div class="jury-tip-title">💡 Phrase clé pour le jury</div>
-            <p>"Ce qui rend le blackjack mathématiquement intéressant, c'est que chaque carte visible constitue une information qui modifie nos probabilités. Ce n'est plus du hasard pur : c'est de l'information conditionnelle."</p>
-        </div>
+<!-- ============ LIRE ============ -->
+<section id="lire" class="section">
+  <div class="card">
+    <div class="ch"><div class="cn">📖</div><h2 class="ct">Contenu complet de l'oral</h2></div>
+
+    <div class="hbox"><p><strong>Introduction (1 min 30)</strong><br><br>
+    "En Terminale, on apprend que les probabilités conditionnelles permettent de mettre à jour une probabilité quand on obtient une nouvelle information."<br><br>
+    Problématique : Comment les notions de probabilités conditionnelles, de variable aléatoire et d'espérance permettent-elles de comprendre pourquoi l'observation des cartes change les probabilités au blackjack ?<br><br>
+    Plan : Je montrerai d'abord que l'information modifie les probabilités. Puis que les probabilités modifient l'espérance. Enfin que l'espérance modifie la décision.<br><br>
+    <em>Mémo : ne pas décrire les règles du blackjack. Juste dire : jeu sans remise, sabot de cartes, objectif se rapprocher de 21. 30 secondes max.</em></p></div>
+
+    <div class="hbox" style="border-left-color:var(--blue)"><p><strong>Partie 1 — L'information modifie les probabilités (2 min 30)</strong><br><br>
+    Définition : P(A|B) = P(A∩B) / P(B), avec P(B) ≠ 0.<br><br>
+    Interprétation : P(A|B) est la probabilité que A se réalise, sachant que B s'est déjà produit.<br><br>
+    Application : sabot de 52 cartes, 4 As. P(As) = 4/52 = 1/13 ≈ 0,0769. Après avoir vu un Roi sortir, il reste 51 cartes. P(As | Roi sorti) = 4/51 ≈ 0,0784.<br><br>
+    Conclusion : 0,0769 ≠ 0,0784. L'information a modifié la probabilité.<br><br>
+    <em>"Voir une carte n'est pas neutre : cela modifie le calcul des probabilités. C'est exactement ce que formalise la notion de probabilité conditionnelle."</em></p></div>
+
+    <div class="hbox" style="border-left-color:var(--green)"><p><strong>Partie 2 — Les probabilités modifient l'espérance (3 min)</strong><br><br>
+    Définition : X est une variable aléatoire discrète qui associe un nombre à chaque issue.<br><br>
+    On définit X comme la valeur Hi-Lo d'une carte tirée : +1 (basses 2-6), 0 (neutres 7-9), −1 (hautes 10-A).<br><br>
+    <strong>Pourquoi 2 à 6 ?</strong> Par symétrie : 5 valeurs basses × 4 couleurs = 20 cartes (+1), et 5 valeurs hautes (10, V, D, R, A) × 4 couleurs = 20 cartes (−1). Si on avait pris 1 à 5, on aurait 16 basses et 20 hautes — le système serait biaisé dès le départ.<br><br>
+    Tableau : 20 cartes +1, 12 cartes 0, 20 cartes −1. Probabilités : 20/52, 12/52, 20/52.<br><br>
+    Formule : E(X) = Σ xᵢ × P(X=xᵢ)<br><br>
+    Calcul : E(X) = (+1)(20/52) + (0)(12/52) + (−1)(20/52) = 0.<br><br>
+    Interprétation : E(X)=0 signifie que le jeu est équilibré au départ. Ni le joueur ni le casino n'a d'avantage.<br><br>
+    Évolution : si beaucoup de basses (+1) sortent → E(X) devient négative → désavantage. Si beaucoup de hautes (−1) sortent → E(X) devient positive → avantage.<br><br>
+    <em>"L'espérance n'est pas fixe : elle évolue avec la composition du sabot."</em></p></div>
+
+    <div class="hbox" style="border-left-color:var(--purple)"><p><strong>Partie 3 — L'espérance modifie la décision (2 min 30)</strong><br><br>
+    <strong>Le problème du compte brut seul :</strong> un Running Count de +10 avec 40 cartes restantes n'a pas la même signification qu'avec 10 cartes restantes. Dans le second cas, les 10 cartes restantes sont très probablement riches en hautes cartes.<br><br>
+    <strong>Solution : le True Count.</strong> On normalise le compte brut par le nombre de jeux restants :<br>
+    TC = RC / (cartes restantes / 52)<br><br>
+    Exemple : RC=+10, 26 cartes restantes → TC = +10 / 0,5 = <strong>+20</strong>. L'avantage est massif.<br><br>
+    Stratégie de mise selon le True Count :<br>
+    • TC ≥ +3 → avantage fort → AUGMENTER fortement la mise<br>
+    • TC ≥ +1 → avantage modéré → miser normalement<br>
+    • TC ≈ 0 → équilibré → mise minimale<br>
+    • TC ≤ −1 → désavantage → ne pas jouer ou miser le minimum<br><br>
+    Comptage Hi-Lo : suivre la somme des valeurs des cartes déjà sorties. Compte positif → E(X) probablement positive → miser plus. Compte négatif → miser moins.<br><br>
+    Loi des grands nombres : sur une seule partie le hasard domine. Sur beaucoup de parties, la fréquence observée se rapproche de la probabilité théorique. La stratégie fondée sur l'espérance devient fiable sur le long terme.<br><br>
+    <em>"Le comptage ne garantit pas de gagner chaque coup, mais il améliore la décision moyenne sur un grand nombre de parties."</em></p></div>
+
+    <div class="hbox" style="border-left-color:var(--gold)"><p><strong>Conclusion (30 sec)</strong><br><br>
+    "En conclusion, le blackjack montre que les notions de Terminale ne sont pas abstraites : elles permettent de modéliser une situation réelle où l'information modifie les probabilités, puis l'espérance, puis la décision."<br><br>
+    Ouverture : "Cette modélisation a une limite : les casinos mélangent les cartes pour empêcher l'accumulation d'information et casser cet avantage statistique."</p></div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="cn">🎤</div><h2 class="ct">Questions du jury — Classiques</h2></div>
+    <div class="qalist">
+      <div class="qa"><div class="qq">❓ "Pourquoi miser plus quand le compte est élevé ?"</div><div class="qa-a">→ "Quand le compte est positif, il reste plus de grosses cartes. p_BJ et p_win augmentent, p_lose diminue. L'espérance de gain devient positive. On mise plus pour maximiser le gain espéré."</div></div>
+      <div class="qa"><div class="qq">❓ "Le comptage est-il au programme ?"</div><div class="qa-a">→ "Non, mais c'est une somme de variables aléatoires, notion au programme. Je montre que c'est une statistique qui résume l'information. Tout s'appuie sur des outils de Terminale."</div></div>
+      <div class="qa"><div class="qq">❓ "Qu'est-ce que la loi des grands nombres ?"</div><div class="qa-a">→ "Quand on répète une expérience aléatoire un grand nombre de fois, la fréquence observée se rapproche de la probabilité théorique. Sur une partie le hasard domine. Sur beaucoup de parties, la tendance s'affirme."</div></div>
+      <div class="qa"><div class="qq">❓ "Pourquoi E(X)=0 au départ ?"</div><div class="qa-a">→ "Par symétrie du système Hi-Lo : 20 cartes basses (+1) et 20 cartes hautes (−1). Les contributions s'annulent : 20/52 − 20/52 = 0."</div></div>
     </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="cn">🪤</div><h2 class="ct">Questions du jury — Pièges (volontairement hésiter !)</h2></div>
+
+    <div class="trap">
+      <div class="trap-t">PIÈGE #1 : "Pourquoi Hi-Lo prend 2-6 et pas 1-5 ?"</div>
+      <div class="hesite">→ "Euh... c'est une bonne question... Je dirais que... c'est pour avoir le même nombre de cartes dans chaque catégorie ?"</div>
+      <div class="reveal"><strong>REVELATION :</strong> Exactement ! Avec 2-6 on a 5 valeurs basses × 4 = <strong>20 cartes</strong> (+1). Avec 10-A on a aussi 5 valeurs hautes × 4 = <strong>20 cartes</strong> (−1). Cette symétrie force E(X)=0 au départ, créant une référence neutre. Avec 1-5 on aurait 16 basses et 20 hautes → le système serait biaisé dès le départ !</div>
+      <div class="phrase-jury"><strong>Phrase pour le jury :</strong> "Le choix des valeurs 2 à 6 n'est pas arbitraire : il garantit la symétrie 20/20 qui force E(X)=0."</div>
+    </div>
+
+    <div class="trap">
+      <div class="trap-t">PIÈGE #2 : "Un compte de +10 avec 50 cartes restantes, c'est pareil qu'avec 10 cartes ?"</div>
+      <div class="hesite">→ "Hmm... non, je pense que non... parce que... moins il reste de cartes, plus on sait ce qu'il y a dedans ?"</div>
+      <div class="reveal"><strong>REVELATION :</strong> Exactement ! C'est le cœur du <strong>True Count</strong>. Avec 50 cartes restantes : TC = +10/1 = +10 (favorable). Avec 10 cartes restantes : TC = +10/(10/52) ≈ <strong>+52</strong> (extrêmement favorable !). Plus on approche de la fin du sabot, plus chaque carte comptée a du poids statistique. La densité d'information augmente.</div>
+      <div class="phrase-jury"><strong>Phrase pour le jury :</strong> "Le compte brut ne suffit pas : il faut le normaliser par les cartes restantes. C'est le True Count qui mesure la densité réelle d'information."</div>
+    </div>
+
+    <div class="trap">
+      <div class="trap-t">PIÈGE #3 : "Pourquoi E(X)=0 au début et pas ailleurs ?"</div>
+      <div class="hesite">→ "Alors... c'est parce que... au début le sabot est mélangé, donc c'est équilibré... mais c'est pas juste une intuition, il y a un calcul derrière..."</div>
+      <div class="reveal"><strong>REVELATION :</strong> C'est la <strong>symétrie du système Hi-Lo</strong> ! 20 cartes basses (+1) et 20 cartes hautes (−1). E(X) = (+1)(20/52) + (0)(12/52) + (−1)(20/52) = 0. Ce n'est pas une coincidence : c'est <strong>volontairement construit</strong> pour que le départ soit neutre. Toute déviation de zéro est alors un signal pur d'avantage ou de désavantage.</div>
+      <div class="phrase-jury"><strong>Phrase pour le jury :</strong> "E(X)=0 n'est pas un hasard : c'est la conséquence directe de la symétrie 20/20. C'est notre point zéro, notre référence."</div>
+    </div>
+
+    <div class="trap">
+      <div class="trap-t">PIÈGE #4 : "Si le compte est +10 à la fin du sabot, c'est sûr que je gagne ?"</div>
+      <div class="hesite">→ "Non... euh... ce serait trop facile sinon. C'est une probabilité, pas une certitude. Sur UNE partie, le hasard peut tout changer."</div>
+      <div class="reveal"><strong>REVELATION :</strong> Non, jamais de certitude ! C'est là qu'intervient la <strong>Loi des Grands Nombres</strong>. Sur UNE partie, le hasard domine. Sur CENT parties, la fréquence observée converge vers la probabilité théorique. Le comptage améliore la décision <strong>moyenne</strong>, pas chaque coup. C'est pourquoi on parle d'espérance et pas de gain garanti.</div>
+      <div class="phrase-jury"><strong>Phrase pour le jury :</strong> "Le comptage améliore la décision moyenne sur le long terme. Sur une seule partie, le hasard reste roi."</div>
+    </div>
+
+    <div class="trap">
+      <div class="trap-t">PIÈGE #5 : "Pourquoi les casinos mélangent les cartes ?"</div>
+      <div class="hesite">→ "Pour... empêcher qu'on sache trop ? Pour casser l'information accumulée ?"</div>
+      <div class="reveal"><strong>REVELATION :</strong> Exactement ! Le mélange réinitialise le sabot à son état initial : 52 cartes, distribution uniforme, E(X)=0. Cela <strong>efface toute l'information conditionnelle</strong> accumulée. C'est la limite directe de notre modèle : sans accumulation d'information, P(A|B) redevient P(A), et l'avantage statistique disparaît.</div>
+      <div class="phrase-jury"><strong>Phrase pour le jury :</strong> "Le mélange réinitialise l'information à zéro. C'est la limite de notre modèle : sans accumulation, pas d'avantage."</div>
+    </div>
+
+    <div class="warn"><div class="warn-t">🧠 Phrase de défense ultime</div><p><strong>"Ma démonstration illustre le principe mathématique — l'information conditionnelle modifie l'espérance, et l'espérance modifie la décision. Ce n'est pas le chiffre exact qui compte, c'est la démonstration du mécanisme."</strong></p></div>
+  </div>
 </section>
 
-<!-- ===== VA & ESPERANCE ===== -->
-<section id="va" class="section">
-    <div class="card">
-        <div class="card-header">
-            <div class="card-number">4</div>
-            <h2 class="card-title">Variable aléatoire & Espérance</h2>
-            <span class="card-time">1 minute</span>
-        </div>
-        <p class="content-text">Pour formaliser ce que nous venons de voir, on va <strong>modéliser le tirage comme une variable aléatoire</strong>, outil central du programme de Terminale.</p>
-        <div class="math-card">
-            <div class="math-label">Définition de la Variable Aléatoire X</div>
-            <div class="math-formula">X = 1 si la prochaine carte est une bûche<br>X = 0 sinon</div>
-            <div class="math-explain">X suit une loi de Bernoulli. Sa loi de probabilité dépend de la composition du sabot restant.</div>
-        </div>
-        <div class="math-card">
-            <div class="math-label">Calcul de l'Espérance — Début de partie</div>
-            <div class="math-formula">E(X) = 1 × P(X=1) + 0 × P(X=0) = 16/52 ≈ 0,308</div>
-            <div class="math-consequence"><p>🎯 <strong>Cela signifie qu'en début de partie, on s'attend à ce qu'environ 30,8% des cartes tirées soient des bûches.</strong></p></div>
-        </div>
-        <div class="math-card">
-            <div class="math-label">Évolution de l'Espérance en cours de partie</div>
-            <div class="math-formula">E(X | 8 bûches sorties) = 8/44 ≈ 0,182</div>
-            <div class="math-formula">E(X | 4 bûches sorties) = 12/48 = 0,250</div>
-            <div class="math-consequence"><p>🎯 <strong>L'espérance diminue si les bûches sortent tôt, et reste plus élevée si peu de bûches sont sorties. C'est l'espérance comme indicateur dynamique.</strong></p></div>
-        </div>
-        <div class="highlight-box">
-            <p><strong>L'espérance E(X) devient un indicateur de la qualité du sabot.</strong> Plus elle est élevée, plus le sabot est favorable au joueur. C'est une notion abstraite du programme qui prend ici un sens concret et décisionnel.</p>
-        </div>
-        <div class="jury-tip">
-            <div class="jury-tip-title">💡 Phrase clé pour le jury</div>
-            <p>"Ce qui est remarquable, c'est que l'espérance — une notion théorique — devient ici un outil de décision. Quand E(X) est élevée, le sabot est favorable. C'est la puissance de la modélisation."</p>
-        </div>
+<!-- ============ SIMU ============ -->
+<section id="simu" class="section">
+  <div class="table-area">
+    <div class="hand-sec">
+      <div class="hh"><span class="ht">CROUPIER</span><span class="hs" id="dealerScore">—</span></div>
+      <div class="cards-row" id="dealerCards"></div>
     </div>
-</section>
-
-<!-- ===== COMPTAGE ===== -->
-<section id="comptage" class="section">
-    <div class="card">
-        <div class="card-header">
-            <div class="card-number">5</div>
-            <h2 class="card-title">Comptage High-Low</h2>
-            <span class="card-time">1 minute</span>
-        </div>
-        <p class="content-text">Le système High-Low est une façon élégante de <strong>résumer l'information sur la composition du sabot</strong> en une seule valeur, à partir de variables aléatoires.</p>
-        <div class="math-card">
-            <div class="math-label">Définition du système High-Low</div>
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.6rem;margin:0.8rem 0;">
-                <div style="text-align:center;padding:0.8rem;background:rgba(16,185,129,0.1);border-radius:10px;border:2px solid var(--success);">
-                    <div style="font-size:1.5rem;font-weight:900;color:var(--success);">+1</div>
-                    <div style="font-size:0.82rem;color:var(--text-2);margin-top:0.3rem;">Cartes 2 à 6<br>(20 cartes)</div>
-                </div>
-                <div style="text-align:center;padding:0.8rem;background:rgba(100,116,139,0.1);border-radius:10px;border:2px solid var(--text-3);">
-                    <div style="font-size:1.5rem;font-weight:900;color:var(--text-2);">0</div>
-                    <div style="font-size:0.82rem;color:var(--text-2);margin-top:0.3rem;">Cartes 7 à 9<br>(12 cartes)</div>
-                </div>
-                <div style="text-align:center;padding:0.8rem;background:rgba(239,68,68,0.1);border-radius:10px;border:2px solid var(--danger);">
-                    <div style="font-size:1.5rem;font-weight:900;color:var(--danger);">−1</div>
-                    <div style="font-size:0.82rem;color:var(--text-2);margin-top:0.3rem;">10, V, D, R, As<br>(20 cartes)</div>
-                </div>
-            </div>
-        </div>
-        <div class="math-card">
-            <div class="math-label">Formule mathématique du compte</div>
-            <div class="math-formula">Cₙ = X₁ + X₂ + ... + Xₙ = Σ Xᵢ</div>
-            <div class="math-explain">Cₙ est une somme de variables aléatoires — notion de Terminale</div>
-            <div class="math-consequence"><p>🎯 <strong>Un compte élevé signifie que beaucoup de petites cartes sont sorties → il reste beaucoup de bûches → favorable au joueur.</strong></p></div>
-        </div>
-        <div class="math-card">
-            <div class="math-label">⚠️ Limite du compte brut — le True Count</div>
-            <div class="math-formula">TC = Cₙ / (cartes restantes ÷ 52)</div>
-            <div class="math-explain">On divise le compte brut par le nombre de demi-sabots restants, pour normaliser l'information</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.7rem;margin-top:0.8rem;">
-                <div style="padding:0.8rem;background:rgba(245,158,11,0.08);border-radius:10px;border:2px solid var(--accent);text-align:center;">
-                    <div style="font-size:0.78rem;color:var(--text-3);font-weight:700;text-transform:uppercase;margin-bottom:0.4rem;">Exemple A</div>
-                    <div style="font-size:0.9rem;line-height:1.7;color:var(--text);">Cₙ = +4<br>48 cartes restantes<br>TC = +4 / 0,92 ≈ <strong style="color:var(--accent);">+4,3</strong></div>
-                </div>
-                <div style="padding:0.8rem;background:rgba(245,158,11,0.08);border-radius:10px;border:2px solid var(--accent);text-align:center;">
-                    <div style="font-size:0.78rem;color:var(--text-3);font-weight:700;text-transform:uppercase;margin-bottom:0.4rem;">Exemple B</div>
-                    <div style="font-size:0.9rem;line-height:1.7;color:var(--text);">Cₙ = +4<br>10 cartes restantes<br>TC = +4 / 0,19 ≈ <strong style="color:var(--success);">+21</strong></div>
-                </div>
-            </div>
-            <div class="math-consequence"><p>🎯 <strong>Un même compte brut +4 est anodin en début de sabot, mais représente un avantage massif quand il ne reste que 10 cartes. Le TC mesure l'intensité réelle de l'avantage.</strong></p></div>
-        </div>
-        <div class="math-card">
-            <div class="math-label">Exemple concret — 5 cartes tirées</div>
-            <div class="math-formula">3♥ (+1) + A♠ (−1) + 5♦ (+1) + 8♣ (0) + 2♥ (+1) = +2</div>
-            <div class="math-consequence"><p>🎯 <strong>Compte = +2 : plus de petites cartes que de grosses ont été tirées. Il reste donc proportionnellement plus de bûches dans le sabot. La situation est favorable.</strong></p></div>
-        </div>
-        <div class="speech-bubble">
-            <p>Je ne cherche pas à calculer la loi exacte de Cₙ, mais à montrer que ce comptage est une statistique qui résume l'information sur la composition du sabot. Quand le compte est élevé, la probabilité de tirer une bûche est plus grande.</p>
-        </div>
-        <div class="jury-tip">
-            <div class="jury-tip-title">💡 Phrase clé pour le jury</div>
-            <p>"Ce qui est élégant dans le High-Low, c'est qu'on remplace un problème complexe — suivre 52 cartes individuellement — par une simple somme de nombres. Et le True Count va plus loin : il normalise cette somme selon ce qui reste dans le sabot, pour obtenir une mesure comparable quelle que soit l'avancée dans la partie. C'est exactement l'esprit de la modélisation mathématique."</p>
-        </div>
+    <div class="hand-sec">
+      <div class="hh"><span class="ht">VOUS</span><span class="hs" id="playerScore">—</span></div>
+      <div class="cards-row" id="playerCards"></div>
     </div>
-</section>
+  </div>
 
-<!-- ===== STRATÉGIE ===== -->
-<section id="strategie" class="section">
-    <div class="card">
-        <div class="card-header">
-            <div class="card-number">6</div>
-            <h2 class="card-title">Impact sur la stratégie de jeu</h2>
-            <span class="card-time">1 minute</span>
-        </div>
-        <p class="content-text">Maintenant que nous avons établi les outils mathématiques, voyons comment ils se traduisent concrètement en décision de jeu.</p>
-        <div class="math-card">
-            <div class="math-label">Formule générale</div>
-            <div class="math-formula">P(bûche) = B<sub>restantes</sub> / N</div>
-            <div class="math-explain">N = nombre total de cartes restantes dans le sabot</div>
-            <div class="math-consequence"><p>🎯 <strong>Plus ce rapport est élevé, plus le joueur est avantagé.</strong></p></div>
-        </div>
-        <div class="timeline">
-            <div class="timeline-item">
-                <div class="timeline-title">🟢 Beaucoup de bûches restantes (compte élevé)</div>
-                <div class="timeline-desc">Le joueur a plus de chances de faire un blackjack. Le croupier a plus de chances de dépasser 21. <strong>L'espérance de gain est positive.</strong></div>
-            </div>
-            <div class="timeline-item">
-                <div class="timeline-title">🔴 Peu de bûches restantes (compte faible)</div>
-                <div class="timeline-desc">Le joueur a moins de chances de faire 21. Le croupier a moins de chances de brûler. <strong>L'espérance de gain est négative.</strong></div>
-            </div>
-        </div>
-        <div class="math-card">
-            <div class="math-label">Lien entre True Count et décision de mise</div>
-            <div style="display:grid;gap:0.75rem;">
-                <div style="padding:1rem;background:rgba(16,185,129,0.1);border-radius:10px;border:2px solid var(--success);">
-                    <div style="font-weight:800;color:var(--success);margin-bottom:0.4rem;">✅ TC ≥ +2 → Miser davantage</div>
-                    <div style="color:var(--text-2);font-size:0.95rem;">Le sabot est riche en bûches <em>relativement</em> aux cartes restantes. E(X) est supérieure à la normale. Le jeu est mathématiquement favorable.</div>
-                </div>
-                <div style="padding:1rem;background:rgba(100,116,139,0.1);border-radius:10px;border:2px solid var(--text-3);">
-                    <div style="font-weight:800;color:var(--text-2);margin-bottom:0.4rem;">⚖️ −1 &lt; TC &lt; +2 → Mise normale</div>
-                    <div style="color:var(--text-2);font-size:0.95rem;">La composition du sabot est proche de la normale. Pas d'avantage ni de désavantage marqué.</div>
-                </div>
-                <div style="padding:1rem;background:rgba(239,68,68,0.1);border-radius:10px;border:2px solid var(--danger);">
-                    <div style="font-weight:800;color:var(--danger);margin-bottom:0.4rem;">❌ TC ≤ −1 → Miser le minimum</div>
-                    <div style="color:var(--text-2);font-size:0.95rem;">Le sabot est pauvre en bûches. E(X) est inférieure à la normale. Le jeu devient défavorable au joueur.</div>
-                </div>
-            </div>
-        </div>
-        <div class="alert">
-            <div class="alert-title">⚠️ Limite de la modélisation</div>
-            <p>En pratique, les casinos mélangent souvent les cartes (shuffle), ce qui rend le comptage très difficile. Mais <strong>l'idée mathématique reste valide</strong> : les probabilités conditionnelles et l'espérance montrent que voir les cartes déjà sorties modifie les chances de gagner.</p>
-        </div>
-        <div class="jury-tip">
-            <div class="jury-tip-title">💡 Phrase clé pour le jury</div>
-            <p>"Ce qui est fascinant, c'est que des notions abstraites comme l'espérance deviennent des outils concrets de décision. Le joueur ne calcule pas E(X) à chaque coup, mais le compte High-Low lui donne une approximation suffisante. C'est la puissance de la modélisation : simplifier sans trahir."</p>
-        </div>
+  <div class="mp" id="mainPanel">
+    <div class="mp-msg" id="msgText">Cliquez sur Distribuer</div>
+    <div class="mp-adv neu" id="hlAdvice"><span id="hlAdvIcon">⚪</span><span id="hlAdvText">En attente…</span></div>
+    <div class="mise-disp" id="miseDisplay">
+      <span class="mise-lbl">Mise</span>
+      <span class="mise-val" id="miseValue" style="color:var(--text2)">—</span>
+      <span class="mise-rsn" id="miseReason">Lancez une partie</span>
     </div>
-</section>
+  </div>
 
-<!-- ===== CONCLUSION ===== -->
-<section id="conclusion" class="section">
-    <div class="card">
-        <div class="card-header">
-            <div class="card-number">7</div>
-            <h2 class="card-title">Conclusion</h2>
-            <span class="card-time">30-45 sec</span>
-        </div>
-        <p class="content-text">En résumé, ce jeu illustre <strong>plusieurs notions de Terminale</strong> :</p>
-        <ul class="checklist">
-            <li><strong>Probabilités conditionnelles</strong> : la probabilité d'une bûche change selon les cartes déjà vues. On a vu passer P(bûche) de 30,77% à 18,18% après 8 bûches sorties.</li>
-            <li><strong>Variables aléatoires et espérance</strong> : la variable X = 1 si bûche permet de modéliser le tirage, et son espérance E(X) évolue au fil de la partie, passant de 0,308 à 0,182.</li>
-            <li><strong>Statistiques</strong> : le compte High-Low Cₙ = ΣXᵢ est une statistique qui résume la composition du sabot. Le True Count TC = Cₙ ÷ (cartes restantes / 52) normalise ce compte pour le rendre comparable quelle que soit l'avancée dans la partie.</li>
-        </ul>
-        <div class="speech-bubble">
-            <p>Le blackjack devient alors un exemple concret pour montrer que les probabilités ne sont pas seulement des exercices de manuel, mais des outils qui aident à comprendre des situations réelles, même dans un casino.</p>
-        </div>
-        <div class="highlight-box">
-            <p><strong>Ouverture :</strong> Cette modélisation montre aussi les limites des mathématiques face aux pratiques des casinos, qui utilisent le mélange des cartes pour annuler l'avantage statistique. Le modèle est parfait, mais la réalité impose ses contraintes.</p>
-        </div>
-        <div class="jury-tip">
-            <div class="jury-tip-title">💡 Phrase de fermeture pour le jury</div>
-            <p>"Ce que je retiens de ce sujet, c'est que les mathématiques de Terminale — probabilités conditionnelles, variables aléatoires, espérance — ne sont pas de simples formules à apprendre par cœur. Ce sont des outils de pensée qui permettent de comprendre le monde, même sous les néons d'un casino."</p>
-        </div>
-    </div>
-</section>
+  <div class="sim-btns" id="simControls">
+    <button class="btn btn-deal" id="btnDeal">Distribuer</button>
+    <button class="btn btn-reset" id="btnReset">Nouveau sabot</button>
+  </div>
 
-<!-- ===== FICHE ===== -->
-<section id="fiche" class="section">
-    <div class="card">
-        <div class="card-header">
-            <div class="card-number">★</div>
-            <h2 class="card-title">Fiche récapitulative complète</h2>
-            <span class="card-time">À réviser</span>
-        </div>
+  <div class="bstrip">
+    <div class="bsc hl-cell" id="hlBox"><div class="bsl">Running</div><div class="bsv neu" id="hlCount">0</div></div>
+    <div class="bsc"><div class="bsl">True Count</div><div class="bsv neu" id="trueCount">0</div></div>
+    <div class="bsc"><div class="bsl">Cartes</div><div class="bsv" id="remaining" style="color:var(--blue)">52</div></div>
+    <div class="bsep"></div>
+    <div class="bsc"><div class="bsl">Victoires</div><div class="bsv" id="statWin" style="color:var(--green)">0</div></div>
+    <div class="bsc"><div class="bsl">Défaites</div><div class="bsv" id="statLose" style="color:var(--red)">0</div></div>
+    <div class="bsc"><div class="bsl">Win %</div><div class="bsv" id="statPct" style="color:var(--purple)">—</div></div>
+    <button class="bs-reset" id="btnResetStats" title="Reset stats">↺</button>
+  </div>
+  <div class="winbar-wrap"><div class="winbar" id="statsWinBar" style="width:0%"></div></div>
 
-        <div style="background:var(--bg-acc);padding:1.25rem;border-radius:12px;margin-bottom:1.25rem;">
-            <h3 style="color:var(--accent);margin-bottom:0.9rem;font-size:1.1rem;">📋 Ordre de passage avec durées</h3>
-            <ol style="padding-left:1.5rem;line-height:2.2;font-size:1rem;">
-                <li><strong>Introduction</strong> (15-20s) — Problématique + annonce du plan</li>
-                <li><strong>Règles</strong> (45-60s) — Cadrage du jeu, 16 bûches, 4 As, 32 autres</li>
-                <li><strong>Programme</strong> (30-45s) — 4 notions de Terminale explicitées</li>
-                <li><strong>Proba. conditionnelle</strong> (1min) — Exemple 3 cartes + calculs 52 cartes</li>
-                <li><strong>VA & Espérance</strong> (1min) — X = 1 si bûche, E(X) = 16/52, évolution</li>
-                <li><strong>High-Low & True Count</strong> (1min) — Cₙ = ΣXᵢ, +1/0/−1, True Count = Cₙ ÷ demi-sabots restants, interprétation et décision</li>
-                <li><strong>Stratégie</strong> (1min) — TC → décision de mise (TC ≥ +2 : miser plus, TC ≤ −1 : miser moins), limite du shuffle</li>
-                <li><strong>Conclusion</strong> (30-45s) — Synthèse + ouverture</li>
-            </ol>
-        </div>
+  <details class="sim-hist">
+    <summary class="sim-hist-t">📋 Historique</summary>
+    <div id="historyList"></div>
+  </details>
 
-        <div style="background:var(--bg-acc);padding:1.25rem;border-radius:12px;margin-bottom:1.25rem;">
-            <h3 style="color:var(--accent);margin-bottom:0.9rem;font-size:1.1rem;">📝 Calculs à préparer sur papier</h3>
-            <div style="display:grid;gap:0.75rem;">
-                <div style="padding:0.9rem;background:var(--bg-card);border-radius:8px;font-family:serif;font-size:1.05rem;line-height:1.9;">
-                    <div style="font-weight:700;color:var(--acc-l);font-family:'Inter',sans-serif;font-size:0.9rem;margin-bottom:0.4rem;">Exemple simplifié (3 cartes)</div>
-                    P(1ère = 10) = 2/3<br>P(2ème = 10 | 1ère = 10) = 1/2
-                </div>
-                <div style="padding:0.9rem;background:var(--bg-card);border-radius:8px;font-family:serif;font-size:1.05rem;line-height:1.9;">
-                    <div style="font-weight:700;color:var(--acc-l);font-family:'Inter',sans-serif;font-size:0.9rem;margin-bottom:0.4rem;">Jeu de 52 cartes</div>
-                    P(bûche) = 16/52 ≈ 30,77%<br>P(bûche | 8 sorties) = 8/44 ≈ 18,18%<br>P(bûche | 4 sorties) = 12/48 = 25,00%
-                </div>
-                <div style="padding:0.9rem;background:var(--bg-card);border-radius:8px;font-family:serif;font-size:1.05rem;line-height:1.9;">
-                    <div style="font-weight:700;color:var(--acc-l);font-family:'Inter',sans-serif;font-size:0.9rem;margin-bottom:0.4rem;">VA & Espérance</div>
-                    X = 1 si bûche, 0 sinon<br>E(X) = 16/52 ≈ 0,308<br>E(X | 8 sorties) = 8/44 ≈ 0,182
-                </div>
-                <div style="padding:0.9rem;background:var(--bg-card);border-radius:8px;font-family:serif;font-size:1.05rem;line-height:1.9;">
-                    <div style="font-weight:700;color:var(--acc-l);font-family:'Inter',sans-serif;font-size:0.9rem;margin-bottom:0.4rem;">High-Low & True Count</div>
-                    Cₙ = X₁ + X₂ + ... + Xₙ<br>+1 : 2-6 (20 cartes) | 0 : 7-9 (12) | −1 : 10-A (20)<br>Compte total jeu neuf = 0<br>TC = Cₙ ÷ (cartes restantes / 52)<br>TC ≥ +2 → favorable | TC ≤ −1 → défavorable
-                </div>
-            </div>
-        </div>
-
-        <div style="background:var(--bg-acc);padding:1.25rem;border-radius:12px;margin-bottom:1.25rem;">
-            <h3 style="color:var(--accent);margin-bottom:0.9rem;font-size:1.1rem;">🗣️ Phrases indispensables</h3>
-            <ul class="checklist">
-                <li>"Tout ce que je présente est strictement au programme de Terminale"</li>
-                <li>"Je ne calcule pas la loi exacte de Cₙ, je montre que c'est une statistique"</li>
-                <li>"L'espérance E(X) devient un indicateur de la qualité du sabot"</li>
-                <li>"Le True Count normalise le compte brut : un +4 sur 10 cartes restantes vaut bien plus qu'un +4 sur 50 cartes"</li>
-                <li>"Le blackjack est un jeu d'information partielle, pas de hasard pur"</li>
-                <li>"C'est la puissance de la modélisation : simplifier sans trahir"</li>
-            </ul>
-        </div>
-
-        <div style="background:var(--bg-acc);padding:1.25rem;border-radius:12px;">
-            <h3 style="color:var(--accent);margin-bottom:0.9rem;font-size:1.1rem;">🎯 Ce que le jury attend pour un 20/20</h3>
-            <ul class="checklist">
-                <li><strong>Clarté</strong> : jeu → maths → lien, structure cartésienne</li>
-                <li><strong>Rigueur</strong> : notations correctes (P(A|B), E(X), Cₙ)</li>
-                <li><strong>Ancrage au programme</strong> : citer explicitement les chapitres de Terminale</li>
-                <li><strong>Concret</strong> : exemples avec nombres réels (16/52, 8/44, 0,308...)</li>
-                <li><strong>Interprétation</strong> : chaque calcul suivi de "cela signifie que..."</li>
-                <li><strong>Ouverture</strong> : limite de la modélisation (mélange des cartes)</li>
-            </ul>
-        </div>
-    </div>
-</section>
-
-<!-- ===== SIMULATEUR ===== -->
-<section id="simulateur" class="section">
-<div class="sim-inner">
-
-    <!-- ① TABLE DE JEU -->
-    <div class="table-area">
-        <div class="hand-section">
-            <div class="hand-header">
-                <span class="hand-title">CROUPIER</span>
-                <span class="hand-score" id="dealerScore">—</span>
-            </div>
-            <div class="cards-row" id="dealerCards"></div>
-        </div>
-        <div class="hand-section" style="margin-bottom:0;">
-            <div class="hand-header">
-                <span class="hand-title">VOUS</span>
-                <span class="hand-score" id="playerScore">—</span>
-            </div>
-            <div class="cards-row" id="playerCards"></div>
-        </div>
-    </div>
-
-    <!-- ② PANNEAU CENTRAL : résultat + conseil unifié -->
-    <div class="main-panel" id="mainPanel">
-        <div class="mp-msg" id="msgText">Cliquez sur Distribuer pour commencer</div>
-        <div class="mp-advice neutr" id="hlAdvice">
-            <span id="hlAdvIcon">⚪</span>
-            <span id="hlAdvText">En attente…</span>
-        </div>
-    </div>
-
-    <!-- ③ BOUTONS -->
-    <div class="sim-controls" id="simControls">
-        <button class="btn btn-deal" id="btnDeal">Distribuer</button>
-        <button class="btn btn-reset" id="btnReset">Nouveau sabot</button>
-    </div>
-
-    <!-- ④ BANDE HL + STATS sur une ligne -->
-    <div class="bottom-strip">
-        <div class="bs-cell hl-cell" id="hlBox">
-            <div class="bs-lbl">HL</div>
-            <div class="bs-val neu" id="hlCount">0</div>
-        </div>
-        <div class="bs-cell">
-            <div class="bs-lbl">True&nbsp;Count</div>
-            <div class="bs-val neu" id="trueCount">0</div>
-        </div>
-        <div class="bs-cell">
-            <div class="bs-lbl">Cartes</div>
-            <div class="bs-val" id="remaining" style="color:var(--info)">52</div>
-        </div>
-        <div class="bs-sep"></div>
-        <div class="bs-cell win-box">
-            <div class="bs-lbl">Victoires</div>
-            <div class="bs-val" id="statWin" style="color:var(--success)">0</div>
-        </div>
-        <div class="bs-cell lose-box">
-            <div class="bs-lbl">Défaites</div>
-            <div class="bs-val" id="statLose" style="color:var(--danger)">0</div>
-        </div>
-        <div class="bs-cell">
-            <div class="bs-lbl">Win&nbsp;%</div>
-            <div class="bs-val" id="statPct" style="color:var(--purple)">—</div>
-        </div>
-        <button class="bs-reset-btn" id="btnResetStats" title="Remettre les stats à zéro">↺</button>
-    </div>
-    <!-- barre de progression win rate -->
-    <div class="stats-winbar-wrap"><div class="stats-winbar" id="statsWinBar" style="width:0%"></div></div>
-
-    <!-- ⑤ HISTORIQUE (discret, collapsible) -->
-    <details class="sim-history">
-        <summary class="sim-hist-title">📋 Historique du sabot</summary>
-        <div id="historyList"></div>
-    </details>
-
-    <!-- variables cachées pour compatibilité -->
-    <span id="statPush" style="display:none">0</span>
-    <span id="phaseBar" style="display:none"></span>
-
-</div>
+  <span id="statPush" style="display:none">0</span>
 </section>
 
 </main>
 
 <script>
-// ===== TAB NAVIGATION =====
-function showTab(id, btn) {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+function show(id,btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// ===== BLACKJACK ENGINE =====
-const SUITS  = ['♠','♥','♦','♣'];
-const VALUES = ['2','3','4','5','6','7','8','9','10','V','D','R','A'];
-const HL_MAP = { '2':1,'3':1,'4':1,'5':1,'6':1,'7':0,'8':0,'9':0,'10':-1,'V':-1,'D':-1,'R':-1,'A':-1 };
-
-let deck = [], hlCount = 0, playerHand = [], dealerHand = [], hiddenCard = null, gamePhase = 'idle';
-
-// ===== STATS (persistées via localStorage) =====
-let stats = { win: 0, lose: 0, push: 0 };
-function loadStats() {
-    try { const s = JSON.parse(localStorage.getItem('bj_stats')); if (s) stats = s; } catch(e) {}
-    renderStats();
+/* MINUTEUR */
+let timerInterval=null,timerSeconds=600,timerTotal=600,timerRunning=false;
+function timerStart(){
+  if(timerRunning)return;
+  timerRunning=true;
+  document.getElementById('btnTimerStart').style.display='none';
+  document.getElementById('btnTimerPause').style.display='';
+  timerInterval=setInterval(()=>{
+    timerSeconds=Math.max(0,timerSeconds-1);
+    updateTimerDisplay();
+    if(timerSeconds===0)timerPause();
+  },1000);
 }
-function saveStats() { try { localStorage.setItem('bj_stats', JSON.stringify(stats)); } catch(e) {} }
-function renderStats() {
-    document.getElementById('statWin').textContent  = stats.win;
-    document.getElementById('statLose').textContent = stats.lose;
-    document.getElementById('statPush').textContent = stats.push;
-    const total = stats.win + stats.lose + stats.push;
-    const pct = total > 0 ? Math.round((stats.win / total) * 100) : null;
-    document.getElementById('statPct').textContent = pct !== null ? pct + '%' : '—';
-    const barPct = total > 0 ? (stats.win / total) * 100 : 0;
-    document.getElementById('statsWinBar').style.width = barPct + '%';
+function timerPause(){
+  timerRunning=false;
+  clearInterval(timerInterval);
+  document.getElementById('btnTimerStart').style.display='';
+  document.getElementById('btnTimerPause').style.display='none';
 }
-function resetStats() {
-    stats = { win: 0, lose: 0, push: 0 }; saveStats(); renderStats();
+function timerReset(){
+  timerPause();
+  timerSeconds=timerTotal;
+  updateTimerDisplay();
 }
-
-function isRed(s)    { return s === '♥' || s === '♦'; }
-function hlCls(hl)   { return hl > 0 ? 'plus' : hl < 0 ? 'minus' : 'zero'; }
-function hlBadge(hl) { return hl > 0 ? '+1' : hl < 0 ? '−1' : '0'; }
-
-function createDeck() {
-    const d = [];
-    for (const s of SUITS) for (const v of VALUES) d.push({ suit: s, value: v, hl: HL_MAP[v] });
-    for (let i = d.length - 1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [d[i],d[j]]=[d[j],d[i]]; }
-    return d;
+function setTimerSection(btn,secs,label){
+  timerPause();
+  timerSeconds=secs;timerTotal=secs;
+  document.getElementById('timerLabel').textContent=label;
+  document.querySelectorAll('.spill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  updateTimerDisplay();
 }
-
-function calcScore(hand) {
-    let score = 0, aces = 0;
-    for (const c of hand) {
-        if (c.value === 'A') { aces++; score += 11; }
-        else if (['10','V','D','R'].includes(c.value)) score += 10;
-        else score += parseInt(c.value);
-    }
-    while (score > 21 && aces > 0) { score -= 10; aces--; }
-    return score;
+function updateTimerDisplay(){
+  const m=Math.floor(timerSeconds/60),s=timerSeconds%60;
+  const disp=document.getElementById('timerDisplay');
+  disp.textContent=m+':'+String(s).padStart(2,'0');
+  const pct=timerTotal>0?(timerSeconds/timerTotal)*100:100;
+  const fill=document.getElementById('timerFill');
+  fill.style.width=pct+'%';
+  fill.style.background=pct>30?'var(--green)':pct>15?'#f59e0b':'var(--red)';
+  disp.className='timer-display'+(pct<15?' danger':'');
 }
 
-function scoreDisplay(hand) {
-    const score = calcScore(hand);
-    const hasAce = hand.some(c => c.value === 'A');
-    if (hasAce && score + 10 <= 21) return { score, display: score + '/' + (score + 10) };
-    return { score, display: String(score) };
+/* BLACKJACK */
+const SUITS=['♠','♥','♦','♣'];
+const VALUES=['2','3','4','5','6','7','8','9','10','V','D','R','A'];
+const HL_MAP={'2':1,'3':1,'4':1,'5':1,'6':1,'7':0,'8':0,'9':0,'10':-1,'V':-1,'D':-1,'R':-1,'A':-1};
+let deck=[],hlCount=0,playerHand=[],dealerHand=[],hiddenCard=null,gamePhase='idle';
+let stats={win:0,lose:0,push:0};
+
+function loadStats(){try{const s=JSON.parse(localStorage.getItem('bj_stats2'));if(s)stats=s;}catch(e){}renderStats();}
+function saveStats(){try{localStorage.setItem('bj_stats2',JSON.stringify(stats));}catch(e){}}
+function renderStats(){
+  document.getElementById('statWin').textContent=stats.win;
+  document.getElementById('statLose').textContent=stats.lose;
+  const total=stats.win+stats.lose+stats.push;
+  const pct=total>0?Math.round((stats.win/total)*100):null;
+  document.getElementById('statPct').textContent=pct!==null?pct+'%':'—';
+  document.getElementById('statsWinBar').style.width=total>0?(stats.win/total)*100+'%':'0%';
+}
+function resetStats(){stats={win:0,lose:0,push:0};saveStats();renderStats();}
+function isRed(s){return s==='♥'||s==='♦';}
+function hlCls(hl){return hl>0?'plus':hl<0?'minus':'zero';}
+function hlBadge(hl){return hl>0?'+1':hl<0?'−1':'0';}
+function createDeck(){
+  const d=[];
+  for(const s of SUITS)for(const v of VALUES)d.push({suit:s,value:v,hl:HL_MAP[v]});
+  for(let i=d.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]];}
+  return d;
+}
+function calcScore(hand){
+  let score=0,aces=0;
+  for(const c of hand){
+    if(c.value==='A'){aces++;score+=11;}
+    else if(['10','V','D','R'].includes(c.value))score+=10;
+    else score+=parseInt(c.value);
+  }
+  while(score>21&&aces>0){score-=10;aces--;}
+  return score;
+}
+function scoreDisplay(hand){
+  const score=calcScore(hand);
+  const hasAce=hand.some(c=>c.value==='A');
+  if(hasAce&&score<=11)return{score,display:score+'/'+(score+10)};
+  return{score,display:String(score)};
+}
+function getMise(){
+  const tc=hlCount/Math.max(0.5,deck.length/52);
+  if(tc>=3)return{j:'3×',color:'var(--gold)',reason:'TC '+tc.toFixed(1)+' — E(G) positive'};
+  if(tc>=2)return{j:'2×',color:'var(--green)',reason:'TC '+tc.toFixed(1)+' — Favorable'};
+  if(tc>-1)return{j:'1×',color:'var(--text2)',reason:'TC '+tc.toFixed(1)+' — Neutre'};
+  return{j:'½×',color:'var(--red)',reason:'TC '+tc.toFixed(1)+' — Défavorable'};
+}
+function updateMise(){
+  const rec=getMise();
+  document.getElementById('miseValue').textContent=rec.j;
+  document.getElementById('miseValue').style.color=rec.color;
+  document.getElementById('miseReason').textContent=rec.reason;
+}
+function updateHL(){
+  const el=document.getElementById('hlCount');
+  const tcEl=document.getElementById('trueCount');
+  el.textContent=(hlCount>0?'+':'')+hlCount;
+  el.className='bsv '+(hlCount>0?'pos':hlCount<0?'neg':'neu');
+  const tc=(hlCount/Math.max(0.5,deck.length/52)).toFixed(1);
+  tcEl.textContent=(parseFloat(tc)>0?'+':'')+tc;
+  tcEl.className='bsv '+(parseFloat(tc)>0?'pos':parseFloat(tc)<0?'neg':'neu');
+  document.getElementById('remaining').textContent=deck.length;
+  const box=document.getElementById('hlBox');
+  box.classList.remove('hot','cold');
+  if(hlCount>=2)box.classList.add('hot');
+  if(hlCount<=-2)box.classList.add('cold');
+  updateHLAdvice();updateMise();
+}
+function updateHLAdvice(){
+  const el=document.getElementById('hlAdvice');
+  const icon=document.getElementById('hlAdvIcon');
+  const txt=document.getElementById('hlAdvText');
+  const tc=hlCount/Math.max(0.5,deck.length/52);
+  const set=(cls,ic,html)=>{el.className='mp-adv '+cls;icon.textContent=ic;txt.innerHTML=html;};
+  if(hlCount===0&&deck.length>=50){set('neu','⚪','En attente…');return;}
+  if(gamePhase==='playerTurn'&&playerHand.length>0){
+    const ps=calcScore(playerHand);
+    const sd=scoreDisplay(playerHand);
+    if(ps>=18){set('neu','🛑','Vous avez <strong>'+sd.display+'</strong> — restez.');return;}
+    if(ps<=11||sd.display.includes('/')){set('fav','✅','<strong>'+ps+'</strong> — tirer sans risque.');return;}
+    if(tc>=2)set('unf','⚠️','<strong>'+ps+'</strong> et TC +'+tc.toFixed(1)+' — tirer risqué.');
+    else if(tc<=-1)set('fav','✅','<strong>'+ps+'</strong> et TC '+tc.toFixed(1)+' — peu de grosses cartes.');
+    else set('neu','⚖️','<strong>'+ps+'</strong>. Compte neutre.');
+    return;
+  }
+  if(tc>=3)set('fav','🔥','TC +'+tc.toFixed(1)+' — Beaucoup de 10/As. <strong>Misez plus !</strong>');
+  else if(tc>=1)set('fav','✅','TC +'+tc.toFixed(1)+' — Favorable.');
+  else if(tc<=-3)set('unf','❄️','TC '+tc.toFixed(1)+' — Très défavorable.');
+  else if(tc<=-1)set('unf','⚠️','TC '+tc.toFixed(1)+' — Défavorable.');
+  else set('neu','⚖️','TC '+((hlCount>=0?'+':'')+hlCount)+' — Équilibré.');
+}
+function makeCardEl(card,hidden){
+  if(hidden){const d=document.createElement('div');d.className='card-hidden';d.id='hiddenCardEl';return d;}
+  const d=document.createElement('div');
+  d.className='card-anim'+(isRed(card.suit)?' red':'');
+  d.innerHTML='<div class="suit">'+card.suit+'</div><div class="val">'+card.value+'</div><div class="hlb '+hlCls(card.hl)+'">'+hlBadge(card.hl)+'</div>';
+  return d;
+}
+function addHistory(card,who,hidden){
+  const list=document.getElementById('historyList');
+  const item=document.createElement('div');item.className='history-item';
+  const cc=hlCount>0?'pos':hlCount<0?'neg':'neu';
+  item.innerHTML='<div class="mini-card'+(isRed(card.suit)?' red':'')+'">'+card.value+card.suit+'</div>'
+    +'<div class="hl-dot '+hlCls(card.hl)+'">'+hlBadge(card.hl)+'</div>'
+    +'<span class="who">'+who+(hidden?' (cachée)':'')+'</span>'
+    +'<span class="count-val '+cc+'">C='+(hlCount>0?'+':'')+hlCount+'</span>';
+  list.insertBefore(item,list.firstChild);
+}
+function drawCard(){if(!deck.length)return null;const c=deck.pop();hlCount+=c.hl;updateHL();return c;}
+function placeCard(card,container,hidden){container.appendChild(makeCardEl(card,hidden));}
+function setMsg(text,type){const el=document.getElementById('msgText');el.textContent=text;el.className='mp-msg '+(type||'');}
+function updateScores(){
+  const p=scoreDisplay(playerHand);
+  const pEl=document.getElementById('playerScore');
+  pEl.textContent=p.display;pEl.className='hs';
+  if(p.score>21)pEl.classList.add('bust');
+  else if(p.score===21&&playerHand.length===2)pEl.classList.add('bj');
+  const dEl=document.getElementById('dealerScore');
+  if(hiddenCard&&gamePhase!=='ended'&&gamePhase!=='dealerTurn'){
+    const vis=dealerHand.filter(c=>c!==hiddenCard);
+    const v=scoreDisplay(vis);
+    dEl.textContent=(vis.length?v.display:'0')+' + ?';dEl.className='hs';
+  }else{
+    const d=scoreDisplay(dealerHand);
+    dEl.textContent=d.display;dEl.className='hs';
+    if(d.score>21)dEl.classList.add('bust');
+    else if(d.score===21&&dealerHand.length===2)dEl.classList.add('bj');
+    else if(gamePhase==='ended'&&d.score>=17)dEl.classList.add('stand');
+  }
+}
+function setControls(mode){
+  const c=document.getElementById('simControls');
+  if(mode==='player'){
+    c.innerHTML='<button class="btn btn-hit" id="btnHit">Tirer</button><button class="btn btn-stand" id="btnStand">Rester</button>';
+    document.getElementById('btnHit').addEventListener('click',playerHit);
+    document.getElementById('btnStand').addEventListener('click',playerStand);
+  }else{
+    const ok=deck.length>=10;
+    c.innerHTML='<button class="btn btn-deal" id="btnDeal"'+(ok?'':' disabled')+'>'+(ok?'Distribuer':'Mélanger')+'</button><button class="btn btn-reset" id="btnReset">Nouveau sabot</button>';
+    document.getElementById('btnDeal').addEventListener('click',startGame);
+    document.getElementById('btnReset').addEventListener('click',resetAll);
+  }
+}
+function startGame(){
+  if(gamePhase==='dealing')return;
+  if(deck.length<10){deck=createDeck();hlCount=0;document.getElementById('historyList').innerHTML='';setMsg('Nouveau sabot (52 cartes)','');updateHL();return;}
+  const rec=getMise();
+  playerHand=[];dealerHand=[];hiddenCard=null;gamePhase='dealing';
+  ['playerCards','dealerCards'].forEach(id=>document.getElementById(id).innerHTML='');
+  ['playerScore','dealerScore'].forEach(id=>{document.getElementById(id).className='hs';document.getElementById(id).textContent='—';});
+  setMsg('Mise conseillée : '+rec.j+' — Distribution…','');
+  const pC=document.getElementById('playerCards'),dC=document.getElementById('dealerCards');
+  setTimeout(()=>{const c=drawCard();playerHand.push(c);placeCard(c,pC,false);addHistory(c,'Vous',false);updateScores();},300);
+  setTimeout(()=>{const c=drawCard();hiddenCard=c;dealerHand.push(c);placeCard(c,dC,true);addHistory(c,'Croupier',true);updateScores();},800);
+  setTimeout(()=>{const c=drawCard();playerHand.push(c);placeCard(c,pC,false);addHistory(c,'Vous',false);updateScores();},1300);
+  setTimeout(()=>{const c=drawCard();dealerHand.push(c);placeCard(c,dC,false);addHistory(c,'Croupier',false);updateScores();afterDeal();},1800);
+}
+function afterDeal(){
+  const ps=calcScore(playerHand);
+  if(ps===21){revealHidden();setTimeout(()=>endGame('blackjack'),700);return;}
+  gamePhase='playerTurn';
+  const dv=dealerHand.find(c=>c!==hiddenCard);
+  setMsg('Vous : '+ps+' — Croupier : '+(dv?calcScore([dv]):0)+'. Carte ou Rester ?','');
+  updateHLAdvice();setControls('player');
+}
+function revealHidden(){
+  const el=document.getElementById('hiddenCardEl');
+  if(!el||!hiddenCard)return;
+  el.style.animation='flipReveal 0.7s ease forwards';
+  setTimeout(()=>{const n=makeCardEl(hiddenCard,false);n.style.opacity='1';n.style.transform='none';n.style.animation='none';el.replaceWith(n);hiddenCard=null;updateScores();},350);
+}
+function playerHit(){
+  if(gamePhase!=='playerTurn')return;
+  const c=drawCard();playerHand.push(c);placeCard(c,document.getElementById('playerCards'),false);
+  addHistory(c,'Vous',false);updateScores();
+  const s=calcScore(playerHand);
+  if(s>21){setMsg(s+' — VOUS BRÛLEZ !','lose');revealHidden();setTimeout(()=>endGame('bust'),600);}
+  else if(s===21){setMsg('21 ! Vous restez.','');setTimeout(playerStand,600);}
+  else{setMsg('Vous avez '+scoreDisplay(playerHand).display+'. Encore ?','');updateHLAdvice();}
+}
+function playerStand(){
+  if(gamePhase!=='playerTurn')return;
+  gamePhase='dealerTurn';
+  setMsg('Vous restez. Le croupier révèle…','');
+  revealHidden();setTimeout(dealerTurn,1000);
+}
+function dealerTurn(){
+  if(gamePhase!=='dealerTurn')return;
+  updateScores();const s=calcScore(dealerHand);
+  if(s>21){setMsg('Croupier brûle ('+s+') ! GAGNÉ !','win');endGame('dealerBust');return;}
+  if(s<17){
+    setMsg('Croupier '+s+' (< 17) — Il tire…','');
+    setTimeout(()=>{
+      if(gamePhase!=='dealerTurn')return;
+      const c=drawCard();dealerHand.push(c);placeCard(c,document.getElementById('dealerCards'),false);
+      addHistory(c,'Croupier',false);updateScores();dealerTurn();
+    },1200);
+  }else{setMsg('Croupier reste à '+s+' (≥ 17).','');setTimeout(determineWinner,800);}
+}
+function determineWinner(){
+  const p=calcScore(playerHand),d=calcScore(dealerHand);
+  if(p>21)endGame('bust','Vous brûlez ('+p+'). PERDU.');
+  else if(d>21)endGame('dealerBust','Croupier brûle ('+d+') ! GAGNÉ !');
+  else if(p>d)endGame('win','Vous '+p+' vs '+d+'. GAGNÉ !');
+  else if(p<d)endGame('lose','Vous '+p+' vs '+d+'. PERDU.');
+  else endGame('push','ÉGALITÉ à '+p+' — PUSH.');
+}
+function endGame(result,msg){
+  gamePhase='ended';updateScores();
+  const msgs={blackjack:'BLACKJACK ! Victoire !',bust:'Vous brûlez — PERDU.',dealerBust:'Croupier brûle — GAGNÉ !',win:'Vous gagnez !',lose:'Vous perdez.',push:'Égalité. Push.'};
+  const m=msg||msgs[result]||'';
+  const wins=new Set(['win','blackjack','dealerBust']);
+  const loses=new Set(['lose','bust']);
+  setMsg(m,wins.has(result)?'win':loses.has(result)?'lose':'push');
+  updateHLAdvice();updateMise();setControls('ended');
+  if(wins.has(result))stats.win++;
+  else if(loses.has(result))stats.lose++;
+  else stats.push++;
+  saveStats();renderStats();
+}
+function resetAll(){
+  deck=createDeck();hlCount=0;playerHand=[];dealerHand=[];hiddenCard=null;gamePhase='idle';
+  ['playerCards','dealerCards'].forEach(id=>document.getElementById(id).innerHTML='');
+  ['playerScore','dealerScore'].forEach(id=>{document.getElementById(id).textContent='—';document.getElementById(id).className='hs';});
+  document.getElementById('historyList').innerHTML='';
+  updateHL();setMsg('Nouveau sabot — 52 cartes. Prêt !','');setControls('ended');
 }
 
-function updateHL() {
-    const el = document.getElementById('hlCount');
-    const tcEl = document.getElementById('trueCount');
-    const remEl = document.getElementById('remaining');
-    const box = document.getElementById('hlBox');
-
-    el.classList.add('pop');
-    setTimeout(() => el.classList.remove('pop'), 300);
-    el.textContent = (hlCount > 0 ? '+' : '') + hlCount;
-    el.className = 'bs-val ' + (hlCount > 0 ? 'pos' : hlCount < 0 ? 'neg' : 'neu');
-
-    const decksRem = Math.max(0.5, deck.length / 52);
-    const tc = (hlCount / decksRem).toFixed(1);
-    tcEl.textContent = (parseFloat(tc) > 0 ? '+' : '') + tc;
-    tcEl.className = 'bs-val ' + (parseFloat(tc) > 0 ? 'pos' : parseFloat(tc) < 0 ? 'neg' : 'neu');
-    remEl.textContent = deck.length;
-    box.classList.remove('hot','cold');
-    if (hlCount >= 2) box.classList.add('hot');
-    if (hlCount <= -2) box.classList.add('cold');
-    updateHLAdvice();
-}
-
-function updateHLAdvice() {
-    const el = document.getElementById('hlAdvice');
-    const icon = document.getElementById('hlAdvIcon');
-    const txt = document.getElementById('hlAdvText');
-    const tc = hlCount / Math.max(0.5, deck.length / 52);
-
-    const pScore = playerHand.length > 0 ? calcScore(playerHand) : null;
-    const hasSoftHand = playerHand.length > 0 && scoreDisplay(playerHand).display.includes('/');
-
-    const set = (cls, ic, html) => {
-        el.className = 'mp-advice ' + cls;
-        icon.textContent = ic;
-        txt.innerHTML = html;
-    };
-
-    if (hlCount === 0 && deck.length >= 50) { set('neutr','⚪','En attente de la première carte…'); return; }
-
-    if (gamePhase === 'playerTurn' && pScore !== null) {
-        if (pScore >= 18) { set('neutr','🛑','Vous avez <strong>' + scoreDisplay(playerHand).display + '</strong> — restez, le HL ne change rien à ce score.'); return; }
-        if (pScore === 17) { set('neutr','⚠️','<strong>17</strong> — tirer est statistiquement mauvais quel que soit le HL.'); return; }
-        if (pScore <= 11 || hasSoftHand) {
-            const extra = tc >= 2 ? ' Compte élevé : bonnes chances de tomber sur un 10.' : '';
-            set('favor','✅', hasSoftHand
-                ? 'Main <strong>soft</strong> (' + scoreDisplay(playerHand).display + ') — tirer sans risque de brûler.'
-                : '<strong>' + pScore + '</strong> — impossible de brûler en tirant.' + extra);
-            return;
-        }
-        // 12-16 : zone de décision, le HL compte vraiment
-        if (tc >= 2)       { set('unfav','⚠️','Vous avez <strong>' + pScore + '</strong> et TC +' + tc.toFixed(1) + ' — beaucoup de 10 restants, tirer est <strong>très risqué</strong>.'); }
-        else if (tc <= -1) { set('favor','✅','Vous avez <strong>' + pScore + '</strong> et TC ' + tc.toFixed(1) + ' — peu de grosses cartes. Tirer est <strong>moins risqué</strong>.'); }
-        else               { set('neutr','⚖️','Vous avez <strong>' + pScore + '</strong>. Compte neutre (TC ' + tc.toFixed(1) + ') — stratégie de base standard.'); }
-        return;
-    }
-
-    // Hors tour joueur : conseil mise
-    if      (tc >= 3)  set('favor','🔥','TC +' + tc.toFixed(1) + ' — Beaucoup de 10/As restants. <strong>Misez davantage !</strong>');
-    else if (tc >= 1)  set('favor','✅','TC +' + tc.toFixed(1) + ' — Favorable. Vous pouvez miser plus.');
-    else if (tc <= -3) set('unfav','❄️','TC ' + tc.toFixed(1) + ' — Très défavorable. Misez le minimum.');
-    else if (tc <= -1) set('unfav','⚠️','TC ' + tc.toFixed(1) + ' — Défavorable. Misez moins.');
-    else               set('neutr','⚖️','TC ' + ((hlCount>=0?'+':'') + hlCount) + ' — Composition équilibrée.');
-}
-
-function makeCardEl(card, hidden) {
-    if (hidden) {
-        const d = document.createElement('div');
-        d.className = 'card-hidden'; d.id = 'hiddenCardEl'; return d;
-    }
-    const d = document.createElement('div');
-    d.className = 'card-anim' + (isRed(card.suit) ? ' red' : '');
-    d.innerHTML = '<div class="suit">' + card.suit + '</div><div class="val">' + card.value + '</div><div class="hl-badge ' + hlCls(card.hl) + '">' + hlBadge(card.hl) + '</div>';
-    return d;
-}
-
-function addHistory(card, who, hidden) {
-    const list = document.getElementById('historyList');
-    const item = document.createElement('div');
-    item.className = 'history-item';
-    const cc = hlCount > 0 ? 'pos' : hlCount < 0 ? 'neg' : 'neu';
-    item.innerHTML =
-        '<div class="mini-card' + (isRed(card.suit) ? ' red' : '') + '">' + card.value + card.suit + '</div>' +
-        '<div class="hl-dot ' + hlCls(card.hl) + '">' + hlBadge(card.hl) + '</div>' +
-        '<span class="who">' + who + (hidden ? ' (cachée)' : '') + '</span>' +
-        '<span class="count-val ' + cc + '">C=' + hlCount + '</span>';
-    list.insertBefore(item, list.firstChild);
-}
-
-function setMsg(text, type) {
-    const el = document.getElementById('msgText');
-    el.textContent = text;
-    el.className = 'mp-msg ' + (type || 'info');
-}
-function setPhase(text) { /* absorbed into setMsg — kept for compat */ }
-function showExplain(html) { /* merged into mp-advice / updateHLAdvice — kept for compat */ }
-
-function updateScores() {
-    const p = scoreDisplay(playerHand);
-    const pEl = document.getElementById('playerScore');
-    pEl.textContent = p.display; pEl.className = 'hand-score';
-    if (p.score > 21) pEl.classList.add('bust');
-    else if (p.score === 21 && playerHand.length === 2) pEl.classList.add('blackjack');
-
-    const dEl = document.getElementById('dealerScore');
-    if (hiddenCard && gamePhase !== 'ended' && gamePhase !== 'dealerTurn') {
-        const visible = dealerHand.filter(c => c !== hiddenCard);
-        const vis = scoreDisplay(visible);
-        dEl.textContent = (visible.length ? vis.display : '0') + ' + ?';
-        dEl.className = 'hand-score';
-    } else {
-        const d = scoreDisplay(dealerHand);
-        dEl.textContent = d.display; dEl.className = 'hand-score';
-        if (d.score > 21) dEl.classList.add('bust');
-        else if (d.score === 21 && dealerHand.length === 2) dEl.classList.add('blackjack');
-        else if (gamePhase === 'ended' && d.score >= 17) dEl.classList.add('stand');
-    }
-}
-
-function setControls(mode) {
-    const c = document.getElementById('simControls');
-    if (mode === 'player') {
-        c.innerHTML = '<button class="btn btn-hit" id="btnHit">Tirer une carte</button><button class="btn btn-stand" id="btnStand">Rester</button>';
-        document.getElementById('btnHit').addEventListener('click', playerHit);
-        document.getElementById('btnStand').addEventListener('click', playerStand);
-    } else {
-        const canDeal = deck.length >= 10;
-        c.innerHTML = '<button class="btn btn-deal" id="btnDeal"' + (canDeal ? '' : ' disabled') + '>' + (canDeal ? 'Distribuer' : 'Mélanger requis') + '</button><button class="btn btn-reset" id="btnReset">Nouveau sabot</button>';
-        document.getElementById('btnDeal').addEventListener('click', startGame);
-        document.getElementById('btnReset').addEventListener('click', resetAll);
-    }
-}
-
-function drawCard() {
-    if (deck.length === 0) return null;
-    const card = deck.pop();
-    hlCount += card.hl;
-    updateHL();
-    return card;
-}
-
-function placeCard(card, container, hidden) {
-    container.appendChild(makeCardEl(card, hidden));
-}
-
-function startGame() {
-    if (gamePhase === 'dealing') return;
-    if (deck.length < 10) {
-        deck = createDeck(); hlCount = 0;
-        document.getElementById('historyList').innerHTML = '';
-        setMsg('Nouveau sabot mélangé (52 cartes)', 'info'); updateHL(); return;
-    }
-    playerHand = []; dealerHand = []; hiddenCard = null; gamePhase = 'dealing';
-    document.getElementById('playerCards').innerHTML = '';
-    document.getElementById('dealerCards').innerHTML = '';
-    document.getElementById('playerScore').className = 'hand-score';
-    document.getElementById('playerScore').textContent = '—';
-    document.getElementById('dealerScore').className = 'hand-score';
-    document.getElementById('dealerScore').textContent = '—';
-    setMsg('Distribution en cours…', 'info');
-
-    const pC = document.getElementById('playerCards');
-    const dC = document.getElementById('dealerCards');
-
-    setTimeout(() => { const c = drawCard(); playerHand.push(c); placeCard(c, pC, false); addHistory(c,'Vous',false); updateScores(); }, 300);
-    setTimeout(() => { const c = drawCard(); hiddenCard = c; dealerHand.push(c); placeCard(c, dC, true); addHistory(c,'Croupier',true); updateScores(); }, 800);
-    setTimeout(() => { const c = drawCard(); playerHand.push(c); placeCard(c, pC, false); addHistory(c,'Vous',false); updateScores(); }, 1300);
-    setTimeout(() => { const c = drawCard(); dealerHand.push(c); placeCard(c, dC, false); addHistory(c,'Croupier',false); updateScores(); afterDeal(); }, 1800);
-}
-
-function afterDeal() {
-    const pScore = calcScore(playerHand);
-    if (pScore === 21) { revealHidden(); setTimeout(() => endGame('blackjack'), 700); return; }
-    gamePhase = 'playerTurn';
-    const dVisible = dealerHand.find(c => c !== hiddenCard);
-    const dVis = dVisible ? calcScore([dVisible]) : 0;
-    setMsg('Vous avez ' + pScore + ' — Croupier montre ' + dVis + '. Carte ou Rester ?', 'info');
-    updateHLAdvice();
-    setControls('player');
-}
-
-function revealHidden() {
-    const hiddenEl = document.getElementById('hiddenCardEl');
-    if (!hiddenEl || !hiddenCard) return;
-    hiddenEl.style.animation = 'flipReveal 0.7s ease forwards';
-    setTimeout(() => {
-        const newEl = makeCardEl(hiddenCard, false);
-        newEl.style.opacity = '1'; newEl.style.transform = 'none'; newEl.style.animation = 'none';
-        hiddenEl.replaceWith(newEl); hiddenCard = null; updateScores();
-    }, 350);
-}
-
-function playerHit() {
-    if (gamePhase !== 'playerTurn') return;
-    const card = drawCard();
-    playerHand.push(card);
-    placeCard(card, document.getElementById('playerCards'), false);
-    addHistory(card, 'Vous', false); updateScores();
-    const score = calcScore(playerHand);
-    if (score > 21) {
-        setMsg(score + ' — VOUS BRÛLEZ !', 'lose');
-        revealHidden(); setTimeout(() => endGame('bust'), 600);
-    } else if (score === 21) {
-        setMsg('21 ! Vous restez automatiquement.', 'info'); setTimeout(playerStand, 600);
-    } else {
-        const sd = scoreDisplay(playerHand);
-        setMsg('Vous avez ' + sd.display + '. Encore une carte ?', 'info');
-        updateHLAdvice();
-    }
-}
-
-function playerStand() {
-    if (gamePhase !== 'playerTurn') return;
-    gamePhase = 'dealerTurn';
-    setPhase('Tour du croupier');
-    setMsg('Vous restez. Le croupier révèle sa carte cachée…', 'info');
-    revealHidden(); setTimeout(dealerTurn, 1000);
-}
-
-function dealerTurn() {
-    if (gamePhase !== 'dealerTurn') return;
-    updateScores();
-    const score = calcScore(dealerHand);
-    if (score > 21) { setMsg('Le croupier brûle avec ' + score + ' ! VOUS GAGNEZ !', 'win'); endGame('dealerBust'); return; }
-    if (score < 17) {
-        setMsg('Croupier a ' + score + ' (< 17) — Il tire une carte…', 'info');
-        setTimeout(() => {
-            if (gamePhase !== 'dealerTurn') return;
-            const card = drawCard(); dealerHand.push(card);
-            placeCard(card, document.getElementById('dealerCards'), false);
-            addHistory(card, 'Croupier', false); updateScores(); dealerTurn();
-        }, 1200);
-    } else {
-        setMsg('Croupier reste à ' + score + ' (≥ 17).', 'info');
-        setTimeout(determineWinner, 800);
-    }
-}
-
-function determineWinner() {
-    const p = calcScore(playerHand), d = calcScore(dealerHand);
-    if      (p > 21) endGame('bust',       'Vous avez ' + p + ', vous brûlez. PERDU.');
-    else if (d > 21) endGame('dealerBust', 'Croupier brûle avec ' + d + ' ! GAGNÉ !');
-    else if (p > d)  endGame('win',        'Vous ' + p + ' vs Croupier ' + d + '. VOUS GAGNEZ !');
-    else if (p < d)  endGame('lose',       'Vous ' + p + ' vs Croupier ' + d + '. PERDU.');
-    else             endGame('push',       'ÉGALITÉ à ' + p + ' points. PUSH.');
-}
-
-function endGame(result, customMsg) {
-    gamePhase = 'ended'; updateScores();
-    const msgs = { blackjack:'BLACKJACK ! Victoire immédiate !', bust:'Vous brûlez — PERDU.', dealerBust:'Le croupier brûle — GAGNÉ !', win:'Vous gagnez !', lose:'Vous perdez.', push:'Égalité. Push.' };
-    const msg = customMsg || msgs[result] || '';
-    const winSet = new Set(['win','blackjack','dealerBust']);
-    const loseSet = new Set(['lose','bust']);
-    setMsg(msg, winSet.has(result) ? 'win' : loseSet.has(result) ? 'lose' : 'push');
-    updateHLAdvice(); // affiche le conseil mise pour la prochaine manche
-    setControls('ended');
-    if (winSet.has(result))       { stats.win++;  }
-    else if (loseSet.has(result)) { stats.lose++; }
-    else                          { stats.push++; }
-    saveStats(); renderStats();
-}
-
-function resetAll() {
-    deck = createDeck(); hlCount = 0;
-    playerHand = []; dealerHand = []; hiddenCard = null; gamePhase = 'idle';
-    document.getElementById('playerCards').innerHTML = '';
-    document.getElementById('dealerCards').innerHTML = '';
-    document.getElementById('historyList').innerHTML = '';
-    document.getElementById('playerScore').textContent = '—'; document.getElementById('playerScore').className = 'hand-score';
-    document.getElementById('dealerScore').textContent = '—'; document.getElementById('dealerScore').className = 'hand-score';
-    updateHL();
-    setMsg('Nouveau sabot — 52 cartes mélangées. Prêt !', 'info');
-    setControls('ended');
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    loadStats();
-    document.getElementById('btnResetStats').addEventListener('click', () => {
-        if (confirm('Remettre toutes les stats à zéro ?')) resetStats();
-    });
-    resetAll();
+document.addEventListener('DOMContentLoaded',()=>{
+  loadStats();
+  document.getElementById('btnResetStats').addEventListener('click',()=>{if(confirm('Remettre les stats à zéro ?'))resetStats();});
+  resetAll();
+  updateTimerDisplay();
 });
 </script>
 </body>
